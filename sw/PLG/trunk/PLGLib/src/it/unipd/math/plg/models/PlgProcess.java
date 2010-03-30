@@ -10,6 +10,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.processmining.converting.HNetToPetriNetConverter;
+import org.processmining.framework.models.heuristics.HNSubSet;
 import org.processmining.framework.models.heuristics.HeuristicsNet;
 import org.processmining.framework.models.petrinet.PetriNet;
 import org.processmining.framework.plugin.ProvidedObject;
@@ -40,15 +41,6 @@ public class PlgProcess {
 	/** This is the random number generator */
 	public static Random generator = new Random();
 	
-	private String name;
-	private PlgActivity firstActivity = null;
-	private PlgActivity lastActivity = null;
-	private Vector<PlgActivity> activityList = null;
-	private int activityGenerator = 'A' - 1;
-	private HeuristicsNet heuristicsNet = null;
-	private int maxDepth = 0;
-	private HashMap<COUNTER_TYPES, Integer> statsCounter;
-	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
 	 * process entities
@@ -70,8 +62,17 @@ public class PlgProcess {
 		MAX_XOR_BRANCHES,
 		/** This indicates the number of empty patter */
 		EMPTY
-	}
-
+	};
+	
+	private String name;
+	private PlgActivity firstActivity = null;
+	private PlgActivity lastActivity = null;
+	private Vector<PlgActivity> activityList = null;
+	private int activityGenerator = 'A' - 1;
+	private HeuristicsNet heuristicsNet = null;
+	private int maxDepth = 0;
+	private HashMap<COUNTER_TYPES, Integer> statsCounter;
+	
 	
 	/**
 	 * Default class constructor
@@ -386,6 +387,39 @@ public class PlgProcess {
 		HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
 		PetriNet petri = ((PetriNetResult) converter.convert(po)).getPetriNet();
 		return petri;
+	}
+	
+	
+	/**
+	 * This method to convert a Heuristics Net into an adjacency matrix
+	 * 
+	 * @see PlgProcess#getActivityList()
+	 * @param hn the Heuristics Net to convert
+	 * @return a boolean matrix where, the cell (i,j) contains true if there is
+	 * a connection from activity i to j
+	 */
+	public static boolean[][] heuristicsNetToAdjacencyMatrix(HeuristicsNet hn) {
+		int activityCounter = hn.size();
+		boolean[][] adjacencyMatrix = new boolean[activityCounter][activityCounter];
+		for (int i = 0; i < activityCounter; i++) {
+			HNSubSet subset = hn.getAllElementsOutputSet(i);
+			for (int j = 0; j < subset.size(); j++) {
+				adjacencyMatrix[i][subset.get(j)] = true;
+			}
+		}
+		return adjacencyMatrix;
+	}
+	
+	
+	/**
+	 * This method returns the adjacency matrix for the current process
+	 * 
+	 * @see PlgProcess#heuristicsNetToAdjacencyMatrix(HeuristicsNet)
+	 * @return a boolean matrix where, the cell (i,j) contains true if there is
+	 * a connection from activity i to j
+	 */
+	public boolean[][] getAdjacencyMatrix() {
+		return heuristicsNetToAdjacencyMatrix(getHeuristicsNet());
 	}
 	
 	
