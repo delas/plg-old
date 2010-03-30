@@ -256,30 +256,40 @@ public class PlgProcess {
 		while (cases-- > 0) {
 			Vector<PlgObservation> v = firstActivity.generateInstance(0);
 			for (int i = 0; i < v.size(); i ++) {
-				if (generator.nextInt(100) < percentErrors) {
+				if (randomFromPercent(percentErrors)) {
 					/* There must be an error! In this context, an error is the
-					 * swap between two activities' times
+					 * swap between two activities' times or the deletion of a
+					 * log trace
 					 */
-					PlgObservation o1 = v.get(i);
-					int randomIndex;
-					do {
-						randomIndex = generator.nextInt(v.size());
-					} while (randomIndex != i);
-					PlgObservation o2 = v.get(randomIndex);
-					// swap starting time
-					int o1StartingTime = o1.getStartingTime();
-					o1.setStartingTime(o2.getStartingTime());
-					o2.setStartingTime(o1StartingTime);
+//					if (generator.nextBoolean()) {
+						// swap time
+						PlgObservation o1 = v.get(i);
+						int randomIndex;
+						do {
+							randomIndex = generator.nextInt(v.size());
+						} while (randomIndex == i);
+						PlgObservation o2 = v.get(randomIndex);
+						// swap starting time
+						int o1StartingTime = o1.getStartingTime();
+						o1.setStartingTime(o2.getStartingTime());
+						o2.setStartingTime(o1StartingTime);
+//					} else {
+						// delete action, just mark this, and delete them when
+						// the whole loop is completed!
+//						v.set(i, null);
+//					}
 				}
 				PlgObservation o = v.get(i);
-				String processName = o.getActivity().getProcess().getName();
-				String caseId = "instance_" + cases;
-				boolean asInterval = generator.nextInt(101) <= percentAsInterval;
-				Process proc = logSet.getProcess(processName);
-				ProcessInstance pi = proc.getProcessInstance(caseId, ProcessInstanceType.ENACTMENT_LOG);
-				AuditTrailEntry[] ate = o.getAuditTrailEntry(asInterval);
-				pi.addAuditTrailEntry(ate[0]);
-				pi.addAuditTrailEntry(ate[1]);
+//				if (o != null) {
+					String processName = o.getActivity().getProcess().getName();
+					String caseId = "instance_" + cases;
+					boolean asInterval = generator.nextInt(101) <= percentAsInterval;
+					Process proc = logSet.getProcess(processName);
+					ProcessInstance pi = proc.getProcessInstance(caseId, ProcessInstanceType.ENACTMENT_LOG);
+					AuditTrailEntry[] ate = o.getAuditTrailEntry(asInterval);
+					pi.addAuditTrailEntry(ate[0]);
+					pi.addAuditTrailEntry(ate[1]);
+//				}
 			}
 		}
 		
@@ -314,7 +324,7 @@ public class PlgProcess {
 	 * @throws LogException
 	 */
 	public void saveAsNewLog(String filename, int cases) throws IOException, LogException {
-		saveAsNewLog(filename, cases, 100);
+		saveAsNewLog(filename, cases, 100, 0);
 	}
 	
 	
