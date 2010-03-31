@@ -1,5 +1,8 @@
 package it.unipd.math.plg.models;
 
+import it.unipd.math.plg.metrics.PlgMetricCalculator;
+import it.unipd.math.plg.metrics.PlgProcessMeasures;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -70,6 +73,7 @@ public class PlgProcess {
 	private Vector<PlgActivity> activityList = null;
 	private int activityGenerator = 'A' - 1;
 	private HeuristicsNet heuristicsNet = null;
+	private PetriNet petriNet = null;
 	private int maxDepth = 0;
 	private HashMap<COUNTER_TYPES, Integer> statsCounter;
 	
@@ -199,8 +203,6 @@ public class PlgProcess {
 		} else if (lastActivity == null) {
 			setLastActivity(a);
 		}
-		// refresh heuristics net
-		heuristicsNet = null;
 		
 		return a;
 	}
@@ -329,12 +331,24 @@ public class PlgProcess {
 	
 	
 	/**
+	 * This method cleans the cache for the process models (both the Heuristics
+	 * Net and the Petri Net). Usually there is no need to call this method,
+	 * since the cache refresh is automatic.
+	 */
+	public void cleanModelCache() {
+		// refresh heuristics net
+		heuristicsNet = null;
+		petriNet = null;
+	}
+	
+	
+	/**
 	 * This method returns the Heuristics Net associated to the process
 	 * 
 	 * @return the Heuristics Net associated to the process
 	 */
 	public HeuristicsNet getHeuristicsNet() {
-		
+		// check the object in the cache
 		if (heuristicsNet != null) {
 			return heuristicsNet;
 		}
@@ -393,10 +407,15 @@ public class PlgProcess {
 	 * @throws IOException
 	 */
 	public PetriNet getPetriNet() throws IOException {
+		// check the object in the cache
+		if (petriNet != null) {
+			return petriNet;
+		}
+		
 		ProvidedObject po = new ProvidedObject("net", getHeuristicsNet());
 		HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
-		PetriNet petri = ((PetriNetResult) converter.convert(po)).getPetriNet();
-		return petri;
+		petriNet = ((PetriNetResult) converter.convert(po)).getPetriNet();
+		return petriNet;
 	}
 	
 	
@@ -983,5 +1002,27 @@ public class PlgProcess {
 		return to;
 	}
 	
+	/* ********************************************************************** */
+	
+	
+	/* ********************************************************************** */
+	/*                           Metric calculation                           */
+	/* ********************************************************************** */
+	/**
+	 * This method builds the default metric of the process
+	 * 
+	 * @see PlgMetricCalculator
+	 * @return the object that collect all the metric values of the process
+	 * @throws IOException
+	 */
+	public PlgProcessMeasures getProcessMeasures() throws IOException {
+		PlgMetricCalculator calculator = new PlgMetricCalculator(this);
+		try {
+			return calculator.calculate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/* ********************************************************************** */
 }

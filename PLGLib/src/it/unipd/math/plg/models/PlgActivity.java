@@ -18,7 +18,7 @@ import java.util.Vector;
  * relation).
  * 
  * @author Andrea Burattin
- * @version 0.2
+ * @version 0.3
  */
 public class PlgActivity {
 
@@ -199,6 +199,8 @@ public class PlgActivity {
 		} else {
 			toReturn = addRelation(RELATIONS.SEQUENCE, destination);
 		}
+		// process cache cleaning
+		process.cleanModelCache();
 		return toReturn;
 	}
 	
@@ -260,6 +262,7 @@ public class PlgActivity {
 	public PlgActivity inAndUntil(PlgActivity destination) {
 		return addRelation(RELATIONS.AND_SPLIT, destination);
 	}
+	
 	
 	/**
 	 * Checks if the current activity is a XOR-join
