@@ -1,11 +1,27 @@
 package it.unipd.math.plg.test;
 
+import it.unipd.math.plg.metrics.PlgProcessMeasures;
+import it.unipd.math.plg.models.PlgActivity;
 import it.unipd.math.plg.models.PlgObservation;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
+import org.processmining.analysis.petrinet.structuredness.*;
+import org.processmining.framework.models.ModelGraphVertex;
+import org.processmining.framework.models.bpel.util.Pair;
+import org.processmining.framework.models.bpel.util.Quadruple;
+import org.processmining.framework.models.petrinet.Marking;
+import org.processmining.framework.models.petrinet.PetriNet;
+import org.processmining.framework.models.petrinet.Place;
+import org.processmining.framework.models.petrinet.State;
+import org.processmining.framework.models.petrinet.StateSpace;
+import org.processmining.framework.models.petrinet.algorithms.CoverabilityGraphBuilder;
+import org.processmining.framework.models.petrinet.algorithms.InitialPlaceMarker;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+
+import org.processmining.lib.mxml.LogException;
 
 /**
  * Test case class
@@ -95,17 +111,39 @@ public class PlgTest {
 			
 			/* *****************************************************************
 			 *
-			 * A -> B -> C -> D -> E
+			 * A -> B -> C -> D
 			 * `----'
 			 */
-			/*PlgActivity A = p.askNewActivity();
-			PlgActivity B = p.askNewActivity();
-			PlgActivity C = p.askNewActivity();
-			A.addNext(B).addNext(C);
-			B.addLoop(A);*/
-
+//			PlgActivity A = p.askNewActivity();
+//			PlgActivity B = p.askNewActivity();
+//			PlgActivity C = p.askNewActivity();
+//			PlgActivity D = p.askNewActivity();
+//			A.addNext(B).addNext(C).addNext(D);
+//			C.addLoop(A);
 			
+			
+//			PlgActivity A = p.askNewActivity();
+//			PlgActivity B = p.askNewActivity();
+//			PlgActivity C = p.askNewActivity();
+//			PlgActivity D = p.askNewActivity();
+//			PlgActivity E = p.askNewActivity();
+//			A.addNext(B).addNext(C);
+//			A.inAndUntil(E);
+//			A.addNext(B).addNext(E);
+//			A.addNext(C).addNext(E);
+//			A.addNext(D).addNext(E);
+//			B.addLoop(B);
+
 			p.randomize(3);
+			
+			String file = "/home/delas/desktop/asd.tpn";
+			java.io.FileOutputStream o = new java.io.FileOutputStream(file);
+			org.processmining.framework.plugin.ProvidedObject po = new org.processmining.framework.plugin.ProvidedObject("net", p.getPetriNet());
+			org.processmining.exporting.petrinet.TpnExport e = new org.processmining.exporting.petrinet.TpnExport();
+//			org.processmining.exporting.petrinet.PnmlExport e = new org.processmining.exporting.petrinet.PnmlExport();
+			e.export(po, o);
+			o.close();
+
 			p.saveHeuristicsNetAsDot("/home/delas/desktop/prova.dot");
 			p.savePetriNetAsDot("/home/delas/desktop/prova.petri.dot");
 			String[] dotCmd = {"/bin/sh", "-c", "dot -Tpdf /home/delas/desktop/prova.dot > /home/delas/desktop/prova.pdf && dot -Tpdf /home/delas/desktop/prova.petri.dot > /home/delas/desktop/prova.petri.pdf"};
@@ -126,6 +164,30 @@ public class PlgTest {
 			System.out.println("         Total activities: " + p.getActivityList().size());
 			System.out.println("Process hash: " + p.hashCode());
 			
+			
+//			System.out.println("\nADJACENCY MATRIX");
+//			System.out.println(  "================");
+//			org.processmining.framework.models.heuristics.HeuristicsNet h = p.getHeuristicsNet();
+//			System.out.print("  ");
+//			for (int i = 0; i < h.size(); i++) {
+//				System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
+//			}
+//			System.out.println("");
+//			
+//			boolean[][] m = p.getAdjacencyMatrix();
+//			for (int i = 0; i < m.length; i++) {
+//				System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
+//				for (int j = 0; j < m.length; j++) {
+//					if (m[i][j])
+//						System.out.print("1 ");
+//					else
+//						System.out.print("0 ");
+//				}
+//				System.out.println("");
+//			}
+			
+			
+			
 //			HeuristicsNetFromFile hnff = new HeuristicsNetFromFile(new FileInputStream("/home/delas/desktop/semantic.hn"));
 //			FileWriter fw = new FileWriter("/home/delas/desktop/prova.dot");
 //			hnff.getNet().writeToDot(fw);
@@ -139,7 +201,11 @@ public class PlgTest {
 //			fw2.close();
 			
 			
-//			p.saveAsNewLog("/home/delas/desktop/prova.zip", 10);
+//			try {
+//				p.saveAsNewLog("/home/delas/desktop/prova.zip", 1, 100, 0);
+//			} catch (LogException e) {
+//				e.printStackTrace();
+//			}
 			/*File temp = File.createTempFile("pattern", ".suffix");
 			FileWriter fw = new FileWriter("/home/delas/desktop/test.hn");
 			p.getHeuristicsNetFile(fw);
@@ -160,9 +226,24 @@ public class PlgTest {
 			petri.writeToDot(fw2);
 			fw2.close();*/
 			
+			/* ************************************************************** */
+			System.out.println("\nPROCESS COMPLEXITY");
+			System.out.println(  "==================");
+		
+			PlgProcessMeasures measures = null;
+//			try {
+				measures = p.getProcessMeasures();
+				System.out.println("Cardoso Metric: " + measures.getCardosoMetric());
+				System.out.println("Cyclomatic Metric: " + measures.getCyclomaticMetric());
+//				System.out.println("My Metric: " + measures.getMyMetric());
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+			
 			
 			/* ************************************************************** */
-			
+//			System.out.println("\nPROCESS INSTANCES");
+//			System.out.println(  "=================");
 //			for (Iterator<PlgObservation> i = p.getFirstActivity().generateInstance(0).iterator(); i.hasNext();) {
 //				PlgObservation o = i.next();
 //				System.out.println(o);
