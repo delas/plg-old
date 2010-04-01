@@ -1,27 +1,14 @@
 package it.unipd.math.plg.test;
 
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
-import it.unipd.math.plg.models.PlgActivity;
-import it.unipd.math.plg.models.PlgObservation;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
-import org.processmining.analysis.petrinet.structuredness.*;
-import org.processmining.framework.models.ModelGraphVertex;
-import org.processmining.framework.models.bpel.util.Pair;
-import org.processmining.framework.models.bpel.util.Quadruple;
-import org.processmining.framework.models.petrinet.Marking;
-import org.processmining.framework.models.petrinet.PetriNet;
-import org.processmining.framework.models.petrinet.Place;
-import org.processmining.framework.models.petrinet.State;
-import org.processmining.framework.models.petrinet.StateSpace;
-import org.processmining.framework.models.petrinet.algorithms.CoverabilityGraphBuilder;
-import org.processmining.framework.models.petrinet.algorithms.InitialPlaceMarker;
 
+import static java.util.Arrays.*;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
-import org.processmining.lib.mxml.LogException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 /**
  * Test case class
@@ -114,27 +101,45 @@ public class PlgTest {
 			 * A -> B -> C -> D
 			 * `----'
 			 */
-//			PlgActivity A = p.askNewActivity();
-//			PlgActivity B = p.askNewActivity();
-//			PlgActivity C = p.askNewActivity();
-//			PlgActivity D = p.askNewActivity();
-//			A.addNext(B).addNext(C).addNext(D);
-//			C.addLoop(A);
+			/*PlgActivity A = p.askNewActivity();
+			PlgActivity B = p.askNewActivity();
+			PlgActivity C = p.askNewActivity();
+			PlgActivity D = p.askNewActivity();
+			A.addNext(B).addNext(C).addNext(D);
+			B.addLoop(A);*/
 			
+			/* ****************************************************************
+			 * Own process generation
+			 */
+			OptionParser parser = new OptionParser() {
+				{
+					acceptsAll(asList("c", "complexity"))
+						.withRequiredArg().ofType(Integer.class)
+						.describedAs("The generated process complexity")
+						.defaultsTo(1);
+					acceptsAll(asList("s", "stats"),
+						"Print some statistics of the generated process");
+					acceptsAll(asList("a", "adjacency-matrix"),
+						"Print the process as an adjacency matrix");
+					acceptsAll(asList("m", "metric"),
+						"Print some metrics of the generated process");
+					acceptsAll(asList("h", "?"),
+							"Show this help");
+				}
+			};
+			OptionSet options = parser.parse(args);
+			int complexity = ((Integer)options.valueOf("c")).intValue();
+			boolean printHelp = options.has("?");
+			boolean printStats = options.has("s");
+			boolean printAdjMatrix = options.has("a");
+			boolean printMetrics = options.has("m");
 			
-//			PlgActivity A = p.askNewActivity();
-//			PlgActivity B = p.askNewActivity();
-//			PlgActivity C = p.askNewActivity();
-//			PlgActivity D = p.askNewActivity();
-//			PlgActivity E = p.askNewActivity();
-//			A.addNext(B).addNext(C);
-//			A.inAndUntil(E);
-//			A.addNext(B).addNext(E);
-//			A.addNext(C).addNext(E);
-//			A.addNext(D).addNext(E);
-//			B.addLoop(B);
+	        if (printHelp) {
+	            parser.printHelpOn(System.out);
+	            System.exit(0);
+	        }
 
-			p.randomize(3);
+			p.randomize(complexity);
 			
 			String file = "/home/delas/desktop/asd.tpn";
 			java.io.FileOutputStream o = new java.io.FileOutputStream(file);
@@ -149,43 +154,52 @@ public class PlgTest {
 			String[] dotCmd = {"/bin/sh", "-c", "dot -Tpdf /home/delas/desktop/prova.dot > /home/delas/desktop/prova.pdf && dot -Tpdf /home/delas/desktop/prova.petri.dot > /home/delas/desktop/prova.petri.pdf"};
 			Process dotExec = Runtime.getRuntime().exec(dotCmd);
 			dotExec.waitFor();
+
+			if (printStats) {
+				System.out.println("\nPROCESS STATISTICS");
+				System.out.println(  "==================");
+//				System.out.println("       Max nested patters: " + p.getMaxDepth());
+				System.out.println("             AND patterns: " + p.getPatternsCounter(COUNTER_TYPES.AND));
+				System.out.println("             XOR patterns: " + p.getPatternsCounter(COUNTER_TYPES.XOR));
+//				System.out.println("        Sequence patterns: " + p.getPatternsCounter(COUNTER_TYPES.SEQUENCE));
+//				System.out.println(" Single activity patterns: " + p.getPatternsCounter(COUNTER_TYPES.ALONE));
+//				System.out.println("           Empty patterns: " + p.getPatternsCounter(COUNTER_TYPES.EMPTY));
+				System.out.println("                    Loops: " + p.getPatternsCounter(COUNTER_TYPES.LOOP));
+				System.out.println("         Max AND branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_AND_BRANCHES));
+				System.out.println("         Max XOR branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_XOR_BRANCHES));
+				System.out.println("         Total activities: " + p.getActivityList().size());
+				System.out.println("        Process hash code: " + p.hashCode());
+			}
 			
-			System.out.println("Process statistics");
-			System.out.println("==================");
-			System.out.println("       Max nested patters: " + p.getMaxDepth());
-			System.out.println("             AND patterns: " + p.getPatternsCounter(COUNTER_TYPES.AND));
-			System.out.println("             XOR patterns: " + p.getPatternsCounter(COUNTER_TYPES.XOR));
-			System.out.println("        Sequence patterns: " + p.getPatternsCounter(COUNTER_TYPES.SEQUENCE));
-			System.out.println(" Single activity patterns: " + p.getPatternsCounter(COUNTER_TYPES.ALONE));
-			System.out.println("           Empty patterns: " + p.getPatternsCounter(COUNTER_TYPES.EMPTY));
-			System.out.println("                    Loops: " + p.getPatternsCounter(COUNTER_TYPES.LOOP));
-			System.out.println("         Max AND branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_AND_BRANCHES));
-			System.out.println("         Max XOR branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_XOR_BRANCHES));
-			System.out.println("         Total activities: " + p.getActivityList().size());
-			System.out.println("Process hash: " + p.hashCode());
+			if (printAdjMatrix) {
+				System.out.println("\nADJACENCY MATRIX");
+				System.out.println(  "================");
+				org.processmining.framework.models.heuristics.HeuristicsNet h = p.getHeuristicsNet();
+				System.out.print("  ");
+				for (int i = 0; i < h.size(); i++) {
+					System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
+				}
+				System.out.println("");
+				boolean[][] m = p.getAdjacencyMatrix();
+				for (int i = 0; i < m.length; i++) {
+					System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
+					for (int j = 0; j < m.length; j++) {
+						if (m[i][j])
+							System.out.print("1 ");
+						else
+							System.out.print("0 ");
+					}
+					System.out.println("");
+				}
+			}
 			
-			
-//			System.out.println("\nADJACENCY MATRIX");
-//			System.out.println(  "================");
-//			org.processmining.framework.models.heuristics.HeuristicsNet h = p.getHeuristicsNet();
-//			System.out.print("  ");
-//			for (int i = 0; i < h.size(); i++) {
-//				System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
-//			}
-//			System.out.println("");
-//			
-//			boolean[][] m = p.getAdjacencyMatrix();
-//			for (int i = 0; i < m.length; i++) {
-//				System.out.print(h.getLogEvents().get(i).getModelElementName() + " ");
-//				for (int j = 0; j < m.length; j++) {
-//					if (m[i][j])
-//						System.out.print("1 ");
-//					else
-//						System.out.print("0 ");
-//				}
-//				System.out.println("");
-//			}
-			
+			if (printMetrics) {
+				System.out.println("\nPROCESS COMPLEXITY");
+				System.out.println(  "==================");
+				PlgProcessMeasures measures = p.getProcessMeasures();
+				System.out.println("Cardoso Metric: " + measures.getCardosoMetric());
+				System.out.println("Cyclomatic Metric: " + measures.getCyclomaticMetric());
+			}
 			
 			
 //			HeuristicsNetFromFile hnff = new HeuristicsNetFromFile(new FileInputStream("/home/delas/desktop/semantic.hn"));
@@ -227,18 +241,6 @@ public class PlgTest {
 			fw2.close();*/
 			
 			/* ************************************************************** */
-			System.out.println("\nPROCESS COMPLEXITY");
-			System.out.println(  "==================");
-		
-			PlgProcessMeasures measures = null;
-//			try {
-				measures = p.getProcessMeasures();
-				System.out.println("Cardoso Metric: " + measures.getCardosoMetric());
-				System.out.println("Cyclomatic Metric: " + measures.getCyclomaticMetric());
-//				System.out.println("My Metric: " + measures.getMyMetric());
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 			
 			
 			/* ************************************************************** */
