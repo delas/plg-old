@@ -86,11 +86,12 @@ public class PlgMetricCalculator {
 	
 	
 	/**
+	 * This method calculates the Extended Cardoso Metric value 
 	 * 
-	 * @param net
-	 * @return
+	 * @param net the PetriNet for which we want to calculate
+	 * @return the first parameter of the pair is the metric value
 	 */
-	private Pair<Integer, List<Pair<Place, Set<Set<Place>>>>> calculateCardosoMetric(PetriNet net) {
+	public static Pair<Integer, List<Pair<Place, Set<Set<Place>>>>> calculateCardosoMetric(PetriNet net) {
 		int result = 0;
 		List<Pair<Place, Set<Set<Place>>>> calculation = new ArrayList<Pair<Place, Set<Set<Place>>>>();
 		for (Place place : net.getPlaces()) {
@@ -121,12 +122,13 @@ public class PlgMetricCalculator {
 	
 	
 	/**
+	 * This method calculates the Extended Cyclomatic Metric value
 	 * 
-	 * @param net
-	 * @return
+	 * @param net the PetriNet for which we want to calculate
+	 * @return the first parameter of the pair is the metric value
 	 */
 	@SuppressWarnings("unchecked")
-	private Pair<Integer, Quadruple<StateSpace, Integer, Integer, List<List<ModelGraphVertex>>>>
+	public static Pair<Integer, Quadruple<StateSpace, Integer, Integer, List<List<ModelGraphVertex>>>>
 		calculateCyclomaticMetric(PetriNet net) {
 		Node source = net.getSource();
 		Node sink = net.getSink();
