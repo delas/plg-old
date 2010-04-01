@@ -76,6 +76,7 @@ public class PlgProcess {
 	private PetriNet petriNet = null;
 	private int maxDepth = 0;
 	private HashMap<COUNTER_TYPES, Integer> statsCounter;
+	private PlgProcessMeasures metrics = null;
 	
 	
 	/**
@@ -339,6 +340,7 @@ public class PlgProcess {
 		// refresh heuristics net
 		heuristicsNet = null;
 		petriNet = null;
+		metrics = null;
 	}
 	
 	
@@ -655,7 +657,6 @@ public class PlgProcess {
 		}
 	}
 
-
 	
 	/**
 	 * This method generates a random activity pattern
@@ -679,7 +680,6 @@ public class PlgProcess {
 	private PlgActivity askInternalPattern(int[] parameters, int deep, PlgActivity to, int maxNested) {
 		return askInternalPattern(parameters, deep, to, maxNested, true);
 	}
-
 
 	
 	/**
@@ -742,7 +742,6 @@ public class PlgProcess {
 		}
 	}
 
-
 	
 	/**
 	 * This method generates a random activity, with this structure:
@@ -783,7 +782,6 @@ public class PlgProcess {
 		
 		return a;
 	}
-
 
 	
 	/**
@@ -828,7 +826,6 @@ public class PlgProcess {
 		
 		return a;
 	}
-
 
 	
 	/**
@@ -902,7 +899,6 @@ public class PlgProcess {
 		return a;
 	}
 
-
 	
 	/**
 	 * This method generates random activities, with this structure:
@@ -973,8 +969,7 @@ public class PlgProcess {
 		}
 		
 		return a;
-	}
-	
+	}	
 	
 	
 	/**
@@ -1001,7 +996,6 @@ public class PlgProcess {
 		
 		return to;
 	}
-	
 	/* ********************************************************************** */
 	
 	
@@ -1016,13 +1010,58 @@ public class PlgProcess {
 	 * @throws IOException
 	 */
 	public PlgProcessMeasures getProcessMeasures() throws IOException {
+		if (metrics != null) {
+			return metrics;
+		}
+		
 		PlgMetricCalculator calculator = new PlgMetricCalculator(this);
 		try {
-			return calculator.calculate();
+			metrics = calculator.calculate();
+			return metrics;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * This method to get the Extended Cyclomatic Metric value
+	 * 
+	 * @return the metric value
+	 */
+	public int getProcessCyclomaticMetric() {
+		if (metrics != null) {
+			return metrics.getCyclomaticMetric();
+		}
+		
+		try {
+			PetriNet p = getPetriNet();
+			return PlgMetricCalculator.calculateCyclomaticMetric(p).first;
+		} catch (IOException e) {
+			
+		}
+		return -1;
+	}
+	
+	
+	/**
+	 * This method to get the Extended Cardoso Metric value
+	 * 
+	 * @return the metric value
+	 */
+	public int calculateCardosoMetric() {
+		if (metrics != null) {
+			return metrics.getCardosoMetric();
+		}
+		
+		try {
+			PetriNet p = getPetriNet();
+			return PlgMetricCalculator.calculateCardosoMetric(p).first;
+		} catch (IOException e) {
+			
+		}
+		return -1;
 	}
 	/* ********************************************************************** */
 }
