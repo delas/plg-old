@@ -8,9 +8,12 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.processmining.converting.HNetToPetriNetConverter;
 import org.processmining.framework.models.heuristics.HNSubSet;
@@ -25,6 +28,8 @@ import org.processmining.lib.mxml.writing.ProcessInstance;
 import org.processmining.lib.mxml.writing.ProcessInstanceType;
 import org.processmining.lib.mxml.writing.impl.LogSetRandomImpl;
 import org.processmining.lib.mxml.writing.persistency.LogPersistencyZip;
+import org.processmining.lib.xml.Document;
+import org.processmining.lib.xml.Tag;
 import org.processmining.mining.petrinetmining.PetriNetResult;
 
 /**
@@ -43,6 +48,8 @@ public class PlgProcess {
 
 	/** This is the random number generator */
 	public static Random generator = new Random();
+	/** This is the current library version */
+	public static final String version = "0.3alpha";
 	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
@@ -539,6 +546,89 @@ public class PlgProcess {
 			counter--;
 			statsCounter.put(pattern, counter);
 		}
+	}
+	
+	
+	/**
+	 * This method is used to scan the whole set of activities in order to find
+	 * the required one.
+	 * 
+	 * @param activityId the identifier of the activity
+	 * @return the required activity or <tt>null</tt>, if the activity is not
+	 * found
+	 */
+	public PlgActivity containsActivity(String activityId) {
+		for (PlgActivity a : activityList) {
+			if (a.getActivityId().equals(activityId)) {
+				return a;
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * This method is used to export the current process into a single file.
+	 * This exporting process only generates a ZIP file containing an XML file
+	 * that describes the current process.
+	 * 
+	 * @param filename the destination filename
+	 * @return true
+	 * @throws IOException
+	 */
+	public boolean saveProcessAs(String filename) throws IOException {
+		File tempFile = File.createTempFile("process", ".xml");
+		Document dom = new Document(tempFile);
+		Tag process = dom.addNode("process");
+		// Meta
+		process.addComment("This is the list of all meta-attributes of the process");
+		Tag meta = process.addChildNode("meta");
+		meta.addChildNode("libVersion").addTextNode(version);
+		meta.addChildNode("name").addTextNode(name);
+		Tag tagFirstActivity = meta.addChildNode("firstActivity");
+		if (firstActivity != null) {
+			tagFirstActivity.addTextNode(firstActivity.getActivityId());
+		}
+		Tag tagLastActivity = meta.addChildNode("lastActivity");
+		if (firstActivity != null) {
+			tagLastActivity.addTextNode(lastActivity.getActivityId());
+		}
+		meta.addChildNode("activityGerator").addTextNode(new Integer(activityGenerator).toString());
+		meta.addChildNode("maxDepth").addTextNode(new Integer(maxDepth).toString());
+		Tag tagStatsCounter = meta.addChildNode("statsCounter");
+		Iterator<COUNTER_TYPES> statsIterator = statsCounter.keySet().iterator();
+		while (statsIterator.hasNext()) {
+			COUNTER_TYPES type = statsIterator.next();
+			Tag s = tagStatsCounter.addChildNode("stat");
+			s.addAttribute("id", type.toString());
+			s.addTextNode(statsCounter.get(type).toString());
+		}
+		// List of activities
+		process.addComment("The following is the list of all activities");
+		Tag activitiesList = process.addChildNode("activitiesList");
+		for (PlgActivity activity : activityList) {
+			activitiesList.addChildNode("activity").addAttribute("name", activity.getActivityId());
+		}
+		// List of relations
+		process.addComment("The following list describes the relations between activities");
+		Tag activities = process.addChildNode("activities");
+		for (PlgActivity activity : activityList) {
+			activity.getActivityAsXML(activities);
+		}
+		dom.close();
+		// create the ZIP file
+		ZipOutputStream out = new ZipOutputStream(new java.io.FileOutputStream(filename));
+		FileInputStream in = new FileInputStream(tempFile.getAbsolutePath());
+		out.putNextEntry(new ZipEntry("process.xml"));
+        int len; byte[] buf = new byte[1024];
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        out.closeEntry();
+        in.close();
+        out.close();
+		
+		return true;
 	}
 	
 	

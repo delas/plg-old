@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.processmining.lib.xml.Tag;
+
 /**
  * Class that represents an activity (a transition in Petri Net).
  *
@@ -320,6 +322,15 @@ public class PlgActivity {
 	}
 	
 	
+	@Override
+	public boolean equals(Object compare) {
+		if (compare instanceof PlgActivity) {
+			return compare.toString().equals(toString());
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * This method generates an instance of the the activity.
 	 * 
@@ -442,8 +453,7 @@ public class PlgActivity {
 	 * @return the activity progressive id
 	 */
 	public String getActivityId() {
-		String toRet = new Integer(process.getActivityList().indexOf(this)).toString();
-		return toRet;
+		return toString();
 	}
 
 
@@ -543,5 +553,43 @@ public class PlgActivity {
 			toRet += "\n";
 			fw.write(toRet);
 		}
+	}
+	
+	
+	/**
+	 * This method is used to export the activity into a single XML blob
+	 * 
+	 * @param parent the parend where the description has to be put
+	 * @return the new tag created
+	 * @throws IOException
+	 */
+	public Tag getActivityAsXML(Tag parent) throws IOException {
+		Tag t = parent.addChildNode("activity");
+		t.addAttribute("id", getActivityId());
+		t.addAttribute("duration", duration().toString());
+		t.addAttribute("relationType", relationType.name());
+		Tag tagRelationsTo = t.addChildNode("relationsTo");
+		for (PlgActivity current : relationsTo) {
+			Tag d = tagRelationsTo.addChildNode("activity");
+			d.addAttribute("ref", current.getActivityId());
+		}
+		Tag tagRelationsFrom = t.addChildNode("relationsFrom");
+		for (PlgActivity current : relationsFrom) {
+			Tag d = tagRelationsFrom.addChildNode("activity");
+			d.addAttribute("ref", current.getActivityId());
+		}
+		Tag tagSplitJoinOpposite = t.addChildNode("splitJoinOpposite");
+		if (splitJoinOpposite != null) {
+			tagSplitJoinOpposite.addAttribute("ref", splitJoinOpposite.getActivityId());
+		}
+		Tag tagInLoopTo = t.addChildNode("inLoopTo");
+		if (inLoopTo != null) {
+			tagInLoopTo.addAttribute("ref", inLoopTo.getActivityId());
+		}
+		Tag tagInLoopFrom = t.addChildNode("inLoopFrom");
+		if (inLoopFrom != null) {
+			tagInLoopFrom.addAttribute("ref", inLoopFrom.getActivityId());
+		}
+		return t;
 	}
 }
