@@ -11,6 +11,8 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.processmining.lib.xml.Tag;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Class that represents an activity (a transition in Petri Net).
@@ -453,7 +455,8 @@ public class PlgActivity {
 	 * @return the activity progressive id
 	 */
 	public String getActivityId() {
-		return toString();
+		String toRet = new Integer(process.getActivityList().indexOf(this)).toString();
+		return toRet;
 	}
 
 
@@ -591,5 +594,61 @@ public class PlgActivity {
 			tagInLoopFrom.addAttribute("ref", inLoopFrom.getActivityId());
 		}
 		return t;
+	}
+	
+	
+	/**
+	 * This method populates the current node starting from a well-structured
+	 * XML fragment
+	 * 
+	 * @param node the correct XML fragment object
+	 */
+	public void setActivityFromXML(Node node) {
+		activityDuration = new Integer(node.getAttributes().getNamedItem("duration").getTextContent());
+		relationType = RELATIONS.valueOf(node.getAttributes().getNamedItem("relationType").getTextContent());
+		NodeList nodes = node.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			String nodeName = nodes.item(i).getNodeName();
+			if (nodeName.equals("splitJoinOpposite")) {
+				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
+				if (atts != null) {
+					splitJoinOpposite = process.searchActivity(atts.getTextContent());
+				}
+			} else if (nodeName.equals("inLoopTo")) {
+				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
+				if (atts != null) {
+					inLoopTo = process.searchActivity(atts.getTextContent());
+				}
+			} else if (nodeName.equals("inLoopFrom")) {
+				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
+				if (atts != null) {
+					inLoopFrom = process.searchActivity(atts.getTextContent());
+				}
+			} else if (nodeName.equals("relationsTo")) {
+				NodeList subNodes = nodes.item(i).getChildNodes();
+				for (int j = 0; j < subNodes.getLength(); j++) {
+					String subNodeName = subNodes.item(j).getNodeName();
+					if (subNodeName.equals("activity")) {
+						Node atts = subNodes.item(j).getAttributes().getNamedItem("ref");
+						if (atts != null) {
+							PlgActivity ref = process.searchActivity(atts.getTextContent());
+							relationsTo.add(ref);
+						}
+					}
+				}
+			} else if (nodeName.equals("relationsFrom")) {
+				NodeList subNodes = nodes.item(i).getChildNodes();
+				for (int j = 0; j < subNodes.getLength(); j++) {
+					String subNodeName = subNodes.item(j).getNodeName();
+					if (subNodeName.equals("activity")) {
+						Node atts = subNodes.item(j).getAttributes().getNamedItem("ref");
+						if (atts != null) {
+							PlgActivity ref = process.searchActivity(atts.getTextContent());
+							relationsFrom.add(ref);
+						}
+					}
+				}
+			}
+		}
 	}
 }
