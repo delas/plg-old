@@ -5,6 +5,7 @@ import it.unipd.math.plg.metrics.PlgProcessMeasures;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +14,11 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.processmining.converting.HNetToPetriNetConverter;
 import org.processmining.framework.models.heuristics.HNSubSet;
@@ -31,6 +36,9 @@ import org.processmining.lib.mxml.writing.persistency.LogPersistencyZip;
 import org.processmining.lib.xml.Document;
 import org.processmining.lib.xml.Tag;
 import org.processmining.mining.petrinetmining.PetriNetResult;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * This class describres a general process.
@@ -497,10 +505,10 @@ public class PlgProcess {
 	}
 	
 	
-	@Override
-	public int hashCode() {
-		return getHeuristicsNet().hashCode();
-	}
+//	@Override
+//	public int hashCode() {
+//		return getHeuristicsNet().hashCode();
+//	}
 	
 	
 	/**
@@ -557,7 +565,7 @@ public class PlgProcess {
 	 * @return the required activity or <tt>null</tt>, if the activity is not
 	 * found
 	 */
-	public PlgActivity containsActivity(String activityId) {
+	public PlgActivity searchActivity(String activityId) {
 		for (PlgActivity a : activityList) {
 			if (a.getActivityId().equals(activityId)) {
 				return a;
@@ -578,6 +586,7 @@ public class PlgProcess {
 	 */
 	public boolean saveProcessAs(String filename) throws IOException {
 		File tempFile = File.createTempFile("process", ".xml");
+		tempFile.deleteOnExit();
 		Document dom = new Document(tempFile);
 		Tag process = dom.addNode("process");
 		// Meta
@@ -593,7 +602,7 @@ public class PlgProcess {
 		if (firstActivity != null) {
 			tagLastActivity.addTextNode(lastActivity.getActivityId());
 		}
-		meta.addChildNode("activityGerator").addTextNode(new Integer(activityGenerator).toString());
+		meta.addChildNode("activityGenerator").addTextNode(new Integer(activityGenerator).toString());
 		meta.addChildNode("maxDepth").addTextNode(new Integer(maxDepth).toString());
 		Tag tagStatsCounter = meta.addChildNode("statsCounter");
 		Iterator<COUNTER_TYPES> statsIterator = statsCounter.keySet().iterator();
@@ -607,7 +616,7 @@ public class PlgProcess {
 		process.addComment("The following is the list of all activities");
 		Tag activitiesList = process.addChildNode("activitiesList");
 		for (PlgActivity activity : activityList) {
-			activitiesList.addChildNode("activity").addAttribute("name", activity.getActivityId());
+			activitiesList.addChildNode("activity").addAttribute("name", activity.getName());
 		}
 		// List of relations
 		process.addComment("The following list describes the relations between activities");
@@ -629,6 +638,111 @@ public class PlgProcess {
         out.close();
 		
 		return true;
+	}
+	
+	
+	/**
+	 * This method tries to build a process object starting from a correctly
+	 * generated file. These file should be created with the
+	 * <tt>saveProcessAs(String)</tt>.
+	 * 
+	 * @see #saveProcessAs(String)
+	 * @param filename the absolute path of the process file to load
+	 * @return the built process, starting from the file; or null, if the file
+	 * is not in the correct format 
+	 * @throws IOException
+	 */
+	public static PlgProcess loadProcessFrom(String filename) throws IOException {
+		try {
+			// ZIP file extraction
+			File tempFile = File.createTempFile("process", ".xml");
+			tempFile.deleteOnExit();
+			ZipInputStream zipinputstream = null;
+			zipinputstream = new ZipInputStream(new FileInputStream(filename));
+			zipinputstream.getNextEntry();
+			int n; byte[] buf = new byte[1024];
+			FileOutputStream fileoutputstream = new FileOutputStream(tempFile);
+			while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+				fileoutputstream.write(buf, 0, n);
+			}
+			fileoutputstream.close();
+			zipinputstream.closeEntry();
+			zipinputstream.close();
+			
+			// XML extraction
+			FileInputStream fi = new FileInputStream(tempFile);
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			org.w3c.dom.Document doc;
+			dbf.setValidating(false);
+			dbf.setIgnoringComments(true);
+			dbf.setIgnoringElementContentWhitespace(true);
+			doc = dbf.newDocumentBuilder().parse(fi);
+			NodeList nodes; Node node;
+			
+			PlgProcess p = new PlgProcess("");
+			// List of activities
+			node = doc.getElementsByTagName("activitiesList").item(0);
+			nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeName().equals("activity")) {
+					String actName = nodes.item(i)
+						.getAttributes()
+						.getNamedItem("name")
+						.getTextContent();
+					new PlgActivity(p, actName);
+				}
+			}
+			// Meta
+			node = doc.getElementsByTagName("meta").item(0);
+			nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				String nodeName = nodes.item(i).getNodeName();
+				String nodeValue = nodes.item(i).getTextContent();
+				if (nodeName.equals("name")) {
+					p.setName(nodeValue);
+				} else if (nodeName.equals("firstActivity")) {
+					p.firstActivity = p.searchActivity(nodeValue);
+				} else if (nodeName.equals("lastActivity")) {
+					p.lastActivity = p.searchActivity(nodeValue);
+				} else if (nodeName.equals("activityGenerator")) {
+					p.activityGenerator = new Integer(nodeValue).intValue();
+				} else if (nodeName.equals("maxDepth")) {
+					p.maxDepth = new Integer(nodeValue).intValue();
+				}
+			}
+			node = doc.getElementsByTagName("statsCounter").item(0);
+			nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				String nodeName = nodes.item(i).getNodeName();
+				if (nodeName.equals("stat")) {
+					String nodeValue = nodes.item(i).getTextContent();
+					Integer nodeIntValue = new Integer(nodeValue);
+					String idValue = nodes.item(i).getAttributes().getNamedItem("id").getTextContent();
+					p.statsCounter.put(COUNTER_TYPES.valueOf(idValue), nodeIntValue);
+				}
+			}
+			// List of relations
+			node = doc.getElementsByTagName("activities").item(0);
+			nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				String nodeName = nodes.item(i).getNodeName();
+				if (nodeName.equals("activity")) {
+					String actName = nodes.item(i)
+						.getAttributes()
+						.getNamedItem("id")
+						.getTextContent();
+					p.searchActivity(actName).setActivityFromXML(nodes.item(i));
+				}
+			}
+				        
+			return p;
+			
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	
