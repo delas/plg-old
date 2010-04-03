@@ -1,14 +1,20 @@
 package it.unipd.math.plg.test;
 
+import static java.util.Arrays.asList;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
 
-import static java.util.Arrays.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
+import org.processmining.exporting.petrinet.TpnExport;
+import org.processmining.framework.plugin.ProvidedObject;
+import org.processmining.lib.mxml.LogException;
 
 /**
  * Test case class
@@ -108,23 +114,33 @@ public class PlgTest {
 			A.addNext(B).addNext(C).addNext(D);
 			B.addLoop(A);*/
 			
+//			p.randomize(1);
+			
+			
 			/* ****************************************************************
 			 * Own process generation
 			 */
 			OptionParser parser = new OptionParser() {
 				{
-					acceptsAll(asList("c", "complexity"))
-						.withRequiredArg().ofType(Integer.class)
-						.describedAs("The generated process complexity")
-						.defaultsTo(1);
-					acceptsAll(asList("s", "stats"),
-						"Print some statistics of the generated process");
 					acceptsAll(asList("a", "adjacency-matrix"),
-						"Print the process as an adjacency matrix");
-					acceptsAll(asList("m", "metric"),
-						"Print some metrics of the generated process");
+							"Print the process as an adjacency matrix");
+					acceptsAll(asList("c", "complexity"))
+							.withRequiredArg().ofType(Integer.class)
+							.describedAs("The generated process complexity")
+							.defaultsTo(1);
 					acceptsAll(asList("h", "?"),
 							"Show this help");
+					acceptsAll(asList("i", "instances"))
+							.withRequiredArg().ofType(Integer.class)
+							.describedAs("The number of instances to generate")
+							.defaultsTo(100);
+					acceptsAll(asList("m", "metric"),
+							"Print some metrics of the generated process");
+					acceptsAll(asList("o", "output-to-file"),
+							"With this parameter specified, some output files are produces");
+					acceptsAll(asList("s", "stats"),
+							"Print some statistics of the generated process");
+					
 				}
 			};
 			OptionSet options = parser.parse(args);
@@ -133,37 +149,87 @@ public class PlgTest {
 			boolean printStats = options.has("s");
 			boolean printAdjMatrix = options.has("a");
 			boolean printMetrics = options.has("m");
+			boolean outputToFile = options.has("o");
+			boolean generateInstances = options.has("i");
 			
-	        if (printHelp) {
+	        if (printHelp || args.length == 0) {
+	        	System.out.println("PLGLib TESTING TOOL");
+				System.out.println("===================");
+				System.out.println("");
+				System.out.println("Version: " + PlgProcess.version);
+				System.out.println("");
+				System.out.println("This software has been written just as a `proof of concept' for the PLGLib");
+				System.out.println("library. For a complete documentation see: http://www.processmining.it.");
+				System.out.println("");
 	            parser.printHelpOn(System.out);
 	            System.exit(0);
 	        }
 
+	        System.out.print("Generating process... ");
 			p.randomize(complexity);
+			System.out.println("done!");
 			
-			String file = "/home/delas/desktop/asd.tpn";
-			java.io.FileOutputStream o = new java.io.FileOutputStream(file);
-			org.processmining.framework.plugin.ProvidedObject po = new org.processmining.framework.plugin.ProvidedObject("net", p.getPetriNet());
-			org.processmining.exporting.petrinet.TpnExport e = new org.processmining.exporting.petrinet.TpnExport();
-//			org.processmining.exporting.petrinet.PnmlExport e = new org.processmining.exporting.petrinet.PnmlExport();
-			e.export(po, o);
-			o.close();
-
-			p.saveHeuristicsNetAsDot("/home/delas/desktop/prova.dot");
-			p.savePetriNetAsDot("/home/delas/desktop/prova.petri.dot");
-			String[] dotCmd = {"/bin/sh", "-c", "dot -Tpdf /home/delas/desktop/prova.dot > /home/delas/desktop/prova.pdf && dot -Tpdf /home/delas/desktop/prova.petri.dot > /home/delas/desktop/prova.petri.pdf"};
-			Process dotExec = Runtime.getRuntime().exec(dotCmd);
-			dotExec.waitFor();
+			if (outputToFile) {
+				String baseOutputPath = System.getProperty("user.dir") + "/test/";
+				File f = new File(baseOutputPath);
+				if (!f.exists()) {
+					f.mkdir();
+				}
+				baseOutputPath = baseOutputPath.concat(new Integer(p.hashCode()).toString());
+				// save the process file
+				boolean processSaved = p.saveProcessAs(baseOutputPath + ".plg");
+				// save the Petri Net file
+				FileOutputStream o = new FileOutputStream(baseOutputPath + ".tpn");
+				ProvidedObject po = new ProvidedObject("net", p.getPetriNet());
+				TpnExport e = new TpnExport();
+				e.export(po, o);
+				o.close();
+				// save the dot of the HN and of the PN
+				p.saveHeuristicsNetAsDot(baseOutputPath + ".hn.dot");
+				p.savePetriNetAsDot(baseOutputPath + ".pn.dot");
+				String[] dotCmd = {"/bin/sh", "-c",
+						"dot -Tpdf " + baseOutputPath + ".hn.dot > " + baseOutputPath + ".hn.pdf && " +
+						"dot -Tpdf " + baseOutputPath + ".pn.dot > " + baseOutputPath + ".pn.pdf"};
+				Process dotExec = Runtime.getRuntime().exec(dotCmd);
+				int returnOfDot = dotExec.waitFor();
+				System.out.println("\nOUTPUT GENERATION");
+				System.out.println(  "=================");
+				if (processSaved) {
+					System.out.println("          Process file: " + baseOutputPath + ".plg");
+				}
+				System.out.println("        Petri Net file: " + baseOutputPath + ".tpn");
+				System.out.println("     Dot for Petri Net: " + baseOutputPath + ".pn.dot");
+				System.out.println("Dot for Heuristics Net: " + baseOutputPath + ".hn.dot");
+				if (returnOfDot == 0) {
+					System.out.println("      PDF of Petri Net: " + baseOutputPath + ".pn.pdf");
+					System.out.println(" PDF of Heuristics Net: " + baseOutputPath + ".hn.pdf");
+				}
+			}
+			if (generateInstances) {
+				int instances = ((Integer)options.valueOf("i")).intValue();
+				String baseOutputPath = System.getProperty("user.dir") + "/test/";
+				File f = new File(baseOutputPath);
+				if (!f.exists()) {
+					f.mkdir();
+				}
+				baseOutputPath = baseOutputPath.concat(new Integer(p.hashCode()).toString());
+				try {
+					p.saveAsNewLog(baseOutputPath + ".log.zip", instances);
+					if (!outputToFile) {
+						System.out.println("\nOUTPUT GENERATION");
+						System.out.println(  "=================");
+					}
+					System.out.println("  ZIPped instances log: " + baseOutputPath + ".log.zip");
+				} catch (LogException e) {
+					e.printStackTrace();
+				}
+			}
 
 			if (printStats) {
 				System.out.println("\nPROCESS STATISTICS");
 				System.out.println(  "==================");
-//				System.out.println("       Max nested patters: " + p.getMaxDepth());
 				System.out.println("             AND patterns: " + p.getPatternsCounter(COUNTER_TYPES.AND));
 				System.out.println("             XOR patterns: " + p.getPatternsCounter(COUNTER_TYPES.XOR));
-//				System.out.println("        Sequence patterns: " + p.getPatternsCounter(COUNTER_TYPES.SEQUENCE));
-//				System.out.println(" Single activity patterns: " + p.getPatternsCounter(COUNTER_TYPES.ALONE));
-//				System.out.println("           Empty patterns: " + p.getPatternsCounter(COUNTER_TYPES.EMPTY));
 				System.out.println("                    Loops: " + p.getPatternsCounter(COUNTER_TYPES.LOOP));
 				System.out.println("         Max AND branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_AND_BRANCHES));
 				System.out.println("         Max XOR branches: " + p.getPatternsCounter(COUNTER_TYPES.MAX_XOR_BRANCHES));
@@ -194,10 +260,10 @@ public class PlgTest {
 			}
 			
 			if (printMetrics) {
+				PlgProcessMeasures measures = p.getProcessMeasures();
 				System.out.println("\nPROCESS COMPLEXITY");
 				System.out.println(  "==================");
-				PlgProcessMeasures measures = p.getProcessMeasures();
-				System.out.println("Cardoso Metric: " + measures.getCardosoMetric());
+				System.out.println("   Cardoso Metric: " + measures.getCardosoMetric());
 				System.out.println("Cyclomatic Metric: " + measures.getCyclomaticMetric());
 			}
 			
@@ -214,12 +280,6 @@ public class PlgTest {
 //			petri.writeToDot(fw2);
 //			fw2.close();
 			
-			
-//			try {
-//				p.saveAsNewLog("/home/delas/desktop/prova.zip", 1, 100, 0);
-//			} catch (LogException e) {
-//				e.printStackTrace();
-//			}
 			/*File temp = File.createTempFile("pattern", ".suffix");
 			FileWriter fw = new FileWriter("/home/delas/desktop/test.hn");
 			p.getHeuristicsNetFile(fw);
