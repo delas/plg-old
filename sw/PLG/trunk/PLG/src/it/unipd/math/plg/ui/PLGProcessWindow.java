@@ -432,6 +432,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 	public void actionGenerateLog() {
 		int cases = -1;
 		int percentAsInterval = -1;
+		int percentOfError = -1;
 
 		JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
 		PLGSingleLogSetup logSetup = new PLGSingleLogSetup(mainFrame, true);
@@ -441,6 +442,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 
 		cases = logSetup.getCases();
 		percentAsInterval = logSetup.getPercentAsInterval();
+		percentOfError = logSetup.getPercentOfError();
 
 		if (cases > 0 && percentAsInterval >= 0) {
 			String filename = File.separator + "dot";
@@ -461,7 +463,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 					wait.setLabel("Genearting log...");
 					wait.setVisible(true);
 
-					process.saveAsNewLog(saveFilename, cases, percentAsInterval);
+					process.saveAsNewLog(saveFilename, cases, percentAsInterval, percentOfError);
 
 					wait.setVisible(false);
 
