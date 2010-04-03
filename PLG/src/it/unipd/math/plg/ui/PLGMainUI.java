@@ -4,6 +4,9 @@
 
 package it.unipd.math.plg.ui;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
@@ -15,7 +18,11 @@ import it.unipd.math.plg.ui.utils.CheckForUpdate;
 import it.unipd.math.plg.ui.utils.Configurations;
 import it.unipd.math.plg.ui.widget.MemoryGauge;
 import java.awt.Dimension;
+import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * The application's main frame.
@@ -63,9 +70,10 @@ public class PLGMainUI extends FrameView {
         jDesktopPane1 = new javax.swing.JDesktopPane();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
-        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -102,24 +110,28 @@ public class PLGMainUI extends FrameView {
         fileMenu.setName("fileMenu"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(it.unipd.math.plg.ui.ProcessLogGeneratorApp.class).getContext().getActionMap(PLGMainUI.class, this);
+        jMenuItem1.setAction(actionMap.get("actionCreateNetProcess")); // NOI18N
+        jMenuItem1.setIcon(resourceMap.getIcon("jMenuItem1.icon")); // NOI18N
+        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
+        jMenuItem1.setName("jMenuItem1"); // NOI18N
+        fileMenu.add(jMenuItem1);
+
+        jMenuItem4.setAction(actionMap.get("actionOpenExistingProcess")); // NOI18N
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem4.setIcon(resourceMap.getIcon("jMenuItem4.icon")); // NOI18N
+        jMenuItem4.setText(resourceMap.getString("jMenuItem4.text")); // NOI18N
+        jMenuItem4.setName("jMenuItem4"); // NOI18N
+        fileMenu.add(jMenuItem4);
+
+        jSeparator1.setName("jSeparator1"); // NOI18N
+        fileMenu.add(jSeparator1);
+
         exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
         exitMenuItem.setIcon(resourceMap.getIcon("exitMenuItem.icon")); // NOI18N
         exitMenuItem.setName("exitMenuItem"); // NOI18N
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
-
-        jMenu1.setAction(actionMap.get("actionCreateNetProcess")); // NOI18N
-        jMenu1.setText(resourceMap.getString("jMenu1.text")); // NOI18N
-        jMenu1.setName("jMenu1"); // NOI18N
-
-        jMenuItem1.setAction(actionMap.get("actionCreateNetProcess")); // NOI18N
-        jMenuItem1.setIcon(resourceMap.getIcon("jMenuItem1.icon")); // NOI18N
-        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
-        jMenuItem1.setName("jMenuItem1"); // NOI18N
-        jMenu1.add(jMenuItem1);
-
-        menuBar.add(jMenu1);
 
         jMenu2.setText(resourceMap.getString("jMenu2.text")); // NOI18N
         jMenu2.setName("jMenu2"); // NOI18N
@@ -171,13 +183,14 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     // End of variables declaration//GEN-END:variables
@@ -265,6 +278,31 @@ public class PLGMainUI extends FrameView {
 				sub[i].setSelected(true);
 			} catch (java.beans.PropertyVetoException ev) {
 				ev.printStackTrace();
+			}
+		}
+	}
+
+	@Action
+	public void actionOpenExistingProcess() {
+		String filename = File.separator+"dot";
+	    JFileChooser fc = new JFileChooser(new File(filename));
+		FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
+		fc.setFileFilter(ff);
+	    fc.showOpenDialog(mainPanel);
+	    File selFile = fc.getSelectedFile();
+	    if (selFile != null) {
+			try {
+				PLGProcessWindow pUi = new PLGProcessWindow();
+				PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
+				pUi.setProcess(p);
+				pUi.setTitle("Process \"" + selFile.getName() +"\"");
+				jDesktopPane1.add(pUi);
+				pUi.setVisible(true);
+				pUi.setSelected(true);
+			} catch (IOException ex) {
+				Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
 			}
 		}
 	}
