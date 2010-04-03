@@ -13,9 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.rmi.CORBA.Util;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jdesktop.application.Action;
 import org.processmining.framework.util.Dot;
 
@@ -40,6 +43,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jToolBar1 = new javax.swing.JToolBar();
+        jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -56,13 +60,19 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         jToolBar1.setName("Process operation"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(it.unipd.math.plg.ui.ProcessLogGeneratorApp.class).getContext().getActionMap(PLGProcessWindow.class, this);
-        jButton1.setAction(actionMap.get("actionSaveAsDot")); // NOI18N
+        jButton3.setAction(actionMap.get("actionSaveAs")); // NOI18N
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(it.unipd.math.plg.ui.ProcessLogGeneratorApp.class).getContext().getResourceMap(PLGProcessWindow.class);
+        jButton3.setIcon(resourceMap.getIcon("jButton3.icon")); // NOI18N
+        jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
+        jButton3.setFocusable(false);
+        jButton3.setName("jButton3"); // NOI18N
+        jToolBar1.add(jButton3);
+
+        jButton1.setAction(actionMap.get("actionSaveAsDot")); // NOI18N
         jButton1.setIcon(resourceMap.getIcon("jButton1.icon")); // NOI18N
         jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
         jButton1.setFocusable(false);
         jButton1.setName("jButton1"); // NOI18N
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton1);
 
         jButton2.setAction(actionMap.get("actionGenerateLog")); // NOI18N
@@ -70,7 +80,6 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
         jButton2.setFocusable(false);
         jButton2.setName("jButton2"); // NOI18N
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton2);
 
         getContentPane().add(jToolBar1, java.awt.BorderLayout.PAGE_START);
@@ -94,6 +103,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -139,16 +149,23 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 
 		String filename = File.separator+"dot";
 	    JFileChooser fc = new JFileChooser(new File(filename));
+		FileFilter ff = new FileNameExtensionFilter("Dot file", "dot");
+		fc.setFileFilter(ff);
 	    fc.showSaveDialog(this);
 	    File selFile = fc.getSelectedFile();
 	    if (selFile != null) {
+			String saveFilename = selFile.toString();
+			String ext = saveFilename.substring(saveFilename.lastIndexOf(".") + 1, saveFilename.length());
+			if (!ext.equals("dot")) {
+				saveFilename = saveFilename + ".dot";
+			}
 	    	try {
 				if (s.equals("Heuristics Net")) {
-					process.saveHeuristicsNetAsDot(selFile.toString());
+					process.saveHeuristicsNetAsDot(saveFilename);
 				} else {
-					process.savePetriNetAsDot(selFile.toString());
+					process.savePetriNetAsDot(saveFilename);
 				}
-	    		javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ selFile);
+	    		javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ saveFilename);
 	    	} catch (IOException e) {
 	    		e.printStackTrace();
 	    		System.exit(1);
@@ -173,24 +190,55 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 		if (cases > 0 && percentAsInterval >= 0) {
 			String filename = File.separator + "dot";
 			JFileChooser fc = new JFileChooser(new File(filename));
+			FileFilter ff = new FileNameExtensionFilter("ZIP file", "zip");
+			fc.setFileFilter(ff);
 			fc.showSaveDialog(this);
 			File selFile = fc.getSelectedFile();
 			if (selFile != null) {
+				String saveFilename = selFile.toString();
+				String ext = saveFilename.substring(saveFilename.lastIndexOf(".") + 1, saveFilename.length());
+				if (!ext.equals("zip")) {
+					saveFilename = saveFilename + ".zip";
+				}
 				try {
 					PLGWaiting wait = new PLGWaiting(null, true);
 					wait.setLocationRelativeTo(this);
 					wait.setLabel("Genearting log...");
 					wait.setVisible(true);
 
-					process.saveAsNewLog(selFile.toString(), cases, percentAsInterval);
+					process.saveAsNewLog(saveFilename, cases, percentAsInterval);
 
 					wait.setVisible(false);
 
-					javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ selFile);
+					javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ saveFilename);
 				} catch (Exception e) {
 					javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
+	}
+
+	@Action
+	public void actionSaveAs() {
+		String filename = File.separator+"dot";
+	    JFileChooser fc = new JFileChooser(new File(filename));
+		FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
+		fc.setFileFilter(ff);
+	    fc.showSaveDialog(this);
+	    File selFile = fc.getSelectedFile();
+	    if (selFile != null) {
+			String saveFilename = selFile.toString();
+			String ext = saveFilename.substring(saveFilename.lastIndexOf(".") + 1, saveFilename.length());
+			if (!ext.equals("plg")) {
+				saveFilename = saveFilename + ".plg";
+			}
+	    	try {
+				process.saveProcessAs(saveFilename);
+	    		javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ saveFilename);
+	    	} catch (IOException e) {
+	    		e.printStackTrace();
+	    		System.exit(1);
+	    	}
+	    }
 	}
 }
