@@ -505,10 +505,10 @@ public class PlgProcess {
 	}
 	
 	
-//	@Override
-//	public int hashCode() {
-//		return getHeuristicsNet().hashCode();
-//	}
+	@Override
+	public int hashCode() {
+		return getHeuristicsNet().hashCode();
+	}
 	
 	
 	/**
