@@ -267,52 +267,6 @@ public class PlgTest {
 				System.out.println("Cyclomatic Metric: " + measures.getCyclomaticMetric());
 			}
 			
-			
-//			HeuristicsNetFromFile hnff = new HeuristicsNetFromFile(new FileInputStream("/home/delas/desktop/semantic.hn"));
-//			FileWriter fw = new FileWriter("/home/delas/desktop/prova.dot");
-//			hnff.getNet().writeToDot(fw);
-//			fw.close();
-//			
-//			FileWriter fw2 = new FileWriter("/home/delas/desktop/prova.petri.dot");
-//			ProvidedObject po = new ProvidedObject("net", hnff.getNet());
-//			HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
-//			PetriNet petri = ((PetriNetResult) converter.convert(po)).getPetriNet();
-//			petri.writeToDot(fw2);
-//			fw2.close();
-			
-			/*File temp = File.createTempFile("pattern", ".suffix");
-			FileWriter fw = new FileWriter("/home/delas/desktop/test.hn");
-			p.getHeuristicsNetFile(fw);
-			fw.close();
-			
-			HeuristicsNetFromFile obj = new HeuristicsNetFromFile(new FileInputStream("/home/delas/desktop/test.hn"));
-			HeuristicsNet net = obj.getNet();
-			
-			ProvidedObject po = new ProvidedObject("net", net);
-			HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
-			PetriNet petri = ((PetriNetResult) converter.convert(po)).getPetriNet();
-			
-			FileWriter fw1 = new FileWriter("/home/delas/desktop/test-hn.dot");
-			net.writeToDot(fw1);
-			fw1.close();
-			
-			FileWriter fw2 = new FileWriter("/home/delas/desktop/test.dot");
-			petri.writeToDot(fw2);
-			fw2.close();*/
-			
-			/* ************************************************************** */
-			
-			
-			/* ************************************************************** */
-//			System.out.println("\nPROCESS INSTANCES");
-//			System.out.println(  "=================");
-//			for (Iterator<PlgObservation> i = p.getFirstActivity().generateInstance(0).iterator(); i.hasNext();) {
-//				PlgObservation o = i.next();
-//				System.out.println(o);
-//			}
-			
-//			p.saveAsDot("/home/delas/desktop/test.dot");
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
