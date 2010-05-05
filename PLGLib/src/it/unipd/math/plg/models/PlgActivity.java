@@ -1,6 +1,5 @@
 package it.unipd.math.plg.models;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,7 @@ import org.w3c.dom.NodeList;
  * relation).
  * 
  * @author Andrea Burattin
- * @version 0.3
+ * @version 0.4
  */
 public class PlgActivity {
 
@@ -46,8 +45,6 @@ public class PlgActivity {
 	private HashSet<PlgActivity> relationsTo = new HashSet<PlgActivity>(5);
 	private HashSet<PlgActivity> relationsFrom = new HashSet<PlgActivity>(5);
 	private PlgActivity splitJoinOpposite;
-	private PlgActivity inLoopTo;
-	private PlgActivity inLoopFrom;
 	private PlgProcess process;
 	
 
@@ -210,19 +207,6 @@ public class PlgActivity {
 	
 	
 	/**
-	 * This method inserts a new loop between two activities
-	 * 
-	 * @param destination the loop destination
-	 * @return the invoking activity
-	 */
-	public PlgActivity addLoop(PlgActivity destination) {
-		inLoopTo = destination;
-		destination.inLoopFrom = this;
-		return this;
-	}
-	
-	
-	/**
 	 * Inserts in the process a new XOR split-join, between the current activity
 	 * and the destination activity. Example:
 	 * <pre>
@@ -273,7 +257,7 @@ public class PlgActivity {
 	 * 
 	 * @return true if the activity is a XOR-join, false otherwise
 	 */
-	private boolean isXorJoin() {
+	boolean isXorJoin() {
 		if (splitJoinOpposite != null && 
 				splitJoinOpposite.relationType == RELATIONS.XOR_SPLIT) {
 			return true;
@@ -287,7 +271,7 @@ public class PlgActivity {
 	 * 
 	 * @return true if the activity is an AND-join, false otherwise
 	 */
-	private boolean isAndJoin() {
+	boolean isAndJoin() {
 		if (splitJoinOpposite != null && 
 				splitJoinOpposite.relationType == RELATIONS.AND_SPLIT) {
 			return true;
@@ -387,12 +371,12 @@ public class PlgActivity {
 		int nextNotBefore = startingTime + activityDuration + 1;
 		
 		// is this a loop?
-		if (inLoopTo != null) {
-			if (PlgProcess.generator.nextBoolean()) {
-				v.addAll(inLoopTo.generateInstance(null, nextNotBefore, untilActivities));
-				return v;
-			}
-		}
+//		if (inLoopTo != null) {
+//			if (PlgProcess.generator.nextBoolean()) {
+//				v.addAll(inLoopTo.generateInstance(null, nextNotBefore, untilActivities));
+//				return v;
+//			}
+//		}
 		
 		if (relationType == RELATIONS.SEQUENCE) {
 			
@@ -460,103 +444,103 @@ public class PlgActivity {
 	}
 
 
-	/**
-	 * This method writes the Heuristics Net file into the file writer stream
-	 * 
-	 * @param fw 
-	 * @param untilActivities
-	 * @throws IOException
-	 */
-	public void getHeuristicsNetFile(FileWriter fw, 
-			Stack<PlgActivity> untilActivities) throws IOException {
-		
-		// check the current stack of "until activities"
-		if (untilActivities.size() > 0 && untilActivities.get(0).equals(this)) {
-			return;
-		}
-		
-		boolean isXorJoin = isXorJoin();
-		boolean isAndJoin = isAndJoin();
-		
-		// activity id
-		String toRet = getActivityId() + "@";
-		
-		// activity origin
-		if (process.getFirstActivity().equals(this)) {
-			if (inLoopFrom == null) {
-				toRet += ".";
-			}
-		} else if (isXorJoin || isAndJoin) {
-			int parsed = 0;
-			for (Iterator<PlgActivity> i = relationsFrom.iterator(); i.hasNext();) {
-				PlgActivity c = i.next();
-				toRet += c.getActivityId();
-				parsed++;
-				if (parsed < relationsFrom.size()) {
-					if (isXorJoin) {
-						toRet += "|";
-					} else {
-						toRet += "&";
-					}
-				}
-			}
-		} else {
-			if (relationsFrom.iterator().hasNext()) {
-				toRet += relationsFrom.iterator().next().getActivityId();
-			}
-		}
-		if (inLoopFrom != null) {
-			toRet += "|" + inLoopFrom.getActivityId();
-		}
-		toRet += "@";
-		
-		// activity destination
-		if (inLoopTo != null) {
-			toRet += inLoopTo.getActivityId() + "|";
-		}
-		if (relationType == RELATIONS.SEQUENCE) {
-			// a sequence
-			if (relationsTo.iterator().hasNext()) {
-				PlgActivity c = relationsTo.iterator().next();
-				toRet += c.getActivityId();
-				c.getHeuristicsNetFile(fw, untilActivities);
-			}
-			toRet += "\n";
-			fw.write(toRet);
-		} else if (relationType == RELATIONS.AND_SPLIT || relationType == RELATIONS.XOR_SPLIT) {
-			// a split
-			int parsed = 0;
-			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
-				PlgActivity c = i.next();
-				toRet += c.getActivityId();
-				parsed++;
-				if (parsed < relationsTo.size()) {
-					if (relationType == RELATIONS.XOR_SPLIT) {
-						toRet += "|";
-					} else {
-						toRet += "&";
-					}
-				}
-			}
-			toRet += "\n";
-			fw.write(toRet);
-			
-			// recursive call into the branches
-			untilActivities.push(splitJoinOpposite);
-			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
-				i.next().getHeuristicsNetFile(fw, untilActivities);
-			}
-			untilActivities.pop();
-			splitJoinOpposite.getHeuristicsNetFile(fw, untilActivities);
-		} else {
-			// this is the last activity
-			if (inLoopTo == null) {
-				toRet += ".";
-			}
-			toRet += "\n";
-			fw.write(toRet);
-		}
-	}
+//	/**
+//	 * This method writes the Heuristics Net file into the file writer stream
+//	 * 
+//	 * @param fw 
+//	 * @param untilActivities
+//	 * @throws IOException
+//	 */
+//	public void getHeuristicsNetFile(FileWriter fw, 
+//			Stack<PlgActivity> untilActivities) throws IOException {
+//		
+//		// check the current stack of "until activities"
+//		if (untilActivities.size() > 0 && untilActivities.get(0).equals(this)) {
+//			return;
+//		}
+//		
+//		boolean isXorJoin = isXorJoin();
+//		boolean isAndJoin = isAndJoin();
+//		
+//		// activity id
+//		String toRet = getActivityId() + "@";
+//		
+//		// activity origin
+//		if (process.getFirstActivity().equals(this)) {
+////			if (inLoopFrom == null) {
+//				toRet += ".";
+////			}
+//		} else if (isXorJoin || isAndJoin) {
+//			int parsed = 0;
+//			for (Iterator<PlgActivity> i = relationsFrom.iterator(); i.hasNext();) {
+//				PlgActivity c = i.next();
+//				toRet += c.getActivityId();
+//				parsed++;
+//				if (parsed < relationsFrom.size()) {
+//					if (isXorJoin) {
+//						toRet += "|";
+//					} else {
+//						toRet += "&";
+//					}
+//				}
+//			}
+//		} else {
+//			if (relationsFrom.iterator().hasNext()) {
+//				toRet += relationsFrom.iterator().next().getActivityId();
+//			}
+//		}
+////		if (inLoopFrom != null) {
+////			toRet += "|" + inLoopFrom.getActivityId();
+////		}
+//		toRet += "@";
+//		
+//		// activity destination
+////		if (inLoopTo != null) {
+////			toRet += inLoopTo.getActivityId() + "|";
+////		}
+//		if (relationType == RELATIONS.SEQUENCE) {
+//			// a sequence
+//			if (relationsTo.iterator().hasNext()) {
+//				PlgActivity c = relationsTo.iterator().next();
+//				toRet += c.getActivityId();
+//				c.getHeuristicsNetFile(fw, untilActivities);
+//			}
+//			toRet += "\n";
+//			fw.write(toRet);
+//		} else if (relationType == RELATIONS.AND_SPLIT || relationType == RELATIONS.XOR_SPLIT) {
+//			// a split
+//			int parsed = 0;
+//			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
+//				PlgActivity c = i.next();
+//				toRet += c.getActivityId();
+//				parsed++;
+//				if (parsed < relationsTo.size()) {
+//					if (relationType == RELATIONS.XOR_SPLIT) {
+//						toRet += "|";
+//					} else {
+//						toRet += "&";
+//					}
+//				}
+//			}
+//			toRet += "\n";
+//			fw.write(toRet);
+//			
+//			// recursive call into the branches
+//			untilActivities.push(splitJoinOpposite);
+//			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
+//				i.next().getHeuristicsNetFile(fw, untilActivities);
+//			}
+//			untilActivities.pop();
+//			splitJoinOpposite.getHeuristicsNetFile(fw, untilActivities);
+//		} else {
+//			// this is the last activity
+////			if (inLoopTo == null) {
+//				toRet += ".";
+////			}
+//			toRet += "\n";
+//			fw.write(toRet);
+//		}
+//	}
 	
 	
 	/**
@@ -568,30 +552,22 @@ public class PlgActivity {
 	 */
 	public Tag getActivityAsXML(Tag parent) throws IOException {
 		Tag t = parent.addChildNode("activity");
-		t.addAttribute("id", getActivityId());
+		t.addAttribute("id", getName());
 		t.addAttribute("duration", duration().toString());
 		t.addAttribute("relationType", relationType.name());
 		Tag tagRelationsTo = t.addChildNode("relationsTo");
 		for (PlgActivity current : relationsTo) {
 			Tag d = tagRelationsTo.addChildNode("activity");
-			d.addAttribute("ref", current.getActivityId());
+			d.addAttribute("ref", current.getName());
 		}
 		Tag tagRelationsFrom = t.addChildNode("relationsFrom");
 		for (PlgActivity current : relationsFrom) {
 			Tag d = tagRelationsFrom.addChildNode("activity");
-			d.addAttribute("ref", current.getActivityId());
+			d.addAttribute("ref", current.getName());
 		}
 		Tag tagSplitJoinOpposite = t.addChildNode("splitJoinOpposite");
 		if (splitJoinOpposite != null) {
-			tagSplitJoinOpposite.addAttribute("ref", splitJoinOpposite.getActivityId());
-		}
-		Tag tagInLoopTo = t.addChildNode("inLoopTo");
-		if (inLoopTo != null) {
-			tagInLoopTo.addAttribute("ref", inLoopTo.getActivityId());
-		}
-		Tag tagInLoopFrom = t.addChildNode("inLoopFrom");
-		if (inLoopFrom != null) {
-			tagInLoopFrom.addAttribute("ref", inLoopFrom.getActivityId());
+			tagSplitJoinOpposite.addAttribute("ref", splitJoinOpposite.getName());
 		}
 		return t;
 	}
@@ -612,17 +588,7 @@ public class PlgActivity {
 			if (nodeName.equals("splitJoinOpposite")) {
 				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
 				if (atts != null) {
-					splitJoinOpposite = process.searchActivity(atts.getTextContent());
-				}
-			} else if (nodeName.equals("inLoopTo")) {
-				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
-				if (atts != null) {
-					inLoopTo = process.searchActivity(atts.getTextContent());
-				}
-			} else if (nodeName.equals("inLoopFrom")) {
-				Node atts = nodes.item(i).getAttributes().getNamedItem("ref");
-				if (atts != null) {
-					inLoopFrom = process.searchActivity(atts.getTextContent());
+					splitJoinOpposite = process.searchActivityFromName(atts.getTextContent());
 				}
 			} else if (nodeName.equals("relationsTo")) {
 				NodeList subNodes = nodes.item(i).getChildNodes();
@@ -631,7 +597,7 @@ public class PlgActivity {
 					if (subNodeName.equals("activity")) {
 						Node atts = subNodes.item(j).getAttributes().getNamedItem("ref");
 						if (atts != null) {
-							PlgActivity ref = process.searchActivity(atts.getTextContent());
+							PlgActivity ref = process.searchActivityFromName(atts.getTextContent());
 							relationsTo.add(ref);
 						}
 					}
@@ -643,12 +609,43 @@ public class PlgActivity {
 					if (subNodeName.equals("activity")) {
 						Node atts = subNodes.item(j).getAttributes().getNamedItem("ref");
 						if (atts != null) {
-							PlgActivity ref = process.searchActivity(atts.getTextContent());
+							PlgActivity ref = process.searchActivityFromName(atts.getTextContent());
 							relationsFrom.add(ref);
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	
+	/**
+	 * This method returns the set of all incoming activities to the current one
+	 * 
+	 * @return the set of activities
+	 */
+	public HashSet<PlgActivity> getRelationsFrom() {
+		return relationsFrom;
+	}
+	
+	
+	/**
+	 * This method returns the set of all outgoing activities from the current
+	 * one
+	 * 
+	 * @return the set of activities
+	 */
+	public HashSet<PlgActivity> getRelationsTo() {
+		return relationsTo;
+	}
+	
+	
+	/**
+	 * This method returns the type of the current activity
+	 * 
+	 * @return the activity type
+	 */
+	public RELATIONS getRelationType() {
+		return relationType;
 	}
 }
