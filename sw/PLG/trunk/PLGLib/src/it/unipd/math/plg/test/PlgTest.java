@@ -114,7 +114,43 @@ public class PlgTest {
 			A.addNext(B).addNext(C).addNext(D);
 			B.addLoop(A);*/
 			
-//			p.randomize(1);
+			/*it.unipd.math.plg.models.PlgActivity A = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity B = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity C = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity D = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity E = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity F = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity G = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity H = p.askNewActivity();
+			it.unipd.math.plg.models.PlgActivity I = p.askNewActivity();
+			
+			A.addNext(B).addNext(C).addNext(D).addNext(E);
+			D.inXorUntil(B);
+			D.addNext(F);
+			F.inAndUntil(I);
+			F.addNext(G).addNext(I);
+			F.addNext(H).addNext(I);
+			I.addNext(B);
+			
+			//p.randomize(3);
+			
+			String baseOutputPath1 = System.getProperty("user.dir") + "/test/";
+			baseOutputPath1 = baseOutputPath1.concat(new Integer(p.hashCode()).toString());
+			p.saveHeuristicsNetAsDot(baseOutputPath1 + ".hn.dot");
+			p.savePetriNetAsDot(baseOutputPath1 + ".pn.dot");
+			String[] dotCmd1 = {"/bin/sh", "-c",
+					"dot -Tpdf " + baseOutputPath1 + ".hn.dot > " + baseOutputPath1 + ".hn.pdf && " +
+					"dot -Tpdf " + baseOutputPath1 + ".pn.dot > " + baseOutputPath1 + ".pn.pdf"};
+			Process dotExec1 = Runtime.getRuntime().exec(dotCmd1);
+			dotExec1.waitFor();
+			System.out.println("\nOUTPUT GENERATION");
+			System.out.println(  "=================");
+			System.out.println("        Petri Net file: " + baseOutputPath1 + ".tpn");
+			System.out.println("     Dot for Petri Net: " + baseOutputPath1 + ".pn.dot");
+			System.out.println("Dot for Heuristics Net: " + baseOutputPath1 + ".hn.dot");
+			System.out.println("      PDF of Petri Net: " + baseOutputPath1 + ".pn.pdf");
+			System.out.println(" PDF of Heuristics Net: " + baseOutputPath1 + ".hn.pdf");
+			System.exit(0);*/
 			
 			
 			/* ****************************************************************
