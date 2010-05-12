@@ -44,6 +44,7 @@ public class PlgActivity {
 	private RELATIONS relationType = RELATIONS.UNDEF;
 	private HashSet<PlgActivity> relationsTo = new HashSet<PlgActivity>(5);
 	private HashSet<PlgActivity> relationsFrom = new HashSet<PlgActivity>(5);
+	private RELATIONS joinType = RELATIONS.UNDEF;
 	private PlgActivity splitJoinOpposite;
 	private PlgProcess process;
 	
@@ -158,19 +159,25 @@ public class PlgActivity {
 		// if this is a sequence relation, add this
 		if (relationType == RELATIONS.SEQUENCE) {
 			// add the backlink connection
+			if (!(destination.isAndJoin() || destination.isXorJoin())) {
+				destination.relationsFrom.clear();
+			}
 			destination.relationsFrom.add(this);
 			// add the only activity to successor
 			relationsTo.clear();
 			relationsTo.add(destination);
 			return destination;
-		}
-		// if this is an and/xor split add 
-		if (relationType == RELATIONS.AND_SPLIT ||
+			
+		} else if (relationType == RELATIONS.AND_SPLIT ||
 				relationType == RELATIONS.XOR_SPLIT) {
+			// if this is an and/xor split add
+			destination.joinType = relationType;
 			splitJoinOpposite = destination;
 			destination.splitJoinOpposite = this;
 			return destination;
 		}
+		// process cache cleaning
+		process.cleanModelCache();
 		return null;
 	}
 	
@@ -203,6 +210,20 @@ public class PlgActivity {
 		// process cache cleaning
 		process.cleanModelCache();
 		return toReturn;
+	}
+	
+	
+	/**
+	 * This method removes a connection going from the `this' activity to the
+	 * destination one
+	 * 
+	 * @param destination the activity to be removed from the outgoing edges
+	 */
+	public void removeConnection(PlgActivity destination) {
+		if (relationsTo.contains(destination)) {
+			relationsTo.remove(destination);
+			destination.relationsFrom.remove(this);
+		}
 	}
 	
 	
@@ -258,8 +279,9 @@ public class PlgActivity {
 	 * @return true if the activity is a XOR-join, false otherwise
 	 */
 	boolean isXorJoin() {
-		if (splitJoinOpposite != null && 
-				splitJoinOpposite.relationType == RELATIONS.XOR_SPLIT) {
+//		if (splitJoinOpposite != null && 
+//				splitJoinOpposite.relationType == RELATIONS.XOR_SPLIT) {
+		if (joinType == RELATIONS.XOR_SPLIT) {
 			return true;
 		}
 		return false;
@@ -272,11 +294,50 @@ public class PlgActivity {
 	 * @return true if the activity is an AND-join, false otherwise
 	 */
 	boolean isAndJoin() {
-		if (splitJoinOpposite != null && 
-				splitJoinOpposite.relationType == RELATIONS.AND_SPLIT) {
+//		if (splitJoinOpposite != null && 
+//				splitJoinOpposite.relationType == RELATIONS.AND_SPLIT) {
+		if (joinType == RELATIONS.AND_SPLIT) {
 			return true;
 		}
 		return false;
+	}
+	
+	
+	/**
+	 * Checks if the current activity is the first of its own process
+	 * 
+	 * @return true if the activity is the first one, false otherwise
+	 */
+	boolean isFirstActivity() {
+		PlgActivity first = process.getFirstActivity();
+		if (first != null && first.equals(this)) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Checks if the current activity is the last of its own process
+	 * 
+	 * @return true if the activity is the last one, false otherwise
+	 */
+	boolean isLastActivity() {
+		PlgActivity last = process.getLastActivity();
+		if (last != null && last.equals(this)) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	boolean canBeLoopDestination() {
+		return (/*!isFirstActivity() &&*/ !isAndJoin());
+	}
+	
+	
+	boolean canBeLoopDeparture() {
+		return (/*!isLastActivity() &&*/ !isAndJoin());
 	}
 	
 	
