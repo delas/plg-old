@@ -263,6 +263,38 @@ public class PlgParameters {
 	
 	
 	/**
+	 * This method return the number of AND branches to generate, according to
+	 * the probability given
+	 * 
+	 * @return the number of AND branches to generate
+	 */
+	public int getRandomAndBranches() {
+		return 2 + PlgProcess.generator.nextInt(getAndBranches() - 1);
+	}
+	
+	
+	/**
+	 * This method return the number of XOR branches to generate, according to
+	 * the probability given
+	 * 
+	 * @return the number of XOR branches to generate
+	 */
+	public int getRandomXorBranches() {
+		return 2 + PlgProcess.generator.nextInt(getXorBranches() - 1);
+	}
+	
+	
+	/**
+	 * This method is used for the definition of the presence of a loop
+	 * 
+	 * @return true if a loop must be inserted, false otherwise
+	 */
+	public boolean getLoopPresence() {
+		return randomFromPercent(getLoopPercent());
+	}
+	
+	
+	/**
 	 * This method returns a random pattern randomly selected between:
 	 * <ul>
 	 * 	<li>Sequence pattern</li>
