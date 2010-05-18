@@ -897,26 +897,27 @@ public class PlgProcess {
 	private PlgPatternFrame askInternalPattern(PlgPatternFrame container, int maxNested) {
 		
 		if (maxNested < 1) {
-			return getPatternActivity(container, maxNested - 1);
+			return getPatternActivity(container, maxNested);
 		}
 		
 		PlgPatternFrame pattern = null;
 		PlgParameters.PATTERN nextAction = parameters.getRandomActionInSeqAndXor();
 		
 		if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
-			pattern = getPatternSequence(container, maxNested - 1);
+			pattern = getPatternSequence(container, maxNested);
 		} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
-			pattern = getPatternAnd(container, maxNested - 1);
+			pattern = getPatternAnd(container, maxNested);
 		} else if (nextAction.equals(PlgParameters.PATTERN.XOR)) {
-			pattern = getPatternXor(container, maxNested - 1);
+			pattern = getPatternAnd(container, maxNested);
+//			pattern = getPatternXor(container, maxNested);
 		} else {
-			pattern = getPatternActivity(container, maxNested - 1);
+			pattern = getPatternActivity(container, maxNested);
 		}
 		
 		// loop stuff
-//		if (parameters.getLoopPresence() && !pattern.getHead().equals(pattern.getTail())) {
-//			getPatternLoop(pattern, maxNested - 1);
-//		}
+		if (parameters.getLoopPresence()) {
+			getPatternLoop(pattern, maxNested);
+		}
 		
 		return pattern;
 	}
@@ -942,11 +943,14 @@ public class PlgProcess {
 	}
 	
 	private PlgPatternFrame getPatternSplitJoin(PlgPatternFrame container, PlgParameters.PATTERN type, int maxNested) {
-		PlgPatternFrame split = askInternalPattern(container, maxNested);
+		// the subgraph for the split
+//		PlgPatternFrame split = askInternalPattern(container, maxNested - 1);
+		PlgPatternFrame split = getPatternActivity(container, maxNested - 1);
 		split.getHead().removeConnection(container.getHead());
-		
+		// the subgraph for the join
 		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead());
-		PlgPatternFrame join = askInternalPattern(joinBody, maxNested);
+//		PlgPatternFrame join = askInternalPattern(joinBody, maxNested - 1);
+		PlgPatternFrame join = getPatternActivity(joinBody, maxNested - 1);
 		
 		container.getTail().addNext(split.getTail());
 		join.getHead().addNext(container.getHead());
@@ -962,6 +966,7 @@ public class PlgProcess {
 			split.getHead().inXorUntil(join.getTail());
 		}
 		
+		// all the branches generation
 		PlgPatternFrame body = new PlgPatternFrame(join.getTail(), split.getHead());
 		for(int i = 0; i < branches; i++) {
 			askInternalPattern(body, maxNested - 1);
@@ -979,316 +984,22 @@ public class PlgProcess {
 	}
 	
 	private void getPatternLoop(PlgPatternFrame bound, int maxNested) {
-//		PlgActivity from = bound.getHead();
-//		PlgActivity to = bound.getTail();
-//		if (to.canBeLoopDestination() && from.canBeLoopDeparture()) {
-//			PlgPatternFrame loopBody = askInternalPattern(maxNested);
-//			from.inXorUntil(to);
-//			from.addNext(loopBody.getTail());
-//			loopBody.getTail().addNext(to);
-//			System.out.println("loop ok");
-//		} else
-//			System.out.println("loop damn ["+ (!from.isAndJoin()) +"]");
+		PlgActivity from = bound.getHead();
+		PlgActivity to = bound.getTail();
+		if (from.canBeLoopDeparture() && to.canBeLoopDestination()) {
+			System.out.println("loop ok ["+ from +" - "+ to +"]");
+			System.out.println("         "+ from.getRelationType() + " - "+ from.isAndJoin() + " - " + from.getRelationsFrom());
+			System.out.println("         "+ to.getRelationType() + " - "+ to.isAndJoin() + " - " + to.getRelationsFrom());
+			from.inXorUntil(to);
+
+			PlgPatternFrame loop = new PlgPatternFrame(to, from);
+			askInternalPattern(loop, maxNested - 1);
+			
+//			from.addNext(to);
+		} else {
+			System.out.println("loop damn");
+		}
 	}
-	
-	
-	
-	
-	
-	/*private PlgPatternFrame getPatternXor(int maxNested) {		
-		return null;
-	}*/
-	
-	
-//	/**
-//	 * This method populates the current process with some random activities
-//	 * 
-//	 * @param parameters the object with all the parameters
-//	 */
-//	private void randomize(PlgParameters parameters) {
-//		PlgParameters.PATTERN nextAction = parameters.getRandomActionInSeqAndXor();
-//		
-//		if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
-//			getPatternSequence(parameters, null, 0);
-//		} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
-//			getPatternAnd(parameters, null, 1);
-//		} else {
-//			getPatternXor(parameters, null, 1);
-//		}
-//	}
-//
-//	
-//	/**
-//	 * This method generates a random activity pattern
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @param maxNested
-//	 * @return the head activity
-//	 */
-//	private PlgActivity askInternalPattern(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		return askInternalPattern(parameters, to, maxNested, true);
-//	}
-//
-//	
-//	/**
-//	 * This method generates a random activity pattern
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @param maxNested
-//	 * @param allowEmpty if the empty pattern is allowed
-//	 * @return the head activity
-//	 */
-//	private PlgActivity askInternalPattern(PlgParameters parameters, PlgActivity to, int maxNested, boolean allowEmpty) {
-//		int deep = parameters.getDeep() - 1;
-//		parameters.setDeep(deep);
-//		if (maxNested > maxDepth) {
-//			maxDepth++;
-//		}
-//		if (deep == 0) {
-//			return getPatternAlone(parameters, to, maxNested);
-//		} else {
-//			if (allowEmpty) {
-//				PlgParameters.PATTERN nextAction = parameters.getRandomActionInAloneSeqAndXorEmpty();
-//				
-//				if (nextAction.equals(PlgParameters.PATTERN.SINGLE)) {
-//					return getPatternAlone(parameters, to, maxNested);
-//				} else if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
-//					return getPatternSequence(parameters, to, maxNested);
-//				} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
-//					return getPatternAnd(parameters, to, maxNested + 1);
-//				} else if (nextAction.equals(PlgParameters.PATTERN.XOR)) {
-//					return getPatternXor(parameters, to, maxNested + 1);
-//				} else {
-//					return getEmptyPatter(parameters, to, maxNested);
-//				}
-//			} else {
-//				PlgParameters.PATTERN nextAction = parameters.getRandomActionInAloneSeqAndXor();
-//				
-//				if (nextAction.equals(PlgParameters.PATTERN.SINGLE)) {
-//					return getPatternAlone(parameters, to, maxNested);
-//				} else if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
-//					return getPatternSequence(parameters, to, maxNested);
-//				} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
-//					return getPatternAnd(parameters, to, maxNested + 1);
-//				} else {
-//					return getPatternXor(parameters, to, maxNested + 1);
-//				}
-//			}
-//		}
-//	}
-//
-//	
-//	/**
-//	 * This method generates a random activity, with this structure:
-//	 * <pre>
-//	 *   A
-//	 * </pre>
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @return the head activity
-//	 */
-//	private PlgActivity getPatternAlone(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		PlgActivity a = askNewActivity();
-//		// loop stuff
-//		if (!a.equals(this.firstActivity)) {
-//			if (PlgParameters.randomFromPercent(parameters.getLoopPercent())) {
-//				incrementPatternCounter(COUNTER_TYPES.LOOP);
-//				getLoopPattern(parameters, a, a, maxNested);
-////				a.addLoop(a);
-//			}
-//		}
-//		if (to != null) {
-//			a.addNext(to);
-//		}
-//		
-//		// counter update
-//		incrementPatternCounter(COUNTER_TYPES.ALONE);
-//		
-//		return a;
-//	}
-//
-//	
-//	/**
-//	 * This method generates random activities, with this structure:
-//	 * <pre>
-//	 *   o -> A -> ? -> B -> o
-//	 * </pre>
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @return the head activity
-//	 */
-//	private PlgActivity getPatternSequence(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		PlgActivity a = askNewActivity();
-//		PlgActivity b = askNewActivity();
-//		a.addNext(askInternalPattern(parameters, b, maxNested));
-//		
-//		// loop stuff
-//		if (!a.equals(this.firstActivity) && !b.equals(this.lastActivity)) {
-//			if (PlgParameters.randomFromPercent(parameters.getLoopPercent())) {
-//				incrementPatternCounter(COUNTER_TYPES.LOOP);
-//				getLoopPattern(parameters, a, b, maxNested);
-////				b.addLoop(a);
-//			}
-//		}
-//		if (to != null) {
-//			b.addNext(to);
-//		}
-//		
-//		// counter update
-//		incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
-//		
-//		return a;
-//	}
-//
-//	
-//	/**
-//	 * This method generates random activities, with this structure:
-//	 * <pre>
-//	 *      .-> o -> ? -> o -.
-//	 *  o-> A                  B -> o
-//	 *      `-> o -> ? -> o -'
-//	 * </pre>
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @return the head activity
-//	 */
-//	private PlgActivity getPatternAnd(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		PlgActivity a = askNewActivity();
-//		PlgActivity b = askNewActivity();
-//		a.inAndUntil(b);
-//		int totFork = 2 + generator.nextInt(parameters.getAndBranches() - 1);
-//		int totEmpty = 0;
-//		// at least one activity must be in one and branch 
-//		a.addNext(askInternalPattern(parameters, b, maxNested, false));
-//		for (int i = 0; i < totFork - 1; i++) {
-//			PlgActivity inner = askInternalPattern(parameters, b, maxNested);
-//			// we need to check if this is an empty pattern
-//			if (inner.equals(b)) {
-//				totEmpty++;
-//			} else {
-//				a.addNext(inner);
-//			}
-//		}
-//		// we can have an empty activity for each branch; in this case we have
-//		// to connect a with b
-//		if (totEmpty == totFork) {
-//			a.addNext(b);
-//		}
-//		// loop stuff
-//		if (!a.equals(this.firstActivity) && !b.equals(this.lastActivity)) {
-//			if (PlgParameters.randomFromPercent(parameters.getLoopPercent())) {
-//				incrementPatternCounter(COUNTER_TYPES.LOOP);
-//				getLoopPattern(parameters, a, b, maxNested);
-////				b.addLoop(a);
-//			}
-//		}
-//		if (to != null) {
-//			b.addNext(to);
-//		}
-//		
-//		// counter update
-//		if (totFork-totEmpty > 1) {
-//			// check current number of branches
-//			int currentAndBranches = totFork-totEmpty;
-//			int maxAndBranches = getPatternsCounter(COUNTER_TYPES.MAX_AND_BRANCHES);
-//			if (currentAndBranches > maxAndBranches) {
-//				setPatternCounter(COUNTER_TYPES.MAX_AND_BRANCHES, currentAndBranches);
-//			}
-//			// this is actually an AND pattern
-//			incrementPatternCounter(COUNTER_TYPES.AND);
-//		}
-//		
-//		return a;
-//	}
-//
-//	
-//	/**
-//	 * This method generates random activities, with this structure:
-//	 * <pre>
-//	 *             .-> ? -.
-//	 *   o -> A -> o       -> o -> B -> o
-//	 *             `-> ? -'
-//	 * </pre>
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @return the head activity
-//	 */
-//	private PlgActivity getPatternXor(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		PlgActivity a = askNewActivity();
-//		PlgActivity b = askNewActivity();
-//		a.inXorUntil(b);
-//		int totFork = 2 + generator.nextInt(parameters.getXorBranches() - 1);
-//		int totEmpty = 0;
-//		// at least one activity must be in one and branch 
-//		a.addNext(askInternalPattern(parameters, b, maxNested, false));
-//		for (int i = 0; i < totFork - 1; i++) {
-//			PlgActivity inner = askInternalPattern(parameters, b, maxNested);
-//			// we need to check if this is an empty pattern
-//			if (inner.equals(b)) {
-//				totEmpty++;
-//			} else {
-//				a.addNext(inner);
-//			}
-//		}
-//		// we can have an empty activity for each branch; in this case we have
-//		// to connect a with b
-//		if (totEmpty == totFork) {
-//			a.addNext(b);
-//		}
-//		// loop stuff
-//		if (!a.equals(this.firstActivity) && !b.equals(this.lastActivity)) {
-//			if (PlgParameters.randomFromPercent(parameters.getLoopPercent())) {
-//				incrementPatternCounter(COUNTER_TYPES.LOOP);
-//				getLoopPattern(parameters, a, b, maxNested);
-////				b.addLoop(a);
-//			}
-//		}
-//		if (to != null) {
-//			b.addNext(to);
-//		}
-//		
-//		// counter update
-//		if (totFork-totEmpty > 1) {
-//			// check current number of branches
-//			int currentXorBranches = totFork-totEmpty;
-//			int maxXorBranches = getPatternsCounter(COUNTER_TYPES.MAX_XOR_BRANCHES);
-//			if (currentXorBranches > maxXorBranches) {
-//				setPatternCounter(COUNTER_TYPES.MAX_XOR_BRANCHES, currentXorBranches);
-//			}
-//			// this is actually a XOR pattern
-//			incrementPatternCounter(COUNTER_TYPES.XOR);
-//		}
-//		
-//		return a;
-//	}
-//	
-//	
-//	private PlgActivity getLoopPattern(PlgParameters parameters, PlgActivity from, PlgActivity to, int maxNested) {
-//		from.inXorUntil(to);
-//		from.addNext(askInternalPattern(parameters, to, maxNested, true));
-//		return to;
-//	}
-//	
-//	
-//	/**
-//	 * This method generates an empty activity pattern
-//	 *
-//	 * @param parameters the object with all the parameters
-//	 * @param to the activity to point the last internal activity
-//	 * @return the head activity
-//	 */
-//	private PlgActivity getEmptyPatter(PlgParameters parameters, PlgActivity to, int maxNested) {
-//		// counter update
-//		incrementPatternCounter(COUNTER_TYPES.EMPTY);
-//		
-//		return to;
-//	}
 	/* ********************************************************************** */
 	
 	

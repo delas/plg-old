@@ -155,6 +155,7 @@ public class PlgActivity {
 	 * @return the destination activity
 	 */
 	private PlgActivity addRelation(RELATIONS relationType, PlgActivity destination) {
+		RELATIONS prevRelationType = this.relationType;
 		this.relationType = relationType;
 		// if this is a sequence relation, add this
 		if (relationType == RELATIONS.SEQUENCE) {
@@ -170,10 +171,23 @@ public class PlgActivity {
 			
 		} else if (relationType == RELATIONS.AND_SPLIT ||
 				relationType == RELATIONS.XOR_SPLIT) {
+			// if this is a loop node, we have to add an artificial activity
+			if (destination.isXorJoin()) {
+				PlgActivity a = process.askNewActivity();
+				for(PlgActivity t : destination.getRelationsFrom()) {
+					t.addNext(a);
+					t.removeConnection(destination);
+				}
+				a.addNext(destination);
+				a.splitJoinOpposite = destination.splitJoinOpposite;
+				a.joinType = destination.joinType;
+				System.out.println("---");
+				destination = a;
+			}
 			// if this is an and/xor split add
-			destination.joinType = relationType;
 			splitJoinOpposite = destination;
 			destination.splitJoinOpposite = this;
+			destination.joinType = relationType;
 			return destination;
 		}
 		// process cache cleaning
@@ -296,6 +310,8 @@ public class PlgActivity {
 	boolean isAndJoin() {
 //		if (splitJoinOpposite != null && 
 //				splitJoinOpposite.relationType == RELATIONS.AND_SPLIT) {
+//			return true;
+//		}
 		if (joinType == RELATIONS.AND_SPLIT) {
 			return true;
 		}
@@ -332,12 +348,12 @@ public class PlgActivity {
 	
 	
 	boolean canBeLoopDestination() {
-		return (/*!isFirstActivity() &&*/ !isAndJoin());
+		return (relationType!=RELATIONS.AND_SPLIT && !isAndJoin());
 	}
 	
 	
 	boolean canBeLoopDeparture() {
-		return (/*!isLastActivity() &&*/ !isAndJoin());
+		return (relationType != RELATIONS.AND_SPLIT);
 	}
 	
 	

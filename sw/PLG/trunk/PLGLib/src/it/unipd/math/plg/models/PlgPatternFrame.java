@@ -38,11 +38,31 @@ public class PlgPatternFrame {
 	
 	
 	/**
+	 * Set the head of the pattern
+	 * 
+	 * @param head the new head
+	 */
+	public void setHead(PlgActivity head) {
+		this.head = head;
+	}
+	
+	
+	/**
 	 * Get the tail of the pattern
 	 * 
 	 * @return the tail of the pattern
 	 */
 	public PlgActivity getTail() {
 		return tail;
+	}
+	
+	
+	/**
+	 * Set the tail of the pattern
+	 * 
+	 * @param tail the new tail
+	 */
+	public void setTail(PlgActivity tail) {
+		this.tail = tail;
 	}
 }
