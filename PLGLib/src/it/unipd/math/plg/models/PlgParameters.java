@@ -16,7 +16,6 @@ public class PlgParameters {
 	private int sequencePercent;
 	private int ANDPercent;
 	private int XORPercent;
-	private int emptyPercent;
 	private int deep;
 	
 	/**
@@ -69,7 +68,7 @@ public class PlgParameters {
 	 */
 	public PlgParameters(int ANDBranches, int XORBranches, int loopPercent,
 			int singleActivityPercent, int sequencePercent, int ANDPercent,
-			int XORPercent, int emptyPercent, int deep) {
+			int XORPercent, int deep) {
 		setAndBranches(ANDBranches);
 		setXorBranches(XORBranches);
 		setLoopPercent(loopPercent);
@@ -77,7 +76,6 @@ public class PlgParameters {
 		setSequencePercent(sequencePercent);
 		setANDPercent(ANDPercent);
 		setXORPercent(XORPercent);
-		setEmptyPercent(emptyPercent);
 		setDeep(deep);
 	}
 	
@@ -223,26 +221,6 @@ public class PlgParameters {
 	
 	
 	/**
-	 * Set the empty pattern percent parameter
-	 * 
-	 * @param emptyPercent
-	 */
-	public void setEmptyPercent(int emptyPercent) {
-		this.emptyPercent = (emptyPercent >= 0 && emptyPercent <= 100)? emptyPercent : 30;
-	}
-	
-	
-	/**
-	 * Get the current value of the empty percent parameter
-	 * 
-	 * @return the value of the parameter
-	 */
-	public int getEmptyPercent() {
-		return emptyPercent;
-	}
-	
-	
-	/**
 	 * Set the maximum deepanche  parameter
 	 * 
 	 * @param deep
@@ -317,39 +295,6 @@ public class PlgParameters {
 			toReturn = PATTERN.AND;
 		} else {
 			toReturn = PATTERN.XOR;
-		}
-		return toReturn;
-	}
-	
-	
-	/**
-	 * This method returns a random pattern randomly selected between:
-	 * <ul>
-	 * 	<li>Single activity</li>
-	 * 	<li>Sequence pattern</li>
-	 * 	<li>AND pattern</li>
-	 * 	<li>XOR pattern</li>
-	 * 	<li>Empty pattern</li>
-	 * </ul>
-	 * 
-	 * The selection is done according to the given probabilities
-	 * 
-	 * @return the random pattern
-	 */
-	public PATTERN getRandomActionInAloneSeqAndXorEmpty() {
-		PATTERN toReturn;
-		int totPercent = singleActivityPercent + sequencePercent + ANDPercent + XORPercent + emptyPercent;
-		int nextAction = PlgProcess.generator.nextInt(totPercent + 1);
-		if (nextAction <= singleActivityPercent) {
-			toReturn = PATTERN.SINGLE;
-		} else if (nextAction <= singleActivityPercent + sequencePercent) {
-			toReturn = PATTERN.SEQUENCE;
-		} else if (nextAction <= singleActivityPercent + sequencePercent + ANDPercent) {
-			toReturn = PATTERN.AND;
-		} else if (nextAction <= singleActivityPercent + sequencePercent + ANDPercent + XORPercent) {
-			toReturn = PATTERN.XOR;
-		} else {
-			toReturn = PATTERN.EMPTY;
 		}
 		return toReturn;
 	}

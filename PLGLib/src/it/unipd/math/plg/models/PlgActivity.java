@@ -632,6 +632,7 @@ public class PlgActivity {
 		t.addAttribute("id", getName());
 		t.addAttribute("duration", duration().toString());
 		t.addAttribute("relationType", relationType.name());
+		t.addAttribute("joinType", joinType.name());
 		Tag tagRelationsTo = t.addChildNode("relationsTo");
 		for (PlgActivity current : relationsTo) {
 			Tag d = tagRelationsTo.addChildNode("activity");
@@ -659,6 +660,7 @@ public class PlgActivity {
 	public void setActivityFromXML(Node node) {
 		activityDuration = new Integer(node.getAttributes().getNamedItem("duration").getTextContent());
 		relationType = RELATIONS.valueOf(node.getAttributes().getNamedItem("relationType").getTextContent());
+		joinType = RELATIONS.valueOf(node.getAttributes().getNamedItem("joinType").getTextContent());
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			String nodeName = nodes.item(i).getNodeName();

@@ -2,6 +2,7 @@ package it.unipd.math.plg.test;
 
 import static java.util.Arrays.asList;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
+import it.unipd.math.plg.models.PlgParameters;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
 
@@ -32,7 +33,7 @@ public class PlgTest {
 	public static void main(String[] args) {
 		try {
 			
-			PlgProcess p = new PlgProcess("test");
+//			PlgProcess p = new PlgProcess("test");
 
 			/* *****************************************************************
 			 * 
@@ -114,43 +115,56 @@ public class PlgTest {
 			A.addNext(B).addNext(C).addNext(D);
 			B.addLoop(A);*/
 			
-			/*it.unipd.math.plg.models.PlgActivity A = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity B = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity C = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity D = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity E = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity F = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity G = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity H = p.askNewActivity();
-			it.unipd.math.plg.models.PlgActivity I = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity A = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity B = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity C = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity D = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity E = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity F = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity G = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity H = p.askNewActivity();
+//			it.unipd.math.plg.models.PlgActivity I = p.askNewActivity();
 			
-			A.addNext(B).addNext(C).addNext(D).addNext(E);
-			D.inXorUntil(B);
-			D.addNext(F);
-			F.inAndUntil(I);
-			F.addNext(G).addNext(I);
-			F.addNext(H).addNext(I);
-			I.addNext(B);
-			
-			//p.randomize(3);
+//			A.addNext(B);
+//			B.inAndUntil(E);
+//				B.addNext(C).addNext(E);
+//				B.addNext(D).addNext(E);
+//			E.addNext(F);
+//			F.inXorUntil(B);
+//				F.addNext(G);
+//				F.addNext(H).addNext(B);
+
+			PlgParameters parameters = new PlgParameters(
+					5,  // max and branches
+					5,  // max xor branches
+					20, // loop prob
+					60, // single act prob
+					70, // sequence act prob
+					35, // and prob
+					35, // xor prob
+					3 // deep
+			);
+//			p.randomize(parameters);
+//			p.saveProcessAs("/home/delas/desktop/asd.plg");
+			PlgProcess p = PlgProcess.loadProcessFrom("/home/delas/desktop/asd.plg");
 			
 			String baseOutputPath1 = System.getProperty("user.dir") + "/test/";
-			baseOutputPath1 = baseOutputPath1.concat(new Integer(p.hashCode()).toString());
-			p.saveHeuristicsNetAsDot(baseOutputPath1 + ".hn.dot");
-			p.savePetriNetAsDot(baseOutputPath1 + ".pn.dot");
+			String finalOutputPath1 = baseOutputPath1.concat("test");//baseOutputPath1.concat(new Integer(p.hashCode()).toString());
+			p.saveHeuristicsNetAsDot(finalOutputPath1 + ".hn.dot");
+			p.savePetriNetAsDot(finalOutputPath1 + ".pn.dot");
 			String[] dotCmd1 = {"/bin/sh", "-c",
-					"dot -Tpdf " + baseOutputPath1 + ".hn.dot > " + baseOutputPath1 + ".hn.pdf && " +
-					"dot -Tpdf " + baseOutputPath1 + ".pn.dot > " + baseOutputPath1 + ".pn.pdf"};
+					"dot -Tpdf " + finalOutputPath1 + ".hn.dot > " + finalOutputPath1 + ".hn.pdf && " +
+					"dot -Tpdf " + finalOutputPath1 + ".pn.dot > " + finalOutputPath1 + ".pn.pdf"};
 			Process dotExec1 = Runtime.getRuntime().exec(dotCmd1);
 			dotExec1.waitFor();
 			System.out.println("\nOUTPUT GENERATION");
 			System.out.println(  "=================");
-			System.out.println("        Petri Net file: " + baseOutputPath1 + ".tpn");
-			System.out.println("     Dot for Petri Net: " + baseOutputPath1 + ".pn.dot");
-			System.out.println("Dot for Heuristics Net: " + baseOutputPath1 + ".hn.dot");
-			System.out.println("      PDF of Petri Net: " + baseOutputPath1 + ".pn.pdf");
-			System.out.println(" PDF of Heuristics Net: " + baseOutputPath1 + ".hn.pdf");
-			System.exit(0);*/
+			System.out.println("        Petri Net file: " + finalOutputPath1 + ".tpn");
+			System.out.println("     Dot for Petri Net: " + finalOutputPath1 + ".pn.dot");
+			System.out.println("Dot for Heuristics Net: " + finalOutputPath1 + ".hn.dot");
+			System.out.println("      PDF of Petri Net: " + finalOutputPath1 + ".pn.pdf");
+			System.out.println(" PDF of Heuristics Net: " + finalOutputPath1 + ".hn.pdf");
+			System.exit(0);
 			
 			
 			/* ****************************************************************
