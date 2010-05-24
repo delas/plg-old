@@ -387,9 +387,9 @@ public class PlgProcess {
 		}
 		
 		try {
+			File tempFile = new File("/home/delas/doc/workspace/PLGLib/test/hn.hn");
 //			File tempFile = File.createTempFile("temporary-heuristics", ".dot");
 //			tempFile.deleteOnExit();
-			File tempFile = new File("/home/delas/doc/workspace/PLGLib/test/hn.hn");
 			FileWriter os = new FileWriter(tempFile);
 
 			String separator = "/////////////////////\n";
@@ -840,7 +840,6 @@ public class PlgProcess {
 				35, // sequence act prob
 				25, // and prob
 				25, // xor prob
-				25, // empty activity prob
 				deep // deep
 		);
 		randomize(parameters);
@@ -861,17 +860,15 @@ public class PlgProcess {
 	 * <= 100)
 	 * @param XORProbability the probability of XOR split-join (must be >= 0 and 
 	 * <= 100)
-	 * @param emptyProbability the probability of an empty pattern (must be >= 0
-	 * and <= 100)
 	 * @param deep the maximum network deep
 	 */
 	public void randomize(int ANDBranches, int XORBranches, int loopPercent,
 			int singleActivityProbability, int sequenceProbability,
-			int ANDProbability, int XORProbability, int emptyProbability, int deep) {
+			int ANDProbability, int XORProbability, int deep) {
 		// pack parameters
 		PlgParameters parameters = new PlgParameters(ANDBranches, XORBranches,
 				loopPercent, singleActivityProbability, sequenceProbability,
-				ANDProbability, XORProbability, emptyProbability, deep);
+				ANDProbability, XORProbability, deep);
 		randomize(parameters);
 	}
 	
@@ -908,8 +905,8 @@ public class PlgProcess {
 		} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
 			pattern = getPatternAnd(container, maxNested);
 		} else if (nextAction.equals(PlgParameters.PATTERN.XOR)) {
-			pattern = getPatternAnd(container, maxNested);
-//			pattern = getPatternXor(container, maxNested);
+//			pattern = getPatternAnd(container, maxNested);
+			pattern = getPatternXor(container, maxNested);
 		} else {
 			pattern = getPatternActivity(container, maxNested);
 		}
@@ -987,9 +984,9 @@ public class PlgProcess {
 		PlgActivity from = bound.getHead();
 		PlgActivity to = bound.getTail();
 		if (from.canBeLoopDeparture() && to.canBeLoopDestination()) {
-			System.out.println("loop ok ["+ from +" - "+ to +"]");
-			System.out.println("         "+ from.getRelationType() + " - "+ from.isAndJoin() + " - " + from.getRelationsFrom());
-			System.out.println("         "+ to.getRelationType() + " - "+ to.isAndJoin() + " - " + to.getRelationsFrom());
+//			System.out.println("loop ok ["+ from +" - "+ to +"]");
+//			System.out.println("         "+ from.getRelationType() + " - "+ from.isAndJoin() + " - " + from.getRelationsFrom());
+//			System.out.println("         "+ to.getRelationType() + " - "+ to.isAndJoin() + " - " + to.getRelationsFrom());
 			from.inXorUntil(to);
 
 			PlgPatternFrame loop = new PlgPatternFrame(to, from);
@@ -997,7 +994,7 @@ public class PlgProcess {
 			
 //			from.addNext(to);
 		} else {
-			System.out.println("loop damn");
+//			System.out.println("loop damn");
 		}
 	}
 	/* ********************************************************************** */
