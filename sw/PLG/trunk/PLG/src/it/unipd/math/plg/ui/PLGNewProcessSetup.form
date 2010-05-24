@@ -28,7 +28,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jPanel2" alignment="0" pref="542" max="32767" attributes="0"/>
+                  <Component id="jPanel2" alignment="0" pref="610" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
@@ -37,17 +37,17 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jFormattedTextField1" alignment="0" pref="347" max="32767" attributes="0"/>
-                          <Component id="jFormattedTextField2" alignment="0" pref="347" max="32767" attributes="0"/>
-                          <Component id="jFormattedTextField3" alignment="0" pref="347" max="32767" attributes="0"/>
+                          <Component id="jFormattedTextField1" alignment="0" pref="415" max="32767" attributes="0"/>
+                          <Component id="jFormattedTextField2" alignment="0" pref="415" max="32767" attributes="0"/>
+                          <Component id="jFormattedTextField3" alignment="0" pref="415" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="92" max="-2" attributes="0"/>
-                      <Component id="jSlider4" pref="345" max="32767" attributes="0"/>
+                      <Component id="jSlider4" pref="413" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jPanel8" alignment="1" pref="542" max="32767" attributes="0"/>
+                  <Component id="jPanel8" alignment="1" pref="610" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -134,7 +134,7 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSlider1" alignment="0" pref="252" max="32767" attributes="0"/>
+                              <Component id="jSlider1" alignment="0" pref="286" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -185,7 +185,7 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSlider5" alignment="0" pref="252" max="32767" attributes="0"/>
+                              <Component id="jSlider5" alignment="0" pref="286" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -236,7 +236,7 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSlider2" alignment="0" pref="252" max="32767" attributes="0"/>
+                              <Component id="jSlider2" alignment="0" pref="286" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -287,7 +287,7 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSlider3" alignment="0" pref="252" max="32767" attributes="0"/>
+                              <Component id="jSlider3" alignment="0" pref="286" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -316,57 +316,6 @@
                 <Component class="javax.swing.JSlider" name="jSlider3">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="jSlider3" noResource="true"/>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
-            <Component class="javax.swing.JLabel" name="jLabel13">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" resourceKey="jLabel13.icon"/>
-                <Property name="text" type="java.lang.String" resourceKey="jLabel13.text"/>
-                <Property name="name" type="java.lang.String" value="jLabel13" noResource="true"/>
-              </Properties>
-            </Component>
-            <Container class="javax.swing.JPanel" name="jPanel9">
-              <Properties>
-                <Property name="name" type="java.lang.String" value="jPanel9" noResource="true"/>
-              </Properties>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel14" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jSlider6" alignment="0" pref="252" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="20" pref="20" max="20" attributes="0"/>
-                          <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSlider6" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel14">
-                  <Properties>
-                    <Property name="horizontalAlignment" type="int" value="2"/>
-                    <Property name="text" type="java.lang.String" resourceKey="jLabel14.text"/>
-                    <Property name="name" type="java.lang.String" value="jLabel14" noResource="true"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JSlider" name="jSlider6">
-                  <Properties>
-                    <Property name="name" type="java.lang.String" value="jSlider6" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>

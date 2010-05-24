@@ -227,7 +227,6 @@ public class PLGMainUI extends FrameView {
 			setup.getSequenceActivitiesProbability(),
 			setup.getAndProbability(),
 			setup.getXorProbability(),
-			setup.getEmptyProbability(),
 			setup.getNetworkDeep());
 
 		pUi.setProcess(p);
