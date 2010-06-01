@@ -293,8 +293,6 @@ public class PlgActivity {
 	 * @return true if the activity is a XOR-join, false otherwise
 	 */
 	boolean isXorJoin() {
-//		if (splitJoinOpposite != null && 
-//				splitJoinOpposite.relationType == RELATIONS.XOR_SPLIT) {
 		if (joinType == RELATIONS.XOR_SPLIT) {
 			return true;
 		}
@@ -308,10 +306,6 @@ public class PlgActivity {
 	 * @return true if the activity is an AND-join, false otherwise
 	 */
 	boolean isAndJoin() {
-//		if (splitJoinOpposite != null && 
-//				splitJoinOpposite.relationType == RELATIONS.AND_SPLIT) {
-//			return true;
-//		}
 		if (joinType == RELATIONS.AND_SPLIT) {
 			return true;
 		}
@@ -446,15 +440,7 @@ public class PlgActivity {
 		}
 		
 		int nextNotBefore = startingTime + activityDuration + 1;
-		
-		// is this a loop?
-//		if (inLoopTo != null) {
-//			if (PlgProcess.generator.nextBoolean()) {
-//				v.addAll(inLoopTo.generateInstance(null, nextNotBefore, untilActivities));
-//				return v;
-//			}
-//		}
-		
+				
 		if (relationType == RELATIONS.SEQUENCE) {
 			
 			// next activity yust in sequence relation
@@ -519,105 +505,6 @@ public class PlgActivity {
 		String toRet = new Integer(process.getActivityList().indexOf(this)).toString();
 		return toRet;
 	}
-
-
-//	/**
-//	 * This method writes the Heuristics Net file into the file writer stream
-//	 * 
-//	 * @param fw 
-//	 * @param untilActivities
-//	 * @throws IOException
-//	 */
-//	public void getHeuristicsNetFile(FileWriter fw, 
-//			Stack<PlgActivity> untilActivities) throws IOException {
-//		
-//		// check the current stack of "until activities"
-//		if (untilActivities.size() > 0 && untilActivities.get(0).equals(this)) {
-//			return;
-//		}
-//		
-//		boolean isXorJoin = isXorJoin();
-//		boolean isAndJoin = isAndJoin();
-//		
-//		// activity id
-//		String toRet = getActivityId() + "@";
-//		
-//		// activity origin
-//		if (process.getFirstActivity().equals(this)) {
-////			if (inLoopFrom == null) {
-//				toRet += ".";
-////			}
-//		} else if (isXorJoin || isAndJoin) {
-//			int parsed = 0;
-//			for (Iterator<PlgActivity> i = relationsFrom.iterator(); i.hasNext();) {
-//				PlgActivity c = i.next();
-//				toRet += c.getActivityId();
-//				parsed++;
-//				if (parsed < relationsFrom.size()) {
-//					if (isXorJoin) {
-//						toRet += "|";
-//					} else {
-//						toRet += "&";
-//					}
-//				}
-//			}
-//		} else {
-//			if (relationsFrom.iterator().hasNext()) {
-//				toRet += relationsFrom.iterator().next().getActivityId();
-//			}
-//		}
-////		if (inLoopFrom != null) {
-////			toRet += "|" + inLoopFrom.getActivityId();
-////		}
-//		toRet += "@";
-//		
-//		// activity destination
-////		if (inLoopTo != null) {
-////			toRet += inLoopTo.getActivityId() + "|";
-////		}
-//		if (relationType == RELATIONS.SEQUENCE) {
-//			// a sequence
-//			if (relationsTo.iterator().hasNext()) {
-//				PlgActivity c = relationsTo.iterator().next();
-//				toRet += c.getActivityId();
-//				c.getHeuristicsNetFile(fw, untilActivities);
-//			}
-//			toRet += "\n";
-//			fw.write(toRet);
-//		} else if (relationType == RELATIONS.AND_SPLIT || relationType == RELATIONS.XOR_SPLIT) {
-//			// a split
-//			int parsed = 0;
-//			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
-//				PlgActivity c = i.next();
-//				toRet += c.getActivityId();
-//				parsed++;
-//				if (parsed < relationsTo.size()) {
-//					if (relationType == RELATIONS.XOR_SPLIT) {
-//						toRet += "|";
-//					} else {
-//						toRet += "&";
-//					}
-//				}
-//			}
-//			toRet += "\n";
-//			fw.write(toRet);
-//			
-//			// recursive call into the branches
-//			untilActivities.push(splitJoinOpposite);
-//			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
-//				i.next().getHeuristicsNetFile(fw, untilActivities);
-//			}
-//			untilActivities.pop();
-//			splitJoinOpposite.getHeuristicsNetFile(fw, untilActivities);
-//		} else {
-//			// this is the last activity
-////			if (inLoopTo == null) {
-//				toRet += ".";
-////			}
-//			toRet += "\n";
-//			fw.write(toRet);
-//		}
-//	}
 	
 	
 	/**
