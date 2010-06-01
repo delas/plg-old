@@ -57,7 +57,7 @@ public class PlgProcess {
 	/** This is the random number generator */
 	public static Random generator = new Random();
 	/** This is the current library version */
-	public static final String version = "0.4alpha";
+	public static final String version = "0.4";
 	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
@@ -86,7 +86,6 @@ public class PlgProcess {
 	private PlgActivity firstActivity = null;
 	private PlgActivity lastActivity = null;
 	private Vector<PlgActivity> activityList = null;
-//	private int activityGenerator = 'A' - 1;
 	private String activityGenerator = "";
 	private HeuristicsNet heuristicsNet = null;
 	private PetriNet petriNet = null;
@@ -305,11 +304,6 @@ public class PlgProcess {
 						int o1StartingTime = o1.getStartingTime();
 						o1.setStartingTime(o2.getStartingTime());
 						o2.setStartingTime(o1StartingTime);
-//					} else {
-						// delete action, just mark this, and delete them when
-						// the whole loop is completed!
-//						v.set(i, null);
-//					}
 				}
 				PlgObservation o = v.get(i);
 //				if (o != null) {
@@ -387,9 +381,8 @@ public class PlgProcess {
 		}
 		
 		try {
-			File tempFile = new File("/home/delas/doc/workspace/PLGLib/test/hn.hn");
-//			File tempFile = File.createTempFile("temporary-heuristics", ".dot");
-//			tempFile.deleteOnExit();
+			File tempFile = File.createTempFile("temporary-heuristics", ".dot");
+			tempFile.deleteOnExit();
 			FileWriter os = new FileWriter(tempFile);
 
 			String separator = "/////////////////////\n";
@@ -783,6 +776,11 @@ public class PlgProcess {
 				} else if (nodeName.equals("maxDepth")) {
 					p.maxDepth = new Integer(nodeValue).intValue();
 				}
+				else if (nodeName.equals("libVersion")) {
+					if (!nodeValue.equals(version)) {
+						return null;
+					}
+				}
 			}
 			node = doc.getElementsByTagName("statsCounter").item(0);
 			nodes = node.getChildNodes();
@@ -886,14 +884,14 @@ public class PlgProcess {
 		PlgActivity end = askNewActivity();
 		
 		PlgPatternFrame body = new PlgPatternFrame(end, start);
-//		getPatternAnd(body, 3);
 		askInternalPattern(body, maxNested);
-//		askInternalPattern(body, 3);
 	}
 		
+	
 	private PlgPatternFrame askInternalPattern(PlgPatternFrame container, int maxNested) {
 		
 		if (maxNested < 1) {
+			incrementPatternCounter(COUNTER_TYPES.ALONE);
 			return getPatternActivity(container, maxNested);
 		}
 		
@@ -902,22 +900,27 @@ public class PlgProcess {
 		
 		if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
 			pattern = getPatternSequence(container, maxNested);
+			incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
 		} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
 			pattern = getPatternAnd(container, maxNested);
+			incrementPatternCounter(COUNTER_TYPES.AND);
 		} else if (nextAction.equals(PlgParameters.PATTERN.XOR)) {
-//			pattern = getPatternAnd(container, maxNested);
 			pattern = getPatternXor(container, maxNested);
+			incrementPatternCounter(COUNTER_TYPES.XOR);
 		} else {
 			pattern = getPatternActivity(container, maxNested);
+			incrementPatternCounter(COUNTER_TYPES.ALONE);
 		}
 		
 		// loop stuff
 		if (parameters.getLoopPresence()) {
 			getPatternLoop(pattern, maxNested);
+			incrementPatternCounter(COUNTER_TYPES.LOOP);
 		}
 		
 		return pattern;
 	}
+	
 	
 	private PlgPatternFrame getPatternActivity(PlgPatternFrame container, int maxNested) {
 		// get the single activity
@@ -927,6 +930,7 @@ public class PlgProcess {
 		a.addNext(container.getHead());
 		return new PlgPatternFrame(a, a);
 	}
+	
 	
 	private PlgPatternFrame getPatternSequence(PlgPatternFrame container, int maxNested) {
 		// get the first subgraph
@@ -938,6 +942,7 @@ public class PlgProcess {
 		
 		return new PlgPatternFrame(snd.getHead(), fst.getTail());
 	}
+	
 	
 	private PlgPatternFrame getPatternSplitJoin(PlgPatternFrame container, PlgParameters.PATTERN type, int maxNested) {
 		// the subgraph for the split
@@ -972,13 +977,16 @@ public class PlgProcess {
 		return new PlgPatternFrame(join.getHead(), split.getTail());
 	}
 	
+	
 	private PlgPatternFrame getPatternAnd(PlgPatternFrame container, int maxNested) {
 		return getPatternSplitJoin(container, PlgParameters.PATTERN.AND, maxNested);
 	}
 	
+	
 	private PlgPatternFrame getPatternXor(PlgPatternFrame container, int maxNested) {
 		return getPatternSplitJoin(container, PlgParameters.PATTERN.XOR, maxNested);
 	}
+	
 	
 	private void getPatternLoop(PlgPatternFrame bound, int maxNested) {
 		PlgActivity from = bound.getHead();
