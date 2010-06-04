@@ -566,6 +566,7 @@ public class PlgProcess {
 	 * @param pattern the name of the pattern to increment
 	 * @param counter the new value for the counter
 	 */
+	@SuppressWarnings("unused")
 	private void setPatternCounter(COUNTER_TYPES pattern, Integer counter) {
 		statsCounter.put(pattern, counter);
 	}
@@ -716,7 +717,7 @@ public class PlgProcess {
 	 * @see #saveProcessAs(String)
 	 * @param filename the absolute path of the process file to load
 	 * @return the built process, starting from the file; or null, if the file
-	 * is not in the correct format 
+	 * is not in the correct format
 	 * @throws IOException
 	 */
 	public static PlgProcess loadProcessFrom(String filename) throws IOException {
@@ -900,22 +901,17 @@ public class PlgProcess {
 		
 		if (nextAction.equals(PlgParameters.PATTERN.SEQUENCE)) {
 			pattern = getPatternSequence(container, maxNested);
-			incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
 		} else if (nextAction.equals(PlgParameters.PATTERN.AND)) {
 			pattern = getPatternAnd(container, maxNested);
-			incrementPatternCounter(COUNTER_TYPES.AND);
 		} else if (nextAction.equals(PlgParameters.PATTERN.XOR)) {
 			pattern = getPatternXor(container, maxNested);
-			incrementPatternCounter(COUNTER_TYPES.XOR);
 		} else {
 			pattern = getPatternActivity(container, maxNested);
-			incrementPatternCounter(COUNTER_TYPES.ALONE);
 		}
 		
 		// loop stuff
 		if (parameters.getLoopPresence()) {
 			getPatternLoop(pattern, maxNested);
-			incrementPatternCounter(COUNTER_TYPES.LOOP);
 		}
 		
 		return pattern;
@@ -928,6 +924,7 @@ public class PlgProcess {
 		// connect it to the container pattern
 		container.getTail().addNext(a);
 		a.addNext(container.getHead());
+		incrementPatternCounter(COUNTER_TYPES.ALONE);
 		return new PlgPatternFrame(a, a);
 	}
 	
@@ -940,6 +937,7 @@ public class PlgProcess {
 		PlgPatternFrame sndBody = new PlgPatternFrame(container.getHead(), fst.getHead());
 		PlgPatternFrame snd = askInternalPattern(sndBody, maxNested - 1);
 		
+		incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
 		return new PlgPatternFrame(snd.getHead(), fst.getTail());
 	}
 	
@@ -979,11 +977,13 @@ public class PlgProcess {
 	
 	
 	private PlgPatternFrame getPatternAnd(PlgPatternFrame container, int maxNested) {
+		incrementPatternCounter(COUNTER_TYPES.AND);
 		return getPatternSplitJoin(container, PlgParameters.PATTERN.AND, maxNested);
 	}
 	
 	
 	private PlgPatternFrame getPatternXor(PlgPatternFrame container, int maxNested) {
+		incrementPatternCounter(COUNTER_TYPES.XOR);
 		return getPatternSplitJoin(container, PlgParameters.PATTERN.XOR, maxNested);
 	}
 	
@@ -1000,6 +1000,7 @@ public class PlgProcess {
 			PlgPatternFrame loop = new PlgPatternFrame(to, from);
 			askInternalPattern(loop, maxNested - 1);
 			
+			incrementPatternCounter(COUNTER_TYPES.LOOP);
 //			from.addNext(to);
 		} else {
 //			System.out.println("loop damn");

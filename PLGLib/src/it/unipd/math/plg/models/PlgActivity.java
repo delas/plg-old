@@ -155,7 +155,7 @@ public class PlgActivity {
 	 * @return the destination activity
 	 */
 	private PlgActivity addRelation(RELATIONS relationType, PlgActivity destination) {
-		RELATIONS prevRelationType = this.relationType;
+//		RELATIONS prevRelationType = this.relationType;
 		this.relationType = relationType;
 		// if this is a sequence relation, add this
 		if (relationType == RELATIONS.SEQUENCE) {
