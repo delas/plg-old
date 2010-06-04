@@ -11,6 +11,14 @@
 
 package it.unipd.math.plg.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import org.jdesktop.application.Action;
 
 /**
@@ -99,6 +107,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
     public PLGNewProcessSetup(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+ 
+		getRootPane().setDefaultButton(jButton2);
     }
 
     /** This method is called from within the constructor to
