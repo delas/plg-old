@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -293,6 +294,13 @@ public class PLGMainUI extends FrameView {
 			try {
 				PLGProcessWindow pUi = new PLGProcessWindow();
 				PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
+				if (p == null) {
+					JOptionPane.showMessageDialog(mainPanel, "There was an error " +
+							"opening your file (maybe you are trying to open a " +
+							"file generated with a previous version of PLG).",
+							"Wrong input file", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				pUi.setProcess(p);
 				pUi.setTitle("Process \"" + selFile.getName() +"\"");
 				jDesktopPane1.add(pUi);
