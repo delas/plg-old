@@ -71,6 +71,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel6 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
@@ -132,6 +133,10 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+
+        jPanel6.setName("jPanel6"); // NOI18N
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jTabbedPane1.addTab(resourceMap.getString("jPanel6.TabConstraints.tabTitle"), jPanel6); // NOI18N
 
         jPanel1.setName("jPanel1"); // NOI18N
         jPanel1.setLayout(new java.awt.BorderLayout());
@@ -370,6 +375,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
@@ -382,6 +388,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 		try {
 			jPanel1.add(process.getHeuristicsNet().getGrappaVisualization(), BorderLayout.CENTER);
 			jPanel2.add(process.getPetriNet().getGrappaVisualization(), BorderLayout.CENTER);
+			jPanel6.add(process.getDependencyGraph().getGrappaVisualization(), BorderLayout.CENTER);
 
 			jLabel3.setText(process.getPatternsCounter(COUNTER_TYPES.AND).toString());
 			jLabel5.setText(process.getPatternsCounter(COUNTER_TYPES.XOR).toString());
