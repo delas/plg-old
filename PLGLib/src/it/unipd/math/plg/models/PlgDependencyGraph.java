@@ -45,7 +45,7 @@ public class PlgDependencyGraph extends ModelGraph {
 			for (PlgActivity d : s.getRelationsTo()) {
 				if (s.getRelationType() == RELATIONS.AND_SPLIT ||
 						s.getRelationType() == RELATIONS.XOR_SPLIT) {
-					Double weight = s.getProbabilityOfEdges().get(d.getName());
+					Double weight = s.getProbabilityOfEdges().get(d);
 					extra = "[label=\"" + twoDForm.format(weight) + "\"]";
 				}
 				bw.write("\t" + s.getName() + " -> " + d.getName() + extra + ";\n");
