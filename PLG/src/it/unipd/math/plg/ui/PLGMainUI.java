@@ -4,6 +4,7 @@
 
 package it.unipd.math.plg.ui;
 
+import it.unipd.math.plg.models.PlgParameters;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -220,15 +221,21 @@ public class PLGMainUI extends FrameView {
 
 		PLGProcessWindow pUi = new PLGProcessWindow();
 		PlgProcess p = new PlgProcess("TestProcess");
+		PlgParameters para = new PlgParameters(
+				setup.getAndBranches(),
+				setup.getAndDistrBranches(),
+				setup.getXorBranches(),
+				setup.getXorDistrBranches(),
+				setup.getLoopProbability(),
+				setup.getSingleActivityProbability(),
+				setup.getSequenceActivitiesProbability(),
+				setup.getAndProbability(),
+				setup.getXorProbability(),
+				setup.getNetworkDeep(),
+				setup.getAndDistrExec(),
+				setup.getXorDistrExec());
 
-		p.randomize(setup.getAndBranches(),
-			setup.getXorBranches(),
-			setup.getLoopProbability(),
-			setup.getSingleActivityProbability(),
-			setup.getSequenceActivitiesProbability(),
-			setup.getAndProbability(),
-			setup.getXorProbability(),
-			setup.getNetworkDeep());
+		p.randomize(para);
 
 		pUi.setProcess(p);
 		pUi.setTitle("Process " + progress++ + " [max depth: "+ setup.getNetworkDeep() +"]");
