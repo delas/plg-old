@@ -50,14 +50,14 @@ import org.xml.sax.SAXException;
  * and XOR split/join).
  * 
  * @author Andrea Burattin
- * @version 0.4
+ * @version 0.5
  */
 public class PlgProcess {
 
 	/** This is the random number generator */
 	public static Random generator = new Random();
 	/** This is the current library version */
-	public static final String version = "0.4";
+	public static final String version = "0.5";
 	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
@@ -92,7 +92,6 @@ public class PlgProcess {
 	private int maxDepth = 0;
 	private HashMap<COUNTER_TYPES, Integer> statsCounter;
 	private PlgProcessMeasures metrics = null;
-	
 	private PlgParameters parameters = null;
 	
 	
@@ -250,7 +249,7 @@ public class PlgProcess {
 
 	
 	/**
-	 * Saves the current Petri Net process model as a Dot file
+	 * Saves the current Heuristics Net process model as a Dot file
 	 * 
 	 * @param filename the destination filename
 	 * @throws IOException
@@ -259,6 +258,20 @@ public class PlgProcess {
 		FileWriter fw = new FileWriter(filename);
 		HeuristicsNet hn = getHeuristicsNet();
 		hn.writeToDot(fw);
+		fw.close();
+	}
+
+	
+	/**
+	 * Saves the current dependency graph process model as a Dot file
+	 * 
+	 * @param filename the destination filename
+	 * @throws IOException
+	 */
+	public void saveDependencyGraphAsDot(String filename) throws IOException {
+		FileWriter fw = new FileWriter(filename);
+		PlgDependencyGraph dg = getDependencyGraph();
+		dg.writeToDot(fw);
 		fw.close();
 	}
 	
@@ -462,6 +475,17 @@ public class PlgProcess {
 			e.printStackTrace();
 		}
 		return heuristicsNet;
+	}
+	
+	
+	/**
+	 * This method returns the dependency graph associated to the process
+	 * 
+	 * @return the dot that represent the dependency graph
+	 */
+	public PlgDependencyGraph getDependencyGraph() {
+		PlgDependencyGraph dg = new PlgDependencyGraph("net", this);
+		return dg;
 	}
 	
 	
@@ -833,13 +857,17 @@ public class PlgProcess {
 		// pack parameters
 		PlgParameters parameters = new PlgParameters(
 				4,  // max and branches
+				PlgProbabilityDistribution.normalDistributionFactory(), // and prob distribution
 				4,  // max xor branches
+				PlgProbabilityDistribution.normalDistributionFactory(), // xor prob distribution
 				80, // loop prob
 				20, // single act prob
 				35, // sequence act prob
 				25, // and prob
 				25, // xor prob
-				deep // deep
+				deep, // deep
+				PlgProbabilityDistribution.normalDistributionFactory(), // and exec distribution
+				PlgProbabilityDistribution.normalDistributionFactory() // xor exec distribution
 		);
 		randomize(parameters);
 	}
@@ -865,9 +893,13 @@ public class PlgProcess {
 			int singleActivityProbability, int sequenceProbability,
 			int ANDProbability, int XORProbability, int deep) {
 		// pack parameters
-		PlgParameters parameters = new PlgParameters(ANDBranches, XORBranches,
+		PlgParameters parameters = new PlgParameters(
+				ANDBranches, PlgProbabilityDistribution.normalDistributionFactory(),
+				XORBranches, PlgProbabilityDistribution.normalDistributionFactory(),
 				loopPercent, singleActivityProbability, sequenceProbability,
-				ANDProbability, XORProbability, deep);
+				ANDProbability, XORProbability, deep,
+				PlgProbabilityDistribution.normalDistributionFactory(),
+				PlgProbabilityDistribution.normalDistributionFactory());
 		randomize(parameters);
 	}
 	
@@ -886,6 +918,15 @@ public class PlgProcess {
 		
 		PlgPatternFrame body = new PlgPatternFrame(end, start);
 		askInternalPattern(body, maxNested);
+		
+		// set the random weight of the branches
+		for (PlgActivity a : activityList) {
+			if (a.getRelationType() == PlgActivity.RELATIONS.AND_SPLIT) {
+				a.setRandomWeights(parameters.getAndExecDistribution());
+			} else if (a.getRelationType() == PlgActivity.RELATIONS.XOR_SPLIT) {
+				a.setRandomWeights(parameters.getXorExecDistribution());
+			}
+		}
 	}
 		
 	
@@ -944,12 +985,10 @@ public class PlgProcess {
 	
 	private PlgPatternFrame getPatternSplitJoin(PlgPatternFrame container, PlgParameters.PATTERN type, int maxNested) {
 		// the subgraph for the split
-//		PlgPatternFrame split = askInternalPattern(container, maxNested - 1);
 		PlgPatternFrame split = getPatternActivity(container, maxNested - 1);
 		split.getHead().removeConnection(container.getHead());
 		// the subgraph for the join
 		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead());
-//		PlgPatternFrame join = askInternalPattern(joinBody, maxNested - 1);
 		PlgPatternFrame join = getPatternActivity(joinBody, maxNested - 1);
 		
 		container.getTail().addNext(split.getTail());
