@@ -3,6 +3,7 @@ package it.unipd.math.plg.test;
 import static java.util.Arrays.asList;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgParameters;
+import it.unipd.math.plg.models.PlgProbabilityDistribution;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
 
@@ -136,13 +137,17 @@ public class PlgTest {
 
 			PlgParameters parameters = new PlgParameters(
 					5,  // max and branches
-					5,  // max xor branches
-					20, // loop prob
-					60, // single act prob
-					70, // sequence act prob
-					35, // and prob
-					35, // xor prob
-					3 // deep
+                    PlgProbabilityDistribution.normalDistributionFactory(),
+                    5,  // max xor branches
+                    PlgProbabilityDistribution.normalDistributionFactory(),
+                    20, // loop prob
+                    60, // single act prob
+                    70, // sequence act prob
+                    35, // and prob
+                    35, // xor prob
+                    3, // deep
+                    PlgProbabilityDistribution.normalDistributionFactory(),
+                    PlgProbabilityDistribution.normalDistributionFactory()
 			);
 //			p.randomize(parameters);
 //			p.saveProcessAs("/home/delas/desktop/asd.plg");
