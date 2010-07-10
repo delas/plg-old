@@ -1,5 +1,6 @@
 package it.unipd.math.plg.models;
 
+
 /**
  * This class describes the parameters of the generator.
  * 
@@ -10,13 +11,17 @@ package it.unipd.math.plg.models;
 public class PlgParameters {
 
 	private int ANDBranches;
+	private PlgProbabilityDistribution andBranchesDistribution;
 	private int XORBranches;
+	private PlgProbabilityDistribution xorBbranchesDistribution;
 	private int loopPercent;
 	private int singleActivityPercent;
 	private int sequencePercent;
 	private int ANDPercent;
 	private int XORPercent;
 	private int deep;
+	private PlgProbabilityDistribution andExecDistribution;
+	private PlgProbabilityDistribution xorExecDistribution;
 	
 	/**
 	 * This enum describe the set of all possible patterns
@@ -52,7 +57,9 @@ public class PlgParameters {
 	 * must be given
 	 * 
 	 * @param ANDBranches the maximum number of AND branches (must be > 1)
+	 * @param ANDbranchesDistribution
 	 * @param XORBranches the maximum number of XOR branches (must be > 1)
+	 * @param XORbranchesDistribution
 	 * @param loopPercent the loop probability (must be >= 0 and <= 100)
 	 * @param singleActivityPercent the probability of single activity (must 
 	 * be >= 0 and <= 100)
@@ -65,18 +72,27 @@ public class PlgParameters {
 	 * @param emptyPercent the probability of an empty pattern (must be >= 0
 	 * and <= 100)
 	 * @param deep the maximum network deep
+	 * @param andExecDistribution 
+	 * @param xorExecDistribution 
 	 */
-	public PlgParameters(int ANDBranches, int XORBranches, int loopPercent,
+	public PlgParameters(
+			int ANDBranches, PlgProbabilityDistribution ANDbranchesDistribution,
+			int XORBranches, PlgProbabilityDistribution XORbranchesDistribution,
+			int loopPercent,
 			int singleActivityPercent, int sequencePercent, int ANDPercent,
-			int XORPercent, int deep) {
-		setAndBranches(ANDBranches);
-		setXorBranches(XORBranches);
+			int XORPercent, int deep,
+			PlgProbabilityDistribution andExecDistribution,
+			PlgProbabilityDistribution xorExecDistribution) {
+		setAndBranches(ANDBranches, ANDbranchesDistribution);
+		setXorBranches(XORBranches, XORbranchesDistribution);
 		setLoopPercent(loopPercent);
 		setSingleActivityPercent(singleActivityPercent);
 		setSequencePercent(sequencePercent);
 		setANDPercent(ANDPercent);
 		setXORPercent(XORPercent);
 		setDeep(deep);
+		setAndExecDistribution(andExecDistribution);
+		setXorExecDistribution(xorExecDistribution);
 	}
 	
 	
@@ -84,9 +100,11 @@ public class PlgParameters {
 	 * Set the AND branches parameter
 	 * 
 	 * @param andBranches the maximum number of AND branches
+	 * @param ANDbranchesDistribution 
 	 */
-	public void setAndBranches(int andBranches) {
-		ANDBranches = (andBranches > 1)? andBranches : 2;;
+	public void setAndBranches(int andBranches, PlgProbabilityDistribution ANDbranchesDistribution) {
+		ANDBranches = (andBranches > 1)? andBranches : 2;
+		this.andBranchesDistribution = ANDbranchesDistribution;
 	}
 	
 	
@@ -104,9 +122,11 @@ public class PlgParameters {
 	 * Set the XOR branches parameter
 	 * 
 	 * @param xorBranches the maximum number of XOR branches
+	 * @param XORbranchesDistribution 
 	 */
-	public void setXorBranches(int xorBranches) {
+	public void setXorBranches(int xorBranches, PlgProbabilityDistribution XORbranchesDistribution) {
 		XORBranches = (xorBranches > 1)? xorBranches : 2;
+		this.xorBbranchesDistribution = XORbranchesDistribution;
 	}
 	
 	
@@ -241,13 +261,53 @@ public class PlgParameters {
 	
 	
 	/**
+	 * Set the distribution for the AND costructs
+	 * 
+	 * @param andExecDistribution
+	 */
+	public void setAndExecDistribution(PlgProbabilityDistribution andExecDistribution) {
+		this.andExecDistribution = andExecDistribution;
+	}
+	
+	
+	/**
+	 * Get the current distribution for the AND construct
+	 * 
+	 * @return the value of the parameter
+	 */
+	public PlgProbabilityDistribution getAndExecDistribution() {
+		return andExecDistribution;
+	}
+	
+	
+	/**
+	 * Set the distribution for the XOR costructs
+	 * 
+	 * @param xorExecDistribution
+	 */
+	public void setXorExecDistribution(PlgProbabilityDistribution xorExecDistribution) {
+		this.xorExecDistribution = xorExecDistribution;
+	}
+	
+	
+	/**
+	 * Get the current distribution for the XOR construct
+	 * 
+	 * @return the value of the parameter
+	 */
+	public PlgProbabilityDistribution getXorExecDistribution() {
+		return xorExecDistribution;
+	}
+	
+	
+	/**
 	 * This method return the number of AND branches to generate, according to
 	 * the probability given
 	 * 
 	 * @return the number of AND branches to generate
 	 */
 	public int getRandomAndBranches() {
-		return 2 + PlgProcess.generator.nextInt(getAndBranches() - 1);
+		return andBranchesDistribution.nextInt(2, getAndBranches() - 1);
 	}
 	
 	
@@ -258,7 +318,7 @@ public class PlgParameters {
 	 * @return the number of XOR branches to generate
 	 */
 	public int getRandomXorBranches() {
-		return 2 + PlgProcess.generator.nextInt(getXorBranches() - 1);
+		return xorBbranchesDistribution.nextInt(2, getXorBranches() - 1);
 	}
 	
 	

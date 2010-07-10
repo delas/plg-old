@@ -2,10 +2,8 @@ package it.unipd.math.plg.models;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -21,7 +19,7 @@ import org.w3c.dom.NodeList;
  * relation).
  * 
  * @author Andrea Burattin
- * @version 0.4
+ * @version 0.5
  */
 public class PlgActivity {
 
@@ -43,6 +41,7 @@ public class PlgActivity {
 	private Integer activityDuration;
 	private RELATIONS relationType = RELATIONS.UNDEF;
 	private HashSet<PlgActivity> relationsTo = new HashSet<PlgActivity>(5);
+	private HashMap<PlgActivity, Double> probabilityOfChoosing = new HashMap<PlgActivity, Double>();
 	private HashSet<PlgActivity> relationsFrom = new HashSet<PlgActivity>(5);
 	private RELATIONS joinType = RELATIONS.UNDEF;
 	private PlgActivity splitJoinOpposite;
@@ -143,6 +142,22 @@ public class PlgActivity {
 	public PlgProcess getProcess() {
 		return process;
 	}
+	
+	
+	/**
+	 * This method gets the probability of going to each exiting activity
+	 * 
+	 * @return an HashMap with the relations "activity name" -> "probability of
+	 * choosing the given activity"
+	 */
+	public HashMap<PlgActivity, Double> getProbabilityOfEdges() {
+		return probabilityOfChoosing;
+	}
+	
+
+//	public void setProbabilityOfEdges(HashMap<PlgActivity, Double> prob) {
+//		probabilityOfChoosing = prob;
+//	}
 
 	
 	/**
@@ -224,6 +239,30 @@ public class PlgActivity {
 		// process cache cleaning
 		process.cleanModelCache();
 		return toReturn;
+	}
+	
+	
+	/**
+	 * This method assigns random weights to all the exiting archs according to
+	 * the given probability distribution
+	 * 
+	 * @param distr 
+	 * @param distribution
+	 */
+	public void setRandomWeights(PlgProbabilityDistribution distr) {
+		int totArchs = relationsTo.size();
+		double[] weights = new double[totArchs];
+		double totWeight = 0;
+		for (int i = 0; i < totArchs; i++) {
+			weights[i] = distr.nextDouble();
+			totWeight += weights[i];
+		}
+		
+		int i = 0;
+		for (PlgActivity a : relationsTo) {
+			double w = weights[i++] / totWeight;
+			probabilityOfChoosing.put(a, w);
+		}
 	}
 	
 	
@@ -451,8 +490,9 @@ public class PlgActivity {
 			
 			// this is a xor split, we have to choose between some branches
 			nextNotBefore += timeBetweenActivities();
-			ArrayList<PlgActivity> xorBranches = new ArrayList<PlgActivity>(relationsTo);
-			Collections.shuffle(xorBranches);
+//			ArrayList<PlgActivity> xorBranches = new ArrayList<PlgActivity>(relationsTo);
+//			Collections.shuffle(xorBranches);
+			ArrayList<PlgActivity> xorBranches = PlgProbabilityDistribution.getSortedActivities(getProbabilityOfEdges());
 			v.addAll(xorBranches.get(0).generateInstance(null, nextNotBefore, untilActivities));
 			
 		} else if (relationType == RELATIONS.AND_SPLIT) {
@@ -465,9 +505,11 @@ public class PlgActivity {
 			HashMap<Integer, Vector<PlgObservation>> tracks = new HashMap<Integer, Vector<PlgObservation>>();
 			Vector<Integer> indexes = new Vector<Integer>();
 			int index = 0;
-			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
+			ArrayList<PlgActivity> andBranches = PlgProbabilityDistribution.getSortedActivities(getProbabilityOfEdges());
+			for (PlgActivity to : andBranches) {
+//			for (Iterator<PlgActivity> i = relationsTo.iterator(); i.hasNext();) {
 				nextNotBefore += timeBetweenActivities();
-				PlgActivity to = i.next();
+//				PlgActivity to = i.next();
 				nextCalls = to.generateInstance(null, nextNotBefore, (Stack<PlgActivity>)untilActivities.clone());
 				tracks.put(index, nextCalls);
 				for (int j = 0; j < nextCalls.size(); j++) {
@@ -475,7 +517,7 @@ public class PlgActivity {
 				}
 				index++;
 			}
-			Collections.shuffle(indexes);
+//			Collections.shuffle(indexes);
 			int lastStartingTime = -1;
 			for (int i = 0; i < indexes.size(); i++) {
 				PlgObservation o = tracks.get(indexes.get(i)).remove(0);
@@ -524,6 +566,10 @@ public class PlgActivity {
 		for (PlgActivity current : relationsTo) {
 			Tag d = tagRelationsTo.addChildNode("activity");
 			d.addAttribute("ref", current.getName());
+			if (relationType == RELATIONS.AND_SPLIT ||
+					relationType == RELATIONS.XOR_SPLIT) {
+				d.addAttribute("weight", probabilityOfChoosing.get(current.getName()).toString());
+			}
 		}
 		Tag tagRelationsFrom = t.addChildNode("relationsFrom");
 		for (PlgActivity current : relationsFrom) {
@@ -540,7 +586,11 @@ public class PlgActivity {
 	
 	/**
 	 * This method populates the current node starting from a well-structured
-	 * XML fragment
+	 * XML fragment.
+	 * 
+	 * If the file loaded does not contain any information on the weight of the
+	 * branches, then these will be artificially added using normal (Gaussian)
+	 * distribution.
 	 * 
 	 * @param node the correct XML fragment object
 	 */
@@ -561,10 +611,21 @@ public class PlgActivity {
 				for (int j = 0; j < subNodes.getLength(); j++) {
 					String subNodeName = subNodes.item(j).getNodeName();
 					if (subNodeName.equals("activity")) {
+						// add the destination
 						Node atts = subNodes.item(j).getAttributes().getNamedItem("ref");
 						if (atts != null) {
 							PlgActivity ref = process.searchActivityFromName(atts.getTextContent());
 							relationsTo.add(ref);
+							// add the possibly-present weight
+							if (relationType == RELATIONS.AND_SPLIT ||
+									relationType == RELATIONS.XOR_SPLIT) {
+								atts = subNodes.item(j).getAttributes().getNamedItem("weight");
+								if (atts != null) {
+									probabilityOfChoosing.put(ref, Double.parseDouble(atts.getTextContent()));
+								} else {
+									setRandomWeights(PlgProbabilityDistribution.normalDistributionFactory());
+								}
+							}
 						}
 					}
 				}
