@@ -1,4 +1,6 @@
-package it.unipd.math.plg.models;
+package it.unipd.math.plg.models.distributions;
+
+import it.unipd.math.plg.models.PlgActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,12 +20,10 @@ import cern.jet.random.engine.RandomEngine;
  * @author Andrea Burattin
  * @version 0.1
  */
-public class PlgProbabilityDistribution {
+public abstract class PlgProbabilityDistribution {
 	
-	private DISTRIBUTION probabilityDistribution;
-	private Vector<Double> parameters;
-	private static RandomEngine cernGenerator;
-	private static java.util.Random generator;
+	protected static RandomEngine cernGenerator;
+	protected static java.util.Random generator;
 	
 	
 	/**
@@ -41,27 +41,67 @@ public class PlgProbabilityDistribution {
 	
 	
 	/**
+	 * This method to convert the distribution enumerations to human readable
+	 * name
+	 * 
+	 * @param d the distribution
+	 * @return the "human name" for the distribution
+	 */
+	public static String distributionToName(DISTRIBUTION d) {
+		if (d.equals(DISTRIBUTION.NORMAL)) {
+			return "Standard Normal (Gaussian) distribution";
+		} else if (d.equals(DISTRIBUTION.BETA)) {
+			return "Beta distribution";
+		} else {
+			return "Uniform distribution";
+		}
+	}
+	
+	
+	/**
+	 * This method to convert the distribution name into enumerations 
+	 * 
+	 * @param name the name of the distribution
+	 * @return the distribution enumeration
+	 */
+	public static DISTRIBUTION nameToDistribution(String name) {
+		if (name.equals("Standard Normal (Gaussian) distribution")) {
+			return DISTRIBUTION.NORMAL;
+		} else if (name.equals("Beta distribution")) {
+			return DISTRIBUTION.BETA;
+		} else if (name.equals("Uniform distribution")) {
+			return DISTRIBUTION.UNIFORM;
+		} else {
+			return null;
+		}
+	}
+	
+	
+	/**
 	 * This method generates a random double according to the probability
 	 * distribution
 	 * 
 	 * @return the new random number
 	 */
-	public Double nextDouble() {
-		AbstractDistribution distr = null;
-		Double val = 0.;
-		if (probabilityDistribution.equals(DISTRIBUTION.NORMAL)) {
-			do {
-				val = (generator.nextGaussian() / 6)+.5;
-			} while (val > 1.0 || val < -0.0);
-		} else if (probabilityDistribution.equals(DISTRIBUTION.BETA)) {
-			distr = new Beta(parameters.get(0), parameters.get(1), cernGenerator);
-			val = distr.nextDouble();
-		} else if (probabilityDistribution.equals(DISTRIBUTION.UNIFORM)) {
-			distr = new Uniform(0, 1, cernGenerator);
-			val = distr.nextDouble();
-		}
-		return val;
-	}
+	public abstract Double nextDouble();
+	
+	
+	/**
+	 * Returns the function value
+	 * 
+	 * @param x the x-value
+	 * @return the value (between 0 and 1)
+	 */
+	public abstract Double getValue(double x);
+	
+	
+	/**
+	 * Method for obtaining a set of values to be plotted
+	 * 
+	 * @param size the number of values to generate
+	 * @return an array of values to be plotted
+	 */
+	public abstract Double[] getValuesForPlotting(int size);
 	
 	
 	/**
@@ -83,7 +123,7 @@ public class PlgProbabilityDistribution {
 	/**
 	 * Private class constructor, used only to initialize the Colt generator
 	 */
-	private PlgProbabilityDistribution() {
+	protected PlgProbabilityDistribution() {
 		cernGenerator = new MersenneTwister(new Date());
 		generator = new java.util.Random();
 	}
@@ -119,53 +159,20 @@ public class PlgProbabilityDistribution {
 		}
 		return sorted;
 	}
-	
-	
-	/**
-	 * This static method is used to create a standard Gaussian probability
-	 * distribution object
-	 * 
-	 * @return the generator based on the probability distribution 
-	 */
+
+
 	public static PlgProbabilityDistribution normalDistributionFactory() {
-		PlgProbabilityDistribution pd = new PlgProbabilityDistribution();
-		pd.probabilityDistribution = DISTRIBUTION.NORMAL;
-		return pd;
+		return new NormalDistribution();
 	}
+
 	
-	
-	/**
-	 * This static method is used to create a beta probability distribution
-	 * object
-	 * 
-	 * @param alpha the range
-	 * @param beta the shape
-	 * @return the generator based on the probability distribution 
-	 */
-	public static PlgProbabilityDistribution betaDistributionFactory(double alpha, double beta) {
-		alpha = (alpha < 1 ? 1 : alpha);
-		beta = (beta < 1? 1 : beta);
-		PlgProbabilityDistribution pd = new PlgProbabilityDistribution();
-		pd.probabilityDistribution = DISTRIBUTION.BETA;
-		pd.parameters = new Vector<Double>(2);
-		pd.parameters.add(alpha);
-		pd.parameters.add(beta);
-		return pd;
-	}
-	
-	
-	/**
-	 * This static method is used to create a gamma probability distribution
-	 * object
-	 * 
-	 * @param alpha the shape
-	 * @param beta the scale
-	 * @return the generator based on the probability distribution 
-	 */
 	public static PlgProbabilityDistribution uniformDistributionFactory() {
-		PlgProbabilityDistribution pd = new PlgProbabilityDistribution();
-		pd.probabilityDistribution = DISTRIBUTION.UNIFORM;
-		return pd;
+		return new UniformDistribution();
+	}
+	
+	
+	public static PlgProbabilityDistribution betaDistributionFactory(double alpha, double beta) {
+		return new BetaDistribution(alpha, beta);
 	}
 	
 }
