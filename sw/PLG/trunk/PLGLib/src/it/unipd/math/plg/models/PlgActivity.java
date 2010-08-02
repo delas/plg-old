@@ -1,5 +1,7 @@
 package it.unipd.math.plg.models;
 
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -3,6 +3,7 @@ package it.unipd.math.plg.models;
 import it.unipd.math.plg.metrics.PlgMetricCalculator;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgActivity.RELATIONS;
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
 
 import java.io.File;
 import java.io.FileInputStream;

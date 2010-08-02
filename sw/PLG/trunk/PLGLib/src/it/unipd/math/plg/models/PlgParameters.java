@@ -1,5 +1,7 @@
 package it.unipd.math.plg.models;
 
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
+
 
 /**
  * This class describes the parameters of the generator.
