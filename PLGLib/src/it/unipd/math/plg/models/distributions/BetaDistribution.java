@@ -3,6 +3,7 @@ package it.unipd.math.plg.models.distributions;
 import cern.jet.random.Beta;
 
 /**
+ * Class for the representation of a Beta distribution
  * 
  * @author Andrea Burattin
  * @version 0.1

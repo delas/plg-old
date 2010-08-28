@@ -1,11 +1,10 @@
 package it.unipd.math.plg.models.distributions;
 
-import cern.jet.random.AbstractDistribution;
-import cern.jet.random.Beta;
 import cern.jet.random.Normal;
 
 
 /**
+ * Class for the representation of a standard normal distribution
  * 
  * @author Andrea Burattin
  * @version 0.1

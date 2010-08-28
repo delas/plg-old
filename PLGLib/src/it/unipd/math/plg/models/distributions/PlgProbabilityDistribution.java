@@ -5,11 +5,7 @@ import it.unipd.math.plg.models.PlgActivity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Vector;
 
-import cern.jet.random.AbstractDistribution;
-import cern.jet.random.Beta;
-import cern.jet.random.Uniform;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
@@ -161,16 +157,27 @@ public abstract class PlgProbabilityDistribution {
 	}
 
 
+	/**
+	 * @return the new distribution
+	 */
 	public static PlgProbabilityDistribution normalDistributionFactory() {
 		return new NormalDistribution();
 	}
 
 	
+	/**
+	 * @return the new distribution
+	 */
 	public static PlgProbabilityDistribution uniformDistributionFactory() {
 		return new UniformDistribution();
 	}
 	
 	
+	/**
+	 * @param alpha 
+	 * @param beta 
+	 * @return the new distribution
+	 */
 	public static PlgProbabilityDistribution betaDistributionFactory(double alpha, double beta) {
 		return new BetaDistribution(alpha, beta);
 	}
