@@ -3,9 +3,9 @@ package it.unipd.math.plg.test;
 import static java.util.Arrays.asList;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgParameters;
-import it.unipd.math.plg.models.PlgProbabilityDistribution;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -149,17 +149,20 @@ public class PlgTest {
                     PlgProbabilityDistribution.normalDistributionFactory(),
                     PlgProbabilityDistribution.normalDistributionFactory()
 			);
-//			p.randomize(parameters);
+			PlgProcess p = new PlgProcess("aa");
+			p.randomize(parameters);
 //			p.saveProcessAs("/home/delas/desktop/asd.plg");
-			PlgProcess p = PlgProcess.loadProcessFrom("/home/delas/desktop/asd.plg");
+//			PlgProcess p = PlgProcess.loadProcessFrom("/home/delas/desktop/asd.plg");
 			
 			String baseOutputPath1 = System.getProperty("user.dir") + "/test/";
 			String finalOutputPath1 = baseOutputPath1.concat("test");//baseOutputPath1.concat(new Integer(p.hashCode()).toString());
 			p.saveHeuristicsNetAsDot(finalOutputPath1 + ".hn.dot");
 			p.savePetriNetAsDot(finalOutputPath1 + ".pn.dot");
+			p.saveDependencyGraphAsDot(finalOutputPath1 + ".dg.dot");
 			String[] dotCmd1 = {"/bin/sh", "-c",
 					"dot -Tpdf " + finalOutputPath1 + ".hn.dot > " + finalOutputPath1 + ".hn.pdf && " +
-					"dot -Tpdf " + finalOutputPath1 + ".pn.dot > " + finalOutputPath1 + ".pn.pdf"};
+					"dot -Tpdf " + finalOutputPath1 + ".pn.dot > " + finalOutputPath1 + ".pn.pdf && " +
+					"dot -Tpdf " + finalOutputPath1 + ".dg.dot > " + finalOutputPath1 + ".dg.pdf"};
 			Process dotExec1 = Runtime.getRuntime().exec(dotCmd1);
 			dotExec1.waitFor();
 			System.out.println("\nOUTPUT GENERATION");

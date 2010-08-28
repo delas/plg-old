@@ -591,7 +591,6 @@ public class PlgProcess {
 	 * @param pattern the name of the pattern to increment
 	 * @param counter the new value for the counter
 	 */
-	@SuppressWarnings("unused")
 	private void setPatternCounter(COUNTER_TYPES pattern, Integer counter) {
 		statsCounter.put(pattern, counter);
 	}
@@ -1001,9 +1000,17 @@ public class PlgProcess {
 		if (type == PlgParameters.PATTERN.AND) {
 			branches = parameters.getRandomAndBranches();
 			split.getHead().inAndUntil(join.getTail());
+			// update counters
+			if (getPatternsCounter(COUNTER_TYPES.MAX_AND_BRANCHES) < branches) {
+				setPatternCounter(COUNTER_TYPES.MAX_AND_BRANCHES, branches);
+			}
 		} else {
 			branches = parameters.getRandomXorBranches();
 			split.getHead().inXorUntil(join.getTail());
+			// update counters
+			if (getPatternsCounter(COUNTER_TYPES.MAX_XOR_BRANCHES) < branches) {
+				setPatternCounter(COUNTER_TYPES.MAX_XOR_BRANCHES, branches);
+			}
 		}
 		
 		// all the branches generation

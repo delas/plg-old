@@ -4,6 +4,7 @@ import cern.jet.random.AbstractDistribution;
 import cern.jet.random.Uniform;
 
 /**
+ * Class for the representation of a uniform distribution
  * 
  * @author Andrea Burattin
  * @version 0.1
