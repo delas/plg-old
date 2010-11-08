@@ -21,22 +21,27 @@ import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.processmining.converting.HNetToPetriNetConverter;
-import org.processmining.framework.models.heuristics.HNSubSet;
-import org.processmining.framework.models.heuristics.HeuristicsNet;
-import org.processmining.framework.models.petrinet.PetriNet;
-import org.processmining.framework.plugin.ProvidedObject;
-import org.processmining.importing.heuristicsnet.HeuristicsNetFromFile;
-import org.processmining.lib.mxml.AuditTrailEntry;
-import org.processmining.lib.mxml.LogException;
-import org.processmining.lib.mxml.writing.Process;
-import org.processmining.lib.mxml.writing.ProcessInstance;
-import org.processmining.lib.mxml.writing.ProcessInstanceType;
-import org.processmining.lib.mxml.writing.impl.LogSetRandomImpl;
-import org.processmining.lib.mxml.writing.persistency.LogPersistencyZip;
-import org.processmining.lib.xml.Document;
-import org.processmining.lib.xml.Tag;
-import org.processmining.mining.petrinetmining.PetriNetResult;
+import org.deckfour.spex.SXDocument;
+import org.deckfour.spex.SXTag;
+import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.classification.XEventClasses;
+import org.deckfour.xes.classification.XEventNameClassifier;
+import org.deckfour.xes.extension.XExtensionManager;
+import org.deckfour.xes.factory.XFactory;
+import org.deckfour.xes.factory.XFactoryBufferedImpl;
+import org.deckfour.xes.model.XAttributeMap;
+import org.deckfour.xes.model.XEvent;
+import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
+import org.processmining.models.graphbased.directed.flexiblemodel.FlexImpl;
+import org.processmining.models.graphbased.directed.flexiblemodel.FlexNode;
+import org.processmining.models.graphbased.directed.fuzzymodel.FuzzyGraph;
+import org.processmining.models.graphbased.directed.fuzzymodel.MutableFuzzyGraph;
+import org.processmining.models.heuristics.HeuristicsNet;
+import org.processmining.models.heuristics.impl.ActivitiesMappingStructures;
+import org.processmining.models.heuristics.impl.HNSubSet;
+import org.processmining.models.heuristics.impl.HeuristicsNetImpl;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -55,10 +60,13 @@ import org.xml.sax.SAXException;
  */
 public class PlgProcess {
 
+	/** This is the current library version */
+	public static final String version = "0.6";
 	/** This is the random number generator */
 	public static Random generator = new Random();
-	/** This is the current library version */
-	public static final String version = "0.5";
+	/** This is the openXES factory object */
+	public static XFactory xesFactory = new XFactoryBufferedImpl();
+	public static XExtensionManager xesExtensionManager = XExtensionManager.instance();
 	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
@@ -88,8 +96,8 @@ public class PlgProcess {
 	private PlgActivity lastActivity = null;
 	private Vector<PlgActivity> activityList = null;
 	private String activityGenerator = "";
-	private HeuristicsNet heuristicsNet = null;
-	private PetriNet petriNet = null;
+	private HeuristicsNetImpl heuristicsNet = null;
+//	private PetriNet petriNet = null;
 	private int maxDepth = 0;
 	private HashMap<COUNTER_TYPES, Integer> statsCounter;
 	private PlgProcessMeasures metrics = null;
@@ -236,69 +244,70 @@ public class PlgProcess {
 	}
 
 	
-	/**
-	 * Saves the current Petri Net process model as a Dot file
-	 * 
-	 * @param filename the destination filename
-	 * @throws IOException
-	 */
-	public void savePetriNetAsDot(String filename) throws IOException {
-		FileWriter fw = new FileWriter(filename);
-		getPetriNet().writeToDot(fw);
-		fw.close();
-	}
+//	/**
+//	 * Saves the current Petri Net process model as a Dot file
+//	 * 
+//	 * @param filename the destination filename
+//	 * @throws IOException
+//	 */
+//	public void savePetriNetAsDot(String filename) throws IOException {
+//		FileWriter fw = new FileWriter(filename);
+//		getPetriNet().writeToDot(fw);
+//		fw.close();
+//	}
 
 	
-	/**
-	 * Saves the current Heuristics Net process model as a Dot file
-	 * 
-	 * @param filename the destination filename
-	 * @throws IOException
-	 */
-	public void saveHeuristicsNetAsDot(String filename) throws IOException {
-		FileWriter fw = new FileWriter(filename);
-		HeuristicsNet hn = getHeuristicsNet();
-		hn.writeToDot(fw);
-		fw.close();
-	}
+//	/**
+//	 * Saves the current Heuristics Net process model as a Dot file
+//	 * 
+//	 * @param filename the destination filename
+//	 * @throws IOException
+//	 */
+//	public void saveHeuristicsNetAsDot(String filename) throws IOException {
+//		FileWriter fw = new FileWriter(filename);
+//		HeuristicsNetImpl hn = getHeuristicsNet();
+//		hn.writeToDot(fw);
+//		fw.close();
+//	}
 
 	
-	/**
-	 * Saves the current dependency graph process model as a Dot file
-	 * 
-	 * @param filename the destination filename
-	 * @throws IOException
-	 */
-	public void saveDependencyGraphAsDot(String filename) throws IOException {
-		FileWriter fw = new FileWriter(filename);
-		PlgDependencyGraph dg = getDependencyGraph();
-		dg.writeToDot(fw);
-		fw.close();
-	}
+//	/**
+//	 * Saves the current dependency graph process model as a Dot file
+//	 * 
+//	 * @param filename the destination filename
+//	 * @throws IOException
+//	 */
+//	public void saveDependencyGraphAsDot(String filename) throws IOException {
+//		FileWriter fw = new FileWriter(filename);
+//		PlgDependencyGraph dg = getDependencyGraph();
+//		dg.writeToDot(fw);
+//		fw.close();
+//	}
 	
 	
 	/**
-	 * Generates and saves a new instance of the process. This method saves the
-	 * log in a zip file format. This method can generate activitities as time
-	 * interval or as time points (in this case)
-	 * 
-	 * @param filename the destination zip file (must finishes with .zip)
-	 * @param cases the number of cases to generate
-	 * @param percentAsInterval the percentual of activities as time interval
-	 * @param percentErrors the percentage of log traces with errors
-	 * @throws IOException
-	 * @throws LogException
+	 * @param cases
+	 * @param percentAsInterval
+	 * @param percentErrors
+	 * @return
+	 * @throws IOException 
 	 */
-	public void saveAsNewLog(String filename, int cases, int percentAsInterval, int percentErrors) throws IOException, LogException {
+	public XLog generateXESLog(int cases, int percentAsInterval, int percentErrors) throws IOException {
 		cases = (cases < 1)? 1 : cases;
 		percentAsInterval = (percentAsInterval < 0 || percentAsInterval > 100)? 100 : percentAsInterval;
 		percentErrors = (percentErrors < 0 || percentErrors > 100)? 0 : percentErrors;
 		
-		File file = new File(filename);
-		LogPersistencyZip logFilter = new LogPersistencyZip(file);
-		LogSetRandomImpl logSet = new LogSetRandomImpl(logFilter, "ProcessLogGenerator", "", 10);
+		XLog l = xesFactory.createLog();
 		
 		while (cases-- > 0) {
+			XTrace t = xesFactory.createTrace();
+			XAttributeMap atts = PlgProcess.xesFactory.createAttributeMap();
+			atts.put("concept:name",
+					PlgProcess.xesFactory.createAttributeLiteral(
+							"concept:name",
+							"instance_" + cases,
+							PlgProcess.xesExtensionManager.getByName("Concept")));
+			t.setAttributes(atts);
 			Vector<PlgObservation> v = getFirstActivity().generateInstance(0);
 			for (int i = 0; i < v.size(); i ++) {
 				if (PlgParameters.randomFromPercent(percentErrors)) {
@@ -321,51 +330,111 @@ public class PlgProcess {
 				}
 				PlgObservation o = v.get(i);
 //				if (o != null) {
-					String processName = o.getActivity().getProcess().getName();
-					String caseId = "instance_" + cases;
+//					String processName = o.getActivity().getProcess().getName();
 					boolean asInterval = generator.nextInt(101) <= percentAsInterval;
-					Process proc = logSet.getProcess(processName);
-					ProcessInstance pi = proc.getProcessInstance(caseId, ProcessInstanceType.ENACTMENT_LOG);
-					AuditTrailEntry[] ate = o.getAuditTrailEntry(asInterval);
-					pi.addAuditTrailEntry(ate[0]);
-					pi.addAuditTrailEntry(ate[1]);
+					XEvent[] events = o.getEvents(asInterval);
+					t.add(events[0]);
+					t.add(events[1]);
+					
 //				}
 			}
+			l.add(t);
 		}
 		
-		logSet.finish();
+		
+		return l;
 	}
 	
 	
-	/**
-	 * Generates and saves a new instance of the process. This method saves the
-	 * log in a zip file format. This method can generate activitities as time
-	 * interval or as time points (in this case)
-	 * 
-	 * @param filename the destination zip file (must finishes with .zip)
-	 * @param cases the number of cases to generate
-	 * @param percentAsInterval the percentual of activities as time interval
-	 * @throws IOException
-	 * @throws LogException
-	 */
-	public void saveAsNewLog(String filename, int cases, int percentAsInterval) throws IOException, LogException {
-		saveAsNewLog(filename, cases, percentAsInterval, 0);
-	}
+//	/**
+//	 * Generates and saves a new instance of the process. This method saves the
+//	 * log in a zip file format. This method can generate activitities as time
+//	 * interval or as time points (in this case)
+//	 * 
+//	 * @param filename the destination zip file (must finishes with .zip)
+//	 * @param cases the number of cases to generate
+//	 * @param percentAsInterval the percentual of activities as time interval
+//	 * @param percentErrors the percentage of log traces with errors
+//	 * @throws IOException
+//	 * @throws LogException
+//	 */
+//	public void saveAsNewLog(String filename, int cases, int percentAsInterval, int percentErrors) throws IOException, LogException {
+//		cases = (cases < 1)? 1 : cases;
+//		percentAsInterval = (percentAsInterval < 0 || percentAsInterval > 100)? 100 : percentAsInterval;
+//		percentErrors = (percentErrors < 0 || percentErrors > 100)? 0 : percentErrors;
+//		
+//		File file = new File(filename);
+//		LogPersistencyZip logFilter = new LogPersistencyZip(file);
+//		LogSetRandomImpl logSet = new LogSetRandomImpl(logFilter, "ProcessLogGenerator", "", 10);
+//		
+//		while (cases-- > 0) {
+//			Vector<PlgObservation> v = getFirstActivity().generateInstance(0);
+//			for (int i = 0; i < v.size(); i ++) {
+//				if (PlgParameters.randomFromPercent(percentErrors)) {
+//					/* There must be an error! In this context, an error is the
+//					 * swap between two activities' times or the deletion of a
+//					 * log trace
+//					 */
+////					if (generator.nextBoolean()) {
+//						// swap time
+//						PlgObservation o1 = v.get(i);
+//						int randomIndex;
+//						do {
+//							randomIndex = generator.nextInt(v.size());
+//						} while (randomIndex == i);
+//						PlgObservation o2 = v.get(randomIndex);
+//						// swap starting time
+//						int o1StartingTime = o1.getStartingTime();
+//						o1.setStartingTime(o2.getStartingTime());
+//						o2.setStartingTime(o1StartingTime);
+//				}
+//				PlgObservation o = v.get(i);
+////				if (o != null) {
+//					String processName = o.getActivity().getProcess().getName();
+//					String caseId = "instance_" + cases;
+//					boolean asInterval = generator.nextInt(101) <= percentAsInterval;
+//					Process proc = logSet.getProcess(processName);
+//					ProcessInstance pi = proc.getProcessInstance(caseId, ProcessInstanceType.ENACTMENT_LOG);
+//					AuditTrailEntry[] ate = o.getAuditTrailEntry(asInterval);
+//					pi.addAuditTrailEntry(ate[0]);
+//					pi.addAuditTrailEntry(ate[1]);
+////				}
+//			}
+//		}
+//		
+//		logSet.finish();
+//	}
 	
 	
-	/**
-	 * Generates and saves a new instance of the process. This method saves the
-	 * log in a zip file format. This method can generate activitities as time
-	 * interval or as time points (in this case)
-	 * 
-	 * @param filename the destination zip file (must finishes with .zip)
-	 * @param cases the number of cases to generate
-	 * @throws IOException
-	 * @throws LogException
-	 */
-	public void saveAsNewLog(String filename, int cases) throws IOException, LogException {
-		saveAsNewLog(filename, cases, 100, 0);
-	}
+//	/**
+//	 * Generates and saves a new instance of the process. This method saves the
+//	 * log in a zip file format. This method can generate activitities as time
+//	 * interval or as time points (in this case)
+//	 * 
+//	 * @param filename the destination zip file (must finishes with .zip)
+//	 * @param cases the number of cases to generate
+//	 * @param percentAsInterval the percentual of activities as time interval
+//	 * @throws IOException
+//	 * @throws LogException
+//	 */
+//	public void saveAsNewLog(String filename, int cases, int percentAsInterval) throws IOException, LogException {
+//		saveAsNewLog(filename, cases, percentAsInterval, 0);
+//	}
+	
+	
+//	/**
+//	 * Generates and saves a new instance of the process. This method saves the
+//	 * log in a zip file format. This method can generate activitities as time
+//	 * interval or as time points (in this case)
+//	 * 
+//	 * @param filename the destination zip file (must finishes with .zip)
+//	 * @param cases the number of cases to generate
+//	 * @throws IOException
+//	 * @throws LogException
+//	 */
+//	public void saveAsNewLog(String filename, int cases) throws IOException, LogException {
+//		saveAsNewLog(filename, cases, 100, 0);
+//	}
 	
 	
 	/**
@@ -378,135 +447,156 @@ public class PlgProcess {
 		lastActivity = null;
 		// refresh heuristics net
 		heuristicsNet = null;
-		petriNet = null;
+//		petriNet = null;
 		metrics = null;
 	}
 	
 	
-	/**
-	 * This method returns the Heuristics Net associated to the process
-	 * 
-	 * @return the Heuristics Net associated to the process
-	 */
+//	/**
+//	 * This method returns the Heuristics Net associated to the process
+//	 * 
+//	 * @return the Heuristics Net associated to the process
+//	 */
+//	public HeuristicsNetImpl getHeuristicsNet() {
+//		// check the object in the cache
+//		if (heuristicsNet != null) {
+//			return heuristicsNet;
+//		}
+//		
+//		try {
+//			File tempFile = File.createTempFile("temporary-heuristics", ".dot");
+//			tempFile.deleteOnExit();
+//			FileWriter os = new FileWriter(tempFile);
+//
+//			String separator = "/////////////////////\n";
+//			String file = "";
+//			String activityListString = "";
+//			String firstActivityString = "";
+//			String lastActivityString = "";
+//
+//			// start and finish activities, and activity list
+//			for (int i = 0; i < activityList.size(); i++) {
+//				PlgActivity current = activityList.get(i);
+//				activityListString += current.getName() + ":@" + i + "&\n";
+//				if (current.equals(getFirstActivity())) {
+//					firstActivityString += i + "@\n";
+//				}
+//				if (current.equals(getLastActivity())) {
+//					lastActivityString += i + "@\n";
+//				}
+//			}
+//			file = 
+//				separator + 
+//				firstActivityString + 
+//				separator + 
+//				lastActivityString +
+//				separator + 
+//				activityListString +
+//				separator;
+//
+//			os.write(file);
+//			
+//			for (int i = 0; i < activityList.size(); i++) {
+//				PlgActivity current = activityList.get(i);
+//				String toRet = current.getActivityId();
+//				// activity origin
+//				toRet += "@";
+//				if (getFirstActivity().equals(current)) {
+//					toRet += ".";
+//				} else {
+//					int tot = current.getRelationsFrom().size();
+//					int curr = 1;
+//					for (Iterator<PlgActivity> j = current.getRelationsFrom().iterator(); j.hasNext();) {
+//						toRet += j.next().getActivityId();
+//						if (current.isXorJoin() && curr < tot) {
+//							toRet += "|";
+//						} else if (current.isAndJoin() && curr < tot) {
+//							toRet += "&";
+//						}
+//						curr++;
+//					}
+//				}
+//				
+//				// activity destination
+//				toRet += "@";
+//				int tot = current.getRelationsTo().size();
+//				int curr = 1;
+//				for (Iterator<PlgActivity> j = current.getRelationsTo().iterator(); j.hasNext();) {
+//					toRet += j.next().getActivityId();
+//					if (current.getRelationType().equals(RELATIONS.XOR_SPLIT) && curr < tot) {
+//						toRet += "|";
+//					} else if (current.getRelationType().equals(RELATIONS.AND_SPLIT) && curr < tot) {
+//						toRet += "&";
+//					}
+//					curr++;
+//				}
+//				
+//				toRet += "\n";
+//				os.write(toRet);
+//			}
+//
+////			firstActivity.getHeuristicsNetFile(os, new Stack<PlgActivity>());
+//			os.close();
+//
+//			HeuristicsNetFromFile hnff = new HeuristicsNetFromFile(new FileInputStream(tempFile));
+//			heuristicsNet = hnff.getNet();
+//		}
+//		catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return heuristicsNet;
+//	}
 	public HeuristicsNet getHeuristicsNet() {
-		// check the object in the cache
-		if (heuristicsNet != null) {
-			return heuristicsNet;
+		XEventNameClassifier xenc = new XEventNameClassifier();
+		XEventClasses xec = new XEventClasses(xenc);
+		
+		// add the set of activities
+		for (int i = 0; i < activityList.size(); i++) {
+			xec.register(activityList.get(i).getBasicXEvent());
 		}
 		
-		try {
-			File tempFile = File.createTempFile("temporary-heuristics", ".dot");
-			tempFile.deleteOnExit();
-			FileWriter os = new FileWriter(tempFile);
-
-			String separator = "/////////////////////\n";
-			String file = "";
-			String activityListString = "";
-			String firstActivityString = "";
-			String lastActivityString = "";
-
-			// start and finish activities, and activity list
-			for (int i = 0; i < activityList.size(); i++) {
-				PlgActivity current = activityList.get(i);
-				activityListString += current.getName() + ":@" + i + "&\n";
-				if (current.equals(getFirstActivity())) {
-					firstActivityString += i + "@\n";
-				}
-				if (current.equals(getLastActivity())) {
-					lastActivityString += i + "@\n";
-				}
-			}
-			file = 
-				separator + 
-				firstActivityString + 
-				separator + 
-				lastActivityString +
-				separator + 
-				activityListString +
-				separator;
-
-			os.write(file);
-			
-			for (int i = 0; i < activityList.size(); i++) {
-				PlgActivity current = activityList.get(i);
-				String toRet = current.getActivityId();
-				// activity origin
-				toRet += "@";
-				if (getFirstActivity().equals(current)) {
-					toRet += ".";
-				} else {
-					int tot = current.getRelationsFrom().size();
-					int curr = 1;
-					for (Iterator<PlgActivity> j = current.getRelationsFrom().iterator(); j.hasNext();) {
-						toRet += j.next().getActivityId();
-						if (current.isXorJoin() && curr < tot) {
-							toRet += "|";
-						} else if (current.isAndJoin() && curr < tot) {
-							toRet += "&";
-						}
-						curr++;
-					}
-				}
-				
-				// activity destination
-				toRet += "@";
-				int tot = current.getRelationsTo().size();
-				int curr = 1;
-				for (Iterator<PlgActivity> j = current.getRelationsTo().iterator(); j.hasNext();) {
-					toRet += j.next().getActivityId();
-					if (current.getRelationType().equals(RELATIONS.XOR_SPLIT) && curr < tot) {
-						toRet += "|";
-					} else if (current.getRelationType().equals(RELATIONS.AND_SPLIT) && curr < tot) {
-						toRet += "&";
-					}
-					curr++;
-				}
-				
-				toRet += "\n";
-				os.write(toRet);
-			}
-
-//			firstActivity.getHeuristicsNetFile(os, new Stack<PlgActivity>());
-			os.close();
-
-			HeuristicsNetFromFile hnff = new HeuristicsNetFromFile(new FileInputStream(tempFile));
-			heuristicsNet = hnff.getNet();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		return heuristicsNet;
-	}
-	
-	
-	/**
-	 * This method returns the dependency graph associated to the process
-	 * 
-	 * @return the dot that represent the dependency graph
-	 */
-	public PlgDependencyGraph getDependencyGraph() {
-		PlgDependencyGraph dg = new PlgDependencyGraph("net", this);
-		return dg;
-	}
-	
-	
-	/**
-	 * This method returns the Petri Net associated to the process 
-	 * 
-	 * @return the Petri Net associated to the process
-	 * @throws IOException
-	 */
-	public PetriNet getPetriNet() throws IOException {
-		// check the object in the cache
-		if (petriNet != null) {
-			return petriNet;
-		}
+		ActivitiesMappingStructures ams = new ActivitiesMappingStructures(xec);
+		HeuristicsNetImpl hn = new HeuristicsNetImpl(ams);
 		
-		ProvidedObject po = new ProvidedObject("net", getHeuristicsNet());
-		HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
-		petriNet = ((PetriNetResult) converter.convert(po)).getPetriNet();
-		return petriNet;
+		HNSubSet start = new HNSubSet();
+		HNSubSet end = new HNSubSet();
+		start.add(0);
+		start.add(0);
+		hn.setStartActivities(start);
+		hn.setEndActivities(end);
+		
+		return hn;
 	}
+	
+	
+//	/**
+//	 * This method returns the dependency graph associated to the process
+//	 * 
+//	 * @return the dot that represent the dependency graph
+//	 */
+//	public PlgDependencyGraph getDependencyGraph() {
+//		PlgDependencyGraph dg = new PlgDependencyGraph("net", this);
+//		return dg;
+//	}
+	
+	
+//	/**
+//	 * This method returns the Petri Net associated to the process 
+//	 * 
+//	 * @return the Petri Net associated to the process
+//	 * @throws IOException
+//	 */
+//	public PetriNet getPetriNet() throws IOException {
+//		// check the object in the cache
+//		if (petriNet != null) {
+//			return petriNet;
+//		}
+//		
+//		ProvidedObject po = new ProvidedObject("net", getHeuristicsNet());
+//		HNetToPetriNetConverter converter = new HNetToPetriNetConverter();
+//		petriNet = ((PetriNetResult) converter.convert(po)).getPetriNet();
+//		return petriNet;
+//	}
 	
 	
 	/**
@@ -530,16 +620,16 @@ public class PlgProcess {
 	}
 	
 	
-	/**
-	 * This method returns the adjacency matrix for the current process
-	 * 
-	 * @see PlgProcess#heuristicsNetToAdjacencyMatrix(HeuristicsNet)
-	 * @return a boolean matrix where, the cell (i,j) contains true if there is
-	 * a connection from activity i to j
-	 */
-	public boolean[][] getAdjacencyMatrix() {
-		return heuristicsNetToAdjacencyMatrix(getHeuristicsNet());
-	}
+//	/**
+//	 * This method returns the adjacency matrix for the current process
+//	 * 
+//	 * @see PlgProcess#heuristicsNetToAdjacencyMatrix(HeuristicsNet)
+//	 * @return a boolean matrix where, the cell (i,j) contains true if there is
+//	 * a connection from activity i to j
+//	 */
+//	public boolean[][] getAdjacencyMatrix() {
+//		return heuristicsNetToAdjacencyMatrix(getHeuristicsNet());
+//	}
 	
 	
 	/**
@@ -578,10 +668,10 @@ public class PlgProcess {
 	}
 	
 	
-	@Override
-	public int hashCode() {
-		return getHeuristicsNet().hashCode();
-	}
+//	@Override
+//	public int hashCode() {
+//		return getHeuristicsNet().hashCode();
+//	}
 	
 	
 	/**
@@ -678,41 +768,41 @@ public class PlgProcess {
 	public boolean saveProcessAs(String filename) throws IOException {
 		File tempFile = File.createTempFile("process", ".xml");
 		tempFile.deleteOnExit();
-		Document dom = new Document(tempFile);
-		Tag process = dom.addNode("process");
+		SXDocument dom = new SXDocument(tempFile);
+		SXTag process = dom.addNode("process");
 		// Meta
 		process.addComment("This is the list of all meta-attributes of the process");
-		Tag meta = process.addChildNode("meta");
+		SXTag meta = process.addChildNode("meta");
 		meta.addChildNode("libVersion").addTextNode(version);
 		meta.addChildNode("name").addTextNode(name);
-		Tag tagFirstActivity = meta.addChildNode("firstActivity");
+		SXTag tagFirstActivity = meta.addChildNode("firstActivity");
 		if (firstActivity != null) {
 			tagFirstActivity.addTextNode(getFirstActivity().getName());
 		}
-		Tag tagLastActivity = meta.addChildNode("lastActivity");
+		SXTag tagLastActivity = meta.addChildNode("lastActivity");
 		if (firstActivity != null) {
 			tagLastActivity.addTextNode(getLastActivity().getName());
 		}
 		meta.addChildNode("activityGenerator").addTextNode(activityGenerator);
 		meta.addChildNode("maxDepth").addTextNode(new Integer(maxDepth).toString());
-		Tag tagStatsCounter = meta.addChildNode("statsCounter");
+		SXTag tagStatsCounter = meta.addChildNode("statsCounter");
 		Iterator<COUNTER_TYPES> statsIterator = statsCounter.keySet().iterator();
 		while (statsIterator.hasNext()) {
 			COUNTER_TYPES type = statsIterator.next();
-			Tag s = tagStatsCounter.addChildNode("stat");
+			SXTag s = tagStatsCounter.addChildNode("stat");
 			s.addAttribute("id", type.toString());
 			s.addTextNode(statsCounter.get(type).toString());
 		}
 		// List of activities
 		process.addComment("The following is the list of all activities");
-		Tag activitiesList = process.addChildNode("activitiesList");
+		SXTag activitiesList = process.addChildNode("activitiesList");
 		for (PlgActivity activity : activityList) {
-			Tag t = activitiesList.addChildNode("activity");
+			SXTag t = activitiesList.addChildNode("activity");
 			t.addAttribute("name", activity.getName());
 		}
 		// List of relations
 		process.addComment("The following list describes the relations between activities");
-		Tag activities = process.addChildNode("activities");
+		SXTag activities = process.addChildNode("activities");
 		for (PlgActivity activity : activityList) {
 			activity.getActivityAsXML(activities);
 		}
@@ -1059,66 +1149,66 @@ public class PlgProcess {
 	/* ********************************************************************** */
 	/*                           Metric calculation                           */
 	/* ********************************************************************** */
-	/**
-	 * This method builds the default metric of the process
-	 * 
-	 * @see PlgMetricCalculator
-	 * @return the object that collect all the metric values of the process
-	 * @throws IOException
-	 */
-	public PlgProcessMeasures getProcessMeasures() throws IOException {
-		if (metrics != null) {
-			return metrics;
-		}
-		
-		PlgMetricCalculator calculator = new PlgMetricCalculator(this);
-		try {
-			metrics = calculator.calculate();
-			return metrics;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	/**
+//	 * This method builds the default metric of the process
+//	 * 
+//	 * @see PlgMetricCalculator
+//	 * @return the object that collect all the metric values of the process
+//	 * @throws IOException
+//	 */
+//	public PlgProcessMeasures getProcessMeasures() throws IOException {
+//		if (metrics != null) {
+//			return metrics;
+//		}
+//		
+//		PlgMetricCalculator calculator = new PlgMetricCalculator(this);
+//		try {
+//			metrics = calculator.calculate();
+//			return metrics;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 	
 	
-	/**
-	 * This method to get the Extended Cyclomatic Metric value
-	 * 
-	 * @return the metric value
-	 */
-	public int getProcessCyclomaticMetric() {
-		if (metrics != null) {
-			return metrics.getCyclomaticMetric();
-		}
-		
-		try {
-			PetriNet p = getPetriNet();
-			return PlgMetricCalculator.calculateCyclomaticMetric(p).first;
-		} catch (IOException e) {
-			
-		}
-		return -1;
-	}
+//	/**
+//	 * This method to get the Extended Cyclomatic Metric value
+//	 * 
+//	 * @return the metric value
+//	 */
+//	public int getProcessCyclomaticMetric() {
+//		if (metrics != null) {
+//			return metrics.getCyclomaticMetric();
+//		}
+//		
+//		try {
+//			PetriNet p = getPetriNet();
+//			return PlgMetricCalculator.calculateCyclomaticMetric(p).first;
+//		} catch (IOException e) {
+//			
+//		}
+//		return -1;
+//	}
 	
 	
-	/**
-	 * This method to get the Extended Cardoso Metric value
-	 * 
-	 * @return the metric value
-	 */
-	public int calculateCardosoMetric() {
-		if (metrics != null) {
-			return metrics.getCardosoMetric();
-		}
-		
-		try {
-			PetriNet p = getPetriNet();
-			return PlgMetricCalculator.calculateCardosoMetric(p).first;
-		} catch (IOException e) {
-			
-		}
-		return -1;
-	}
+//	/**
+//	 * This method to get the Extended Cardoso Metric value
+//	 * 
+//	 * @return the metric value
+//	 */
+//	public int calculateCardosoMetric() {
+//		if (metrics != null) {
+//			return metrics.getCardosoMetric();
+//		}
+//		
+//		try {
+//			PetriNet p = getPetriNet();
+//			return PlgMetricCalculator.calculateCardosoMetric(p).first;
+//		} catch (IOException e) {
+//			
+//		}
+//		return -1;
+//	}
 	/* ********************************************************************** */
 }
