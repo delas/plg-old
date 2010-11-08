@@ -9,7 +9,9 @@ import java.util.HashSet;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.processmining.lib.xml.Tag;
+import org.deckfour.spex.SXTag;
+import org.deckfour.xes.model.XAttributeMap;
+import org.deckfour.xes.model.XEvent;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -558,27 +560,27 @@ public class PlgActivity {
 	 * @return the new tag created
 	 * @throws IOException
 	 */
-	public Tag getActivityAsXML(Tag parent) throws IOException {
-		Tag t = parent.addChildNode("activity");
+	public SXTag getActivityAsXML(SXTag parent) throws IOException {
+		SXTag t = parent.addChildNode("activity");
 		t.addAttribute("id", getName());
 		t.addAttribute("duration", duration().toString());
 		t.addAttribute("relationType", relationType.name());
 		t.addAttribute("joinType", joinType.name());
-		Tag tagRelationsTo = t.addChildNode("relationsTo");
+		SXTag tagRelationsTo = t.addChildNode("relationsTo");
 		for (PlgActivity current : relationsTo) {
-			Tag d = tagRelationsTo.addChildNode("activity");
+			SXTag d = tagRelationsTo.addChildNode("activity");
 			d.addAttribute("ref", current.getName());
 			if (relationType == RELATIONS.AND_SPLIT ||
 					relationType == RELATIONS.XOR_SPLIT) {
 				d.addAttribute("weight", probabilityOfChoosing.get(current.getName()).toString());
 			}
 		}
-		Tag tagRelationsFrom = t.addChildNode("relationsFrom");
+		SXTag tagRelationsFrom = t.addChildNode("relationsFrom");
 		for (PlgActivity current : relationsFrom) {
-			Tag d = tagRelationsFrom.addChildNode("activity");
+			SXTag d = tagRelationsFrom.addChildNode("activity");
 			d.addAttribute("ref", current.getName());
 		}
-		Tag tagSplitJoinOpposite = t.addChildNode("splitJoinOpposite");
+		SXTag tagSplitJoinOpposite = t.addChildNode("splitJoinOpposite");
 		if (splitJoinOpposite != null) {
 			tagSplitJoinOpposite.addAttribute("ref", splitJoinOpposite.getName());
 		}
@@ -645,6 +647,24 @@ public class PlgActivity {
 				}
 			}
 		}
+	}
+	
+	
+	/**
+	 * This method to get a default structured XEvent for the given activity
+	 * 
+	 * @see XEvent
+	 * @return an XEvent object with the concept name setted to the activity
+	 * name
+	 */
+	public XEvent getBasicXEvent() {
+		XAttributeMap atts = PlgProcess.xesFactory.createAttributeMap();
+		atts.put("concept:name",
+			PlgProcess.xesFactory.createAttributeLiteral(
+					"concept:name",
+					getName(),
+					PlgProcess.xesExtensionManager.getByName("Concept")));
+		return PlgProcess.xesFactory.createEvent(atts);
 	}
 	
 	

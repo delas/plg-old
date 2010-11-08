@@ -1,0 +1,29 @@
+digraph G {
+	rankdir="LR";
+	fontname="Arial"; fontsize="14";
+	node [shape="none"];
+	A -> C;
+	C -> J[label=".27"];
+	C -> H[label=".3"];
+	C -> E[label=".43"];
+	D -> L;
+	E -> F;
+	F -> G[label=".46"];
+	F -> D[label=".54"];
+	G -> E;
+	H -> I;
+	I -> D;
+	J -> K;
+	K -> D;
+	L -> M;
+	M -> N;
+	N -> Q[label=".28"];
+	N -> R[label=".4"];
+	N -> P[label=".32"];
+	O -> S[label=".78"];
+	O -> B[label=".22"];
+	P -> O;
+	Q -> O;
+	R -> O;
+	S -> N;
+}

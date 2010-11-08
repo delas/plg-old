@@ -1,9 +1,7 @@
 package it.unipd.math.plg.models;
 
-import java.sql.Timestamp;
-
-import org.processmining.lib.mxml.AuditTrailEntry;
-import org.processmining.lib.mxml.EventType;
+import org.deckfour.xes.model.XAttributeMap;
+import org.deckfour.xes.model.XEvent;
 
 /**
  * This class describes the observation of an activity.
@@ -112,36 +110,96 @@ public class PlgObservation {
 	}
 	
 	
+//	/**
+//	 * This method constructs a set of audit trail entries that describes the
+//	 * activity observation as in MXML. 
+//	 * 
+//	 * @see AuditTrailEntry
+//	 * @param asInterval if this parameter is set to false, than the complete
+//	 * event coincides (as timestamp) with the starting one
+//	 * @return an array with two audit trail entries, one for the starting event
+//	 * and one for the complete event
+//	 */
+//	public AuditTrailEntry[] getAuditTrailEntry(boolean asInterval) {
+//		AuditTrailEntry[] ate = {new AuditTrailEntry(), new AuditTrailEntry()};
+//		Timestamp tStart = new Timestamp(Long.valueOf(startingTime) * 1000);
+//		Timestamp tComplete = new Timestamp(Long.valueOf(startingTime + activity.duration()) * 1000);
+//		
+//		// starting event
+//		ate[0].setEventType(EventType.START);
+//		ate[0].setTimestamp(tStart);
+//		ate[0].setOriginator(originator);
+//		ate[0].setWorkflowModelElement(activity.getName());
+//		// end event
+//		ate[1].setEventType(EventType.COMPLETE);
+//		if (asInterval) {
+//			ate[1].setTimestamp(tComplete);
+//		} else {
+//			ate[1].setTimestamp(tStart);
+//		}
+//		ate[1].setOriginator(originator);
+//		ate[1].setWorkflowModelElement(activity.getName());
+//		
+//		return ate;
+//	}
+	
+	
 	/**
-	 * This method constructs a set of audit trail entries that describes the
-	 * activity observation as in MXML. 
+	 * This method constructs a set of two events that describes the
+	 * activity observation as in XES.
 	 * 
-	 * @see AuditTrailEntry
+	 * @see XEvent
 	 * @param asInterval if this parameter is set to false, than the complete
 	 * event coincides (as timestamp) with the starting one
-	 * @return an array with two audit trail entries, one for the starting event
+	 * @return an array with two XEvent entries, one for the starting event
 	 * and one for the complete event
 	 */
-	public AuditTrailEntry[] getAuditTrailEntry(boolean asInterval) {
-		AuditTrailEntry[] ate = {new AuditTrailEntry(), new AuditTrailEntry()};
-		Timestamp tStart = new Timestamp(Long.valueOf(startingTime) * 1000);
-		Timestamp tComplete = new Timestamp(Long.valueOf(startingTime + activity.duration()) * 1000);
-		
-		// starting event
-		ate[0].setEventType(EventType.START);
-		ate[0].setTimestamp(tStart);
-		ate[0].setOriginator(originator);
-		ate[0].setWorkflowModelElement(activity.getName());
-		// end event
-		ate[1].setEventType(EventType.COMPLETE);
-		if (asInterval) {
-			ate[1].setTimestamp(tComplete);
-		} else {
-			ate[1].setTimestamp(tStart);
+	public XEvent[] getEvents(boolean asInterval) {
+		long tStart = Long.valueOf(startingTime) * 1000;
+		long tComplete = Long.valueOf(startingTime + activity.duration() * 1000);
+		if (!asInterval) {
+			tComplete = tStart;
 		}
-		ate[1].setOriginator(originator);
-		ate[1].setWorkflowModelElement(activity.getName());
 		
-		return ate;
+		XEvent e1 = activity.getBasicXEvent();
+		XEvent e2 = activity.getBasicXEvent();
+
+		// start activity
+		e1.getAttributes().put("org:resource",
+				PlgProcess.xesFactory.createAttributeLiteral(
+						"org:resource",
+						originator,
+						PlgProcess.xesExtensionManager.getByName("Organizational")));
+		e1.getAttributes().put("time:timestamp",
+				PlgProcess.xesFactory.createAttributeTimestamp(
+						"time:timestamp",
+						tStart,
+						PlgProcess.xesExtensionManager.getByName("Time")));
+		e1.getAttributes().put("lifecycle:transition",
+				PlgProcess.xesFactory.createAttributeLiteral(
+						"lifecycle:transition",
+						"start",
+						PlgProcess.xesExtensionManager.getByName("Lifecycle")));
+		
+		// end activity
+		e2.getAttributes().put("org:resource",
+				PlgProcess.xesFactory.createAttributeLiteral(
+						"org:resource",
+						originator,
+						PlgProcess.xesExtensionManager.getByName("Organizational")));
+		e2.getAttributes().put("time:timestamp",
+				PlgProcess.xesFactory.createAttributeTimestamp(
+						"time:timestamp",
+						tComplete,
+						PlgProcess.xesExtensionManager.getByName("Time")));
+		e2.getAttributes().put("lifecycle:transition",
+				PlgProcess.xesFactory.createAttributeLiteral(
+						"lifecycle:transition",
+						"complete",
+						PlgProcess.xesExtensionManager.getByName("Lifecycle")));
+		
+		
+		return new XEvent[] { e1, e2 };
+		
 	}
 }
