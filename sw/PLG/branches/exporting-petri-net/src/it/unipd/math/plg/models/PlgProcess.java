@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.processmining.converting.HNetToPetriNetConverter;
+import org.processmining.exporting.petrinet.TpnExport;
 import org.processmining.framework.models.heuristics.HNSubSet;
 import org.processmining.framework.models.heuristics.HeuristicsNet;
 import org.processmining.framework.models.petrinet.PetriNet;
@@ -42,7 +43,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class describres a general process.
+ * This class describes a general process.
  * 
  * Actually a process contains its name and its first activity. With this
  * modelling, since each activity contains a set of related activities, we have
@@ -51,7 +52,7 @@ import org.xml.sax.SAXException;
  * and XOR split/join).
  * 
  * @author Andrea Burattin
- * @version 0.5
+ * @version 0.6
  */
 public class PlgProcess {
 
@@ -274,6 +275,21 @@ public class PlgProcess {
 		PlgDependencyGraph dg = getDependencyGraph();
 		dg.writeToDot(fw);
 		fw.close();
+	}
+	
+	
+	/**
+	 * Saves the Petri Net of the process as a TPN file
+	 * 
+	 * @param filename the destination filename
+	 * @throws IOException
+	 */
+	public void savePetriNetAsTPN(String filename) throws IOException {
+		FileOutputStream out = new FileOutputStream(filename);
+		ProvidedObject po = new ProvidedObject("net", getPetriNet());
+		TpnExport export = new TpnExport();
+		export.export(po, out);
+		out.close();
 	}
 	
 	
