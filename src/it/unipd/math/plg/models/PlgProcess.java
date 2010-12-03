@@ -59,7 +59,7 @@ public class PlgProcess {
 	/** This is the random number generator */
 	public static Random generator = new Random();
 	/** This is the current library version */
-	public static final String version = "0.5";
+	public static final String version = "0.6";
 	
 	/**
 	 * This enum describes the possible stats counter for the pattern an other
