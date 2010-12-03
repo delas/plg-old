@@ -7,6 +7,8 @@ package it.unipd.math.plg.ui;
 import it.unipd.math.plg.ui.utils.Configurations;
 import java.util.Arrays;
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
@@ -47,6 +49,19 @@ public class ProcessLogGeneratorApp extends SingleFrameApplication {
 
 		// may we have to skip the check for updates? (as debug mode)
 		Configurations.CHECK_FOR_UPDATES = !(Arrays.asList(args).contains("--no-check-updates"));
+
+		// try setting the correct look and feel :)
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			// handle exception
+		}
+
 
 		launch(ProcessLogGeneratorApp.class, args);
     }

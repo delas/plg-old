@@ -69,6 +69,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         jToolBar1 = new javax.swing.JToolBar();
         jButton3 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
@@ -111,6 +112,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(it.unipd.math.plg.ui.ProcessLogGeneratorApp.class).getContext().getResourceMap(PLGProcessWindow.class);
         jButton3.setIcon(resourceMap.getIcon("jButton3.icon")); // NOI18N
         jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
+        jButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
         jButton3.setFocusable(false);
         jButton3.setName("jButton3"); // NOI18N
         jToolBar1.add(jButton3);
@@ -118,13 +120,23 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
         jButton1.setAction(actionMap.get("actionSaveAsDot")); // NOI18N
         jButton1.setIcon(resourceMap.getIcon("jButton1.icon")); // NOI18N
         jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
         jButton1.setFocusable(false);
         jButton1.setName("jButton1"); // NOI18N
         jToolBar1.add(jButton1);
 
+        jButton5.setAction(actionMap.get("exportAsTPN")); // NOI18N
+        jButton5.setIcon(resourceMap.getIcon("jButton5.icon")); // NOI18N
+        jButton5.setText(resourceMap.getString("jButton5.text")); // NOI18N
+        jButton5.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        jButton5.setFocusable(false);
+        jButton5.setName("jButton5"); // NOI18N
+        jToolBar1.add(jButton5);
+
         jButton2.setAction(actionMap.get("actionGenerateLog")); // NOI18N
         jButton2.setIcon(resourceMap.getIcon("jButton2.icon")); // NOI18N
         jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
+        jButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
         jButton2.setFocusable(false);
         jButton2.setName("jButton2"); // NOI18N
         jToolBar1.add(jButton2);
@@ -339,7 +351,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
                 .addGap(197, 197, 197))
         );
 
-        jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
+        jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), resourceMap.getIcon("jPanel3.TabConstraints.tabIcon"), jPanel3); // NOI18N
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
@@ -352,6 +364,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -534,5 +547,29 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 		} catch (IOException ex) {
 			javax.swing.JOptionPane.showMessageDialog(this, "Errors in measures calculation!");
 		}
+	}
+
+	@Action
+	public void exportAsTPN() {
+		String filename = File.separator+"tpn";
+	    JFileChooser fc = new JFileChooser(new File(filename));
+		FileFilter ff = new FileNameExtensionFilter("TPN file", "tpn");
+		fc.setFileFilter(ff);
+	    fc.showSaveDialog(this);
+	    File selFile = fc.getSelectedFile();
+	    if (selFile != null) {
+			String saveFilename = selFile.toString();
+			String ext = saveFilename.substring(saveFilename.lastIndexOf(".") + 1, saveFilename.length());
+			if (!ext.equals("tpn")) {
+				saveFilename = saveFilename + ".tpn";
+			}
+	    	try {
+				process.savePetriNetAsTPN(saveFilename);
+	    		javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ saveFilename);
+	    	} catch (IOException e) {
+	    		e.printStackTrace();
+	    		System.exit(1);
+	    	}
+	    }
 	}
 }

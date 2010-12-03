@@ -1,10 +1,12 @@
 package it.unipd.math.plg.ui.utils;
 
+import it.unipd.math.plg.ui.PLGAboutUI;
 import it.unipd.math.plg.ui.PLGNewRelease;
 import it.unipd.math.plg.ui.ProcessLogGeneratorApp;
 import java.io.InputStream;
 import java.net.URL;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -16,12 +18,30 @@ import org.w3c.dom.Document;
  */
 public class CheckForUpdate implements Runnable {
 
+	private boolean forced = false;
+	private JLabel updateLabel = null;
+
+
+	public CheckForUpdate() {
+	}
+
+	public CheckForUpdate(boolean forced, JLabel updateLabel) {
+		this.forced = forced;
+		this.updateLabel = updateLabel;
+	}
+
 	@Override
 	public void run() {
+		boolean toCheck = Configurations.CHECK_FOR_UPDATES || forced;
 		try {
 			Thread.sleep(1000);
-			System.out.print("Checking for update... ");
-			if (!Configurations.CHECK_FOR_UPDATES) {
+			if (updateLabel == null) {
+				System.out.print("Checking for update... ");
+			} else {
+				updateLabel.setText("Checking for update...");
+			}
+			
+			if (!toCheck) {
 				System.out.println("skipped!");
 				return;
 			}
@@ -33,14 +53,25 @@ public class CheckForUpdate implements Runnable {
 			String dowloadUrl = doc.getDocumentElement().getElementsByTagName("dowloadUrl").item(0).getTextContent();
 
 			if (!version.equals(Configurations.SW_VERSION)) {
-				System.out.println("Updates found!");
+				if (updateLabel == null) {
+					System.out.println("Updates found!");
+				} else {
+					updateLabel.setText("Updates found!");
+				}
+
 				JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
 				PLGNewRelease dialog = new PLGNewRelease(mainFrame, true);
 				dialog.setLabels(version, releaseDate, message, dowloadUrl);
 				dialog.setLocationRelativeTo(mainFrame);
 				dialog.setVisible(true);
+				Configurations.UPDATES_FOUND = true;
 			} else {
-				System.out.println("No updates available");
+				if (updateLabel == null) {
+					System.out.println("No updates available");
+				} else {
+					updateLabel.setText("You are up to date");
+				}
+				Configurations.UPDATES_FOUND = false;
 			}
 		} catch (Exception e) {
 			System.out.println("FAILED:");
