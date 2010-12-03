@@ -11,19 +11,15 @@
 
 package it.unipd.math.plg.ui;
 
-import it.unipd.math.plg.models.PlgDependencyGraph;
-import it.unipd.math.plg.models.PlgProbabilityDistribution;
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
+import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution.DISTRIBUTION;
+import it.unipd.math.plg.ui.widget.DistributionViewer;
 import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import javax.swing.AbstractAction;
-import javax.swing.InputMap;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
+import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jdesktop.application.Action;
 
 /**
@@ -46,6 +42,64 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
 	private PlgProbabilityDistribution xorDistrExec = null;
 
 	public boolean isCanceled = true;
+
+
+	class InternalListener implements DocumentListener {
+
+		PLGNewProcessSetup p = null;
+		DistributionViewer dv = null;
+		JComboBox cb = null;
+		JFormattedTextField max = null;
+		JTextField alpha = null;
+		JTextField beta = null;
+
+		public InternalListener(PLGNewProcessSetup p, DistributionViewer dv,
+				JComboBox cb, JFormattedTextField max,
+				JTextField alpha, JTextField beta) {
+			this.p = p;
+			this.dv = dv;
+			this.cb = cb;
+			this.max = max;
+			this.alpha = alpha;
+			this.beta = beta;
+		}
+
+		public void insertUpdate(DocumentEvent de) { update(); }
+		public void removeUpdate(DocumentEvent de) { update(); }
+		public void changedUpdate(DocumentEvent de) { update(); }
+
+		public void update() {
+			// update the distribution widget
+			if (!max.getText().isEmpty()) {
+				Integer maxVal = Integer.parseInt(max.getText());
+				if (maxVal > 2) {
+					boolean toUpdate = false;
+					PlgProbabilityDistribution distr = null;
+					if (((String)cb.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.UNIFORM))) {
+						distr = PlgProbabilityDistribution.uniformDistributionFactory();
+						toUpdate = true;
+					} else if (((String)cb.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.BETA))) {
+						if (!alpha.getText().isEmpty() && !beta.getText().isEmpty()) {
+							Double a = Double.parseDouble(alpha.getText());
+							Double b = Double.parseDouble(beta.getText());
+							distr = PlgProbabilityDistribution.betaDistributionFactory(a, b);
+							toUpdate = true;
+						}
+					} else if (((String)cb.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL))) {
+						distr = PlgProbabilityDistribution.normalDistributionFactory();
+						toUpdate = true;
+					}
+					if (toUpdate) {
+						p.updateDistribution(dv, maxVal, distr);
+					}
+				}
+			}
+		}
+
+	}
+
+
+	
 
 	public int getAndBranches() {
 		return andBranches;
@@ -151,13 +205,52 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
  
 		getRootPane().setDefaultButton(jButton2);
 
-
-		String distrib = "Standard Normal (Gaussian) distribution";
+		String distrib = PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL);
 		((CardLayout)(jPanel15.getLayout())).show(jPanel15, distrib);
 		((CardLayout)(jPanel20.getLayout())).show(jPanel20, distrib);
 		((CardLayout)(jPanel17.getLayout())).show(jPanel17, distrib);
 		((CardLayout)(jPanel25.getLayout())).show(jPanel25, distrib);
+
+		distributionViewer1.setDistribution(PlgProbabilityDistribution.normalDistributionFactory());
+		distributionViewer1.setMinValue(2);
+		distributionViewer1.setMaxValue(4);
+
+		distributionViewer2.setDistribution(PlgProbabilityDistribution.normalDistributionFactory());
+		distributionViewer2.setMinValue(2);
+		distributionViewer2.setMaxValue(4);
+
+		distributionViewer3.setDistribution(PlgProbabilityDistribution.normalDistributionFactory());
+		distributionViewer3.setMinValue(2);
+		distributionViewer3.setMaxValue(4);
+
+		distributionViewer4.setDistribution(PlgProbabilityDistribution.normalDistributionFactory());
+		distributionViewer4.setMinValue(2);
+		distributionViewer4.setMaxValue(4);
+
+
+		// AND prob distr viewer
+		InternalListener il1 = new InternalListener(this, distributionViewer1, jComboBox1, jFormattedTextField2, jTextField3, jTextField4);
+		InternalListener il12 = new InternalListener(this, distributionViewer2, jComboBox2, jFormattedTextField2, jTextField9, jTextField10);
+		jFormattedTextField2.getDocument().addDocumentListener(il1);
+		jFormattedTextField2.getDocument().addDocumentListener(il12);
+		jTextField3.getDocument().addDocumentListener(il1);
+		jTextField4.getDocument().addDocumentListener(il1);
+		InternalListener il2 = new InternalListener(this, distributionViewer2, jComboBox2, jFormattedTextField2, jTextField9, jTextField10);
+		jTextField9.getDocument().addDocumentListener(il2);
+		jTextField10.getDocument().addDocumentListener(il2);
+
+		// XOR prob distr viewer
+		InternalListener il3 = new InternalListener(this, distributionViewer3, jComboBox3, jFormattedTextField3, jTextField5, jTextField6);
+		InternalListener il32 = new InternalListener(this, distributionViewer4, jComboBox4, jFormattedTextField3, jTextField13, jTextField14);
+		jFormattedTextField3.getDocument().addDocumentListener(il3);
+		jFormattedTextField3.getDocument().addDocumentListener(il32);
+		jTextField5.getDocument().addDocumentListener(il3);
+		jTextField6.getDocument().addDocumentListener(il3);
+		InternalListener il4 = new InternalListener(this, distributionViewer4, jComboBox4, jFormattedTextField3, jTextField13, jTextField14);
+		jTextField13.getDocument().addDocumentListener(il4);
+		jTextField14.getDocument().addDocumentListener(il4);
     }
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -227,6 +320,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jTextField7 = new javax.swing.JTextField();
         jLabel22 = new javax.swing.JLabel();
         jTextField8 = new javax.swing.JTextField();
+        distributionViewer1 = new it.unipd.math.plg.ui.widget.DistributionViewer();
+        distributionViewer2 = new it.unipd.math.plg.ui.widget.DistributionViewer();
         jPanel16 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jFormattedTextField3 = new javax.swing.JFormattedTextField();
@@ -258,6 +353,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jTextField15 = new javax.swing.JTextField();
         jLabel32 = new javax.swing.JLabel();
         jTextField16 = new javax.swing.JTextField();
+        distributionViewer3 = new it.unipd.math.plg.ui.widget.DistributionViewer();
+        distributionViewer4 = new it.unipd.math.plg.ui.widget.DistributionViewer();
         jPanel8 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
@@ -301,7 +398,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -336,7 +433,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
-                    .addComponent(jSlider5, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                    .addComponent(jSlider5, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -371,7 +468,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
-                    .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                    .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -406,7 +503,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel8)
-                    .addComponent(jSlider3, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE))
+                    .addComponent(jSlider3, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -454,15 +551,15 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel9)
                             .addComponent(jLabel10))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSlider4, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
-                            .addComponent(jFormattedTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE))))
+                            .addComponent(jSlider4, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
+                            .addComponent(jFormattedTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
@@ -478,7 +575,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addComponent(jSlider4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel9.TabConstraints.tabTitle"), jPanel9); // NOI18N
@@ -496,6 +593,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jFormattedTextField2.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
         jFormattedTextField2.setText(resourceMap.getString("jFormattedTextField2.text")); // NOI18N
         jFormattedTextField2.setName("jFormattedTextField2"); // NOI18N
+        jFormattedTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFormattedTextField2ActionPerformed(evt);
+            }
+        });
 
         jLabel13.setText(resourceMap.getString("jLabel13.text")); // NOI18N
         jLabel13.setName("jLabel13"); // NOI18N
@@ -535,11 +637,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addGroup(jPanel13Layout.createSequentialGroup()
                         .addComponent(jLabel16)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE))
+                        .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                     .addGroup(jPanel13Layout.createSequentialGroup()
                         .addComponent(jLabel17)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)))
+                        .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel13Layout.setVerticalGroup(
@@ -553,7 +655,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel17)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel15.add(jPanel13, "Beta distribution");
@@ -585,8 +687,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE))
+                    .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel12Layout.setVerticalGroup(
@@ -600,7 +702,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel15.add(jPanel12, "Standard Normal (Gaussian) distribution");
@@ -611,11 +713,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 511, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 94, Short.MAX_VALUE)
+            .addGap(0, 81, Short.MAX_VALUE)
         );
 
         jPanel15.add(jPanel14, "Uniform distribution");
@@ -640,11 +742,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jPanel21.setLayout(jPanel21Layout);
         jPanel21Layout.setHorizontalGroup(
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 511, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
         jPanel21Layout.setVerticalGroup(
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGap(0, 88, Short.MAX_VALUE)
         );
 
         jPanel20.add(jPanel21, "Uniform distribution");
@@ -673,11 +775,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addGroup(jPanel22Layout.createSequentialGroup()
                         .addComponent(jLabel23)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField9, javax.swing.GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE))
+                        .addComponent(jTextField9, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                     .addGroup(jPanel22Layout.createSequentialGroup()
                         .addComponent(jLabel24)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField10, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)))
+                        .addComponent(jTextField10, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel22Layout.setVerticalGroup(
@@ -691,7 +793,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel24)
                     .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         jPanel20.add(jPanel22, "Beta distribution");
@@ -723,8 +825,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE))
+                    .addComponent(jTextField8, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                    .addComponent(jTextField7, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel19Layout.setVerticalGroup(
@@ -738,32 +840,66 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         jPanel20.add(jPanel19, "Standard Normal (Gaussian) distribution");
+
+        distributionViewer1.setName("distributionViewer1"); // NOI18N
+
+        javax.swing.GroupLayout distributionViewer1Layout = new javax.swing.GroupLayout(distributionViewer1);
+        distributionViewer1.setLayout(distributionViewer1Layout);
+        distributionViewer1Layout.setHorizontalGroup(
+            distributionViewer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 218, Short.MAX_VALUE)
+        );
+        distributionViewer1Layout.setVerticalGroup(
+            distributionViewer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 81, Short.MAX_VALUE)
+        );
+
+        distributionViewer2.setName("distributionViewer2"); // NOI18N
+        distributionViewer2.setPreferredSize(new java.awt.Dimension(218, 81));
+
+        javax.swing.GroupLayout distributionViewer2Layout = new javax.swing.GroupLayout(distributionViewer2);
+        distributionViewer2.setLayout(distributionViewer2Layout);
+        distributionViewer2Layout.setHorizontalGroup(
+            distributionViewer2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 218, Short.MAX_VALUE)
+        );
+        distributionViewer2Layout.setVerticalGroup(
+            distributionViewer2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 81, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+            .addGroup(jPanel11Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
-                    .addComponent(jPanel20, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel11Layout.createSequentialGroup()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
                         .addComponent(jLabel13)
                         .addGap(24, 24, 24))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel11Layout.createSequentialGroup()
-                        .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel18))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox2, 0, 349, Short.MAX_VALUE)
-                            .addComponent(jFormattedTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.TRAILING, 0, 349, Short.MAX_VALUE))))
+                            .addComponent(jFormattedTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.TRAILING, 0, 332, Short.MAX_VALUE)))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(distributionViewer1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(jLabel18)
+                        .addGap(18, 18, 18)
+                        .addComponent(jComboBox2, 0, 353, Short.MAX_VALUE))
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(jPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(distributionViewer2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel11Layout.setVerticalGroup(
@@ -777,19 +913,24 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(distributionViewer1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel18))
-                .addGap(12, 12, 12)
-                .addComponent(jPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(166, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(distributionViewer2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(221, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab(resourceMap.getString("jPanel11.TabConstraints.tabTitle"), jPanel11); // NOI18N
 
+        jPanel16.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel16.setName("jPanel16"); // NOI18N
 
         jLabel12.setText(resourceMap.getString("jLabel12.text")); // NOI18N
@@ -838,11 +979,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addGroup(jPanel18Layout.createSequentialGroup()
                         .addComponent(jLabel20)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE))
+                        .addComponent(jTextField5, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                     .addGroup(jPanel18Layout.createSequentialGroup()
                         .addComponent(jLabel25)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 454, Short.MAX_VALUE)))
+                        .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel18Layout.setVerticalGroup(
@@ -856,7 +997,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel25)
                     .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel17.add(jPanel18, "Beta distribution");
@@ -867,11 +1008,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jPanel24.setLayout(jPanel24Layout);
         jPanel24Layout.setHorizontalGroup(
             jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 513, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
         jPanel24Layout.setVerticalGroup(
             jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 92, Short.MAX_VALUE)
+            .addGap(0, 81, Short.MAX_VALUE)
         );
 
         jPanel17.add(jPanel24, "Uniform distribution");
@@ -903,8 +1044,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField12, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-                    .addComponent(jTextField11, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE))
+                    .addComponent(jTextField12, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                    .addComponent(jTextField11, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel23Layout.setVerticalGroup(
@@ -918,7 +1059,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel17.add(jPanel23, "Standard Normal (Gaussian) distribution");
@@ -943,11 +1084,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
         jPanel26.setLayout(jPanel26Layout);
         jPanel26Layout.setHorizontalGroup(
             jPanel26Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 513, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
         jPanel26Layout.setVerticalGroup(
             jPanel26Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGap(0, 99, Short.MAX_VALUE)
         );
 
         jPanel25.add(jPanel26, "Uniform distribution");
@@ -976,11 +1117,11 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addGroup(jPanel27Layout.createSequentialGroup()
                         .addComponent(jLabel29)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField13, javax.swing.GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE))
+                        .addComponent(jTextField13, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                     .addGroup(jPanel27Layout.createSequentialGroup()
                         .addComponent(jLabel30)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField14, javax.swing.GroupLayout.DEFAULT_SIZE, 454, Short.MAX_VALUE)))
+                        .addComponent(jTextField14, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel27Layout.setVerticalGroup(
@@ -994,7 +1135,7 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel27Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel30)
                     .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         jPanel25.add(jPanel27, "Beta distribution");
@@ -1026,8 +1167,8 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                     .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel28Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField16, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
-                    .addComponent(jTextField15, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE))
+                    .addComponent(jTextField16, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                    .addComponent(jTextField15, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel28Layout.setVerticalGroup(
@@ -1041,32 +1182,66 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel28Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         jPanel25.add(jPanel28, "Standard Normal (Gaussian) distribution");
+
+        distributionViewer3.setName("distributionViewer3"); // NOI18N
+        distributionViewer3.setPreferredSize(new java.awt.Dimension(218, 81));
+
+        javax.swing.GroupLayout distributionViewer3Layout = new javax.swing.GroupLayout(distributionViewer3);
+        distributionViewer3.setLayout(distributionViewer3Layout);
+        distributionViewer3Layout.setHorizontalGroup(
+            distributionViewer3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 218, Short.MAX_VALUE)
+        );
+        distributionViewer3Layout.setVerticalGroup(
+            distributionViewer3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 81, Short.MAX_VALUE)
+        );
+
+        distributionViewer4.setName("distributionViewer4"); // NOI18N
+        distributionViewer4.setPreferredSize(new java.awt.Dimension(218, 81));
+
+        javax.swing.GroupLayout distributionViewer4Layout = new javax.swing.GroupLayout(distributionViewer4);
+        distributionViewer4.setLayout(distributionViewer4Layout);
+        distributionViewer4Layout.setHorizontalGroup(
+            distributionViewer4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 218, Short.MAX_VALUE)
+        );
+        distributionViewer4Layout.setVerticalGroup(
+            distributionViewer4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 81, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
         jPanel16.setLayout(jPanel16Layout);
         jPanel16Layout.setHorizontalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
+            .addGroup(jPanel16Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel17, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
-                    .addComponent(jPanel25, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
-                    .addGroup(jPanel16Layout.createSequentialGroup()
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
+                        .addComponent(jPanel25, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(distributionViewer4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel12)
                             .addComponent(jLabel19))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.LEADING, 0, 351, Short.MAX_VALUE)
-                            .addComponent(jFormattedTextField3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel16Layout.createSequentialGroup()
+                            .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.LEADING, 0, 332, Short.MAX_VALUE)
+                            .addComponent(jFormattedTextField3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)))
+                    .addGroup(jPanel16Layout.createSequentialGroup()
+                        .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(distributionViewer3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel16Layout.createSequentialGroup()
                         .addComponent(jLabel28)
-                        .addGap(39, 39, 39)
-                        .addComponent(jComboBox4, 0, 351, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jComboBox4, 0, 353, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel16Layout.setVerticalGroup(
@@ -1080,15 +1255,19 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
                 .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
                     .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(distributionViewer3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel28))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel25, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(176, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(distributionViewer4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel25, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(210, 210, 210))
         );
 
         jTabbedPane2.addTab(resourceMap.getString("jPanel16.TabConstraints.tabTitle"), jPanel16); // NOI18N
@@ -1099,14 +1278,14 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1138,36 +1317,108 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+		// show the correct panel
 		JComboBox cb = (JComboBox)evt.getSource();
 		String distrib = (String)cb.getSelectedItem();
 		CardLayout cl = (CardLayout)(jPanel15.getLayout());
 		cl.show(jPanel15, distrib);
+
+		// update the distribution widget
+		PlgProbabilityDistribution distr = null;
+		if (((String)jComboBox1.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.UNIFORM))) {
+			distr = PlgProbabilityDistribution.uniformDistributionFactory();
+		} else if (((String)jComboBox1.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.BETA))) {
+			Double alpha = Double.parseDouble(jTextField3.getText());
+			Double beta = Double.parseDouble(jTextField4.getText());
+			distr = PlgProbabilityDistribution.betaDistributionFactory(alpha, beta);
+		} else if (((String)jComboBox1.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL))) {
+			distr = PlgProbabilityDistribution.normalDistributionFactory();
+		}
+		updateDistribution(distributionViewer1, Integer.parseInt(jFormattedTextField2.getText()), distr);
 	}//GEN-LAST:event_jComboBox1ActionPerformed
 
 	private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+		// show the correct panel
 		JComboBox cb = (JComboBox)evt.getSource();
 		String distrib = (String)cb.getSelectedItem();
 		CardLayout cl = (CardLayout)(jPanel20.getLayout());
 		cl.show(jPanel20, distrib);
+
+		// update the distribution widget
+		PlgProbabilityDistribution distr = null;
+		if (((String)jComboBox2.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.UNIFORM))) {
+			distr = PlgProbabilityDistribution.uniformDistributionFactory();
+		} else if (((String)jComboBox2.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.BETA))) {
+			Double alpha = Double.parseDouble(jTextField9.getText());
+			Double beta = Double.parseDouble(jTextField10.getText());
+			distr = PlgProbabilityDistribution.betaDistributionFactory(alpha, beta);
+		} else if (((String)jComboBox2.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL))) {
+			distr = PlgProbabilityDistribution.normalDistributionFactory();
+		}
+		updateDistribution(distributionViewer2, Integer.parseInt(jFormattedTextField2.getText()), distr);
 	}//GEN-LAST:event_jComboBox2ActionPerformed
 
 	private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+		// show the correct panel
 		JComboBox cb = (JComboBox)evt.getSource();
 		String distrib = (String)cb.getSelectedItem();
 		CardLayout cl = (CardLayout)(jPanel17.getLayout());
 		cl.show(jPanel17, distrib);
+
+		// update the distribution widget
+		PlgProbabilityDistribution distr = null;
+		if (((String)jComboBox3.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.UNIFORM))) {
+			distr = PlgProbabilityDistribution.uniformDistributionFactory();
+		} else if (((String)jComboBox3.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.BETA))) {
+			Double alpha = Double.parseDouble(jTextField5.getText());
+			Double beta = Double.parseDouble(jTextField6.getText());
+			distr = PlgProbabilityDistribution.betaDistributionFactory(alpha, beta);
+		} else if (((String)jComboBox3.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL))) {
+			distr = PlgProbabilityDistribution.normalDistributionFactory();
+		}
+		updateDistribution(distributionViewer3, Integer.parseInt(jFormattedTextField3.getText()), distr);
 	}//GEN-LAST:event_jComboBox3ActionPerformed
 
 	private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
+		// show the correct panel
 		JComboBox cb = (JComboBox)evt.getSource();
 		String distrib = (String)cb.getSelectedItem();
 		CardLayout cl = (CardLayout)(jPanel25.getLayout());
 		cl.show(jPanel25, distrib);
+
+		// update the distribution widget
+		PlgProbabilityDistribution distr = null;
+		if (((String)jComboBox4.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.UNIFORM))) {
+			distr = PlgProbabilityDistribution.uniformDistributionFactory();
+		} else if (((String)jComboBox4.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.BETA))) {
+			Double alpha = Double.parseDouble(jTextField13.getText());
+			Double beta = Double.parseDouble(jTextField14.getText());
+			distr = PlgProbabilityDistribution.betaDistributionFactory(alpha, beta);
+		} else if (((String)jComboBox4.getSelectedItem()).equals(PlgProbabilityDistribution.distributionToName(DISTRIBUTION.NORMAL))) {
+			distr = PlgProbabilityDistribution.normalDistributionFactory();
+		}
+		updateDistribution(distributionViewer4, Integer.parseInt(jFormattedTextField3.getText()), distr);
 	}//GEN-LAST:event_jComboBox4ActionPerformed
 
 	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 		// TODO add your handling code here:
 	}//GEN-LAST:event_jButton2ActionPerformed
+
+	private void jFormattedTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField2ActionPerformed
+		
+	}//GEN-LAST:event_jFormattedTextField2ActionPerformed
+
+	private void updateDistribution(DistributionViewer distr, Integer maxVal, PlgProbabilityDistribution distribution) {
+		try {
+			if (maxVal > 2) {
+				distr.setMaxValue(maxVal);
+				distr.setDistribution(distribution);
+				distr.repaint();
+			}
+		} catch(NumberFormatException e) {
+
+		}
+	}
 
     /**
     * @param args the command line arguments
@@ -1270,6 +1521,10 @@ public class PLGNewProcessSetup extends javax.swing.JDialog {
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private it.unipd.math.plg.ui.widget.DistributionViewer distributionViewer1;
+    private it.unipd.math.plg.ui.widget.DistributionViewer distributionViewer2;
+    private it.unipd.math.plg.ui.widget.DistributionViewer distributionViewer3;
+    private it.unipd.math.plg.ui.widget.DistributionViewer distributionViewer4;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
