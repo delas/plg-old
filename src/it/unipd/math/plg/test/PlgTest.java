@@ -159,6 +159,8 @@ public class PlgTest {
 			p.saveHeuristicsNetAsDot(finalOutputPath1 + ".hn.dot");
 			p.savePetriNetAsDot(finalOutputPath1 + ".pn.dot");
 			p.saveDependencyGraphAsDot(finalOutputPath1 + ".dg.dot");
+			p.savePetriNetAsTPN(finalOutputPath1 + ".tpn");
+			p.saveProcessAs(finalOutputPath1 + ".plg");
 			String[] dotCmd1 = {"/bin/sh", "-c",
 					"dot -Tpdf " + finalOutputPath1 + ".hn.dot > " + finalOutputPath1 + ".hn.pdf && " +
 					"dot -Tpdf " + finalOutputPath1 + ".pn.dot > " + finalOutputPath1 + ".pn.pdf && " +
@@ -172,6 +174,8 @@ public class PlgTest {
 			System.out.println("Dot for Heuristics Net: " + finalOutputPath1 + ".hn.dot");
 			System.out.println("      PDF of Petri Net: " + finalOutputPath1 + ".pn.pdf");
 			System.out.println(" PDF of Heuristics Net: " + finalOutputPath1 + ".hn.pdf");
+			System.out.println("      Petri Net as TPN: " + finalOutputPath1 + ".tpn");
+			System.out.println("               Process: " + finalOutputPath1 + ".plg");
 			System.exit(0);
 			
 			

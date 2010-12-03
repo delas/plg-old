@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
  * relation).
  * 
  * @author Andrea Burattin
- * @version 0.5
+ * @version 0.5.1
  */
 public class PlgActivity {
 
@@ -554,7 +554,7 @@ public class PlgActivity {
 	/**
 	 * This method is used to export the activity into a single XML blob
 	 * 
-	 * @param parent the parend where the description has to be put
+	 * @param parent the parent where the description has to be put
 	 * @return the new tag created
 	 * @throws IOException
 	 */
@@ -570,7 +570,7 @@ public class PlgActivity {
 			d.addAttribute("ref", current.getName());
 			if (relationType == RELATIONS.AND_SPLIT ||
 					relationType == RELATIONS.XOR_SPLIT) {
-				d.addAttribute("weight", probabilityOfChoosing.get(current.getName()).toString());
+				d.addAttribute("weight", probabilityOfChoosing.get(current).toString());
 			}
 		}
 		Tag tagRelationsFrom = t.addChildNode("relationsFrom");
