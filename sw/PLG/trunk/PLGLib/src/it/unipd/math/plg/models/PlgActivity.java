@@ -4,14 +4,19 @@ import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
 import org.deckfour.spex.SXTag;
 import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
+import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -44,9 +49,9 @@ public class PlgActivity {
 	private String activityName;
 	private Integer activityDuration;
 	private RELATIONS relationType = RELATIONS.UNDEF;
-	private HashSet<PlgActivity> relationsTo = new HashSet<PlgActivity>(5);
-	private HashMap<PlgActivity, Double> probabilityOfChoosing = new HashMap<PlgActivity, Double>();
-	private HashSet<PlgActivity> relationsFrom = new HashSet<PlgActivity>(5);
+	private Set<PlgActivity> relationsTo = Collections.synchronizedSet(new HashSet<PlgActivity>(5));
+	private Map<PlgActivity, Double> probabilityOfChoosing = Collections.synchronizedMap(new HashMap<PlgActivity, Double>());
+	private Set<PlgActivity> relationsFrom = Collections.synchronizedSet(new HashSet<PlgActivity>(5));
 	private RELATIONS joinType = RELATIONS.UNDEF;
 	private PlgActivity splitJoinOpposite;
 	private PlgProcess process;
@@ -154,7 +159,7 @@ public class PlgActivity {
 	 * @return an HashMap with the relations "activity name" -> "probability of
 	 * choosing the given activity"
 	 */
-	public HashMap<PlgActivity, Double> getProbabilityOfEdges() {
+	public Map<PlgActivity, Double> getProbabilityOfEdges() {
 		return probabilityOfChoosing;
 	}
 	
@@ -173,7 +178,7 @@ public class PlgActivity {
 	 * @param destination the activity destination of the relation
 	 * @return the destination activity
 	 */
-	private PlgActivity addRelation(RELATIONS relationType, PlgActivity destination) {
+	private synchronized PlgActivity addRelation(RELATIONS relationType, PlgActivity destination) {
 //		RELATIONS prevRelationType = this.relationType;
 		this.relationType = relationType;
 		// if this is a sequence relation, add this
@@ -225,7 +230,7 @@ public class PlgActivity {
 	 * @param destination the destination activity
 	 * @return the destination activity
 	 */
-	public PlgActivity addNext(PlgActivity destination) {
+	public synchronized PlgActivity addNext(PlgActivity destination) {
 		PlgActivity toReturn = null;
 		if (relationType == RELATIONS.XOR_SPLIT) {
 			relationsTo.add(destination);
@@ -673,7 +678,7 @@ public class PlgActivity {
 	 * 
 	 * @return the set of activities
 	 */
-	public HashSet<PlgActivity> getRelationsFrom() {
+	public Set<PlgActivity> getRelationsFrom() {
 		return relationsFrom;
 	}
 	
@@ -684,7 +689,7 @@ public class PlgActivity {
 	 * 
 	 * @return the set of activities
 	 */
-	public HashSet<PlgActivity> getRelationsTo() {
+	public Set<PlgActivity> getRelationsTo() {
 		return relationsTo;
 	}
 	
