@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.management.Attribute;
+import javax.security.auth.login.LoginException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -25,6 +27,7 @@ import org.deckfour.spex.SXDocument;
 import org.deckfour.spex.SXTag;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClasses;
+import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.extension.XExtensionManager;
 import org.deckfour.xes.factory.XFactory;
@@ -33,13 +36,36 @@ import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
+import org.deckfour.xes.model.impl.XAttributeLiteralImpl;
+import org.deckfour.xes.model.impl.XAttributeMapImpl;
+import org.deckfour.xes.model.impl.XEventImpl;
+import org.deckfour.xes.model.impl.XTraceImpl;
+import org.deckfour.xes.util.XAttributeUtils;
+import org.processmining.framework.util.Pair;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
+import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
+import org.processmining.models.graphbased.directed.bpmn.elements.Activity;
+import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
+import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
+import org.processmining.models.graphbased.directed.bpmn.elements.SubProcess;
+import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventTrigger;
+import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventType;
+import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventUse;
+import org.processmining.models.graphbased.directed.bpmn.elements.Gateway.GatewayType;
 import org.processmining.models.graphbased.directed.flexiblemodel.FlexImpl;
 import org.processmining.models.graphbased.directed.flexiblemodel.FlexNode;
 import org.processmining.models.graphbased.directed.fuzzymodel.FuzzyGraph;
 import org.processmining.models.graphbased.directed.fuzzymodel.MutableFuzzyGraph;
+import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
+import org.processmining.models.graphbased.directed.petrinet.elements.Place;
+import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.processmining.models.heuristics.HeuristicsNet;
 import org.processmining.models.heuristics.impl.ActivitiesMappingStructures;
+import org.processmining.models.heuristics.impl.HNSet;
 import org.processmining.models.heuristics.impl.HNSubSet;
 import org.processmining.models.heuristics.impl.HeuristicsNetImpl;
 import org.w3c.dom.Node;
@@ -56,7 +82,7 @@ import org.xml.sax.SAXException;
  * and XOR split/join).
  * 
  * @author Andrea Burattin
- * @version 0.5
+ * @version 0.6
  */
 public class PlgProcess {
 
@@ -286,10 +312,14 @@ public class PlgProcess {
 	
 	
 	/**
+	 * This method executes the current process and record the actions into a 
+	 * log object
+	 * 
+	 * @see XLog 
 	 * @param cases
 	 * @param percentAsInterval
 	 * @param percentErrors
-	 * @return
+	 * @return the log object
 	 * @throws IOException 
 	 */
 	public XLog generateXESLog(int cases, int percentAsInterval, int percentErrors) throws IOException {
@@ -546,38 +576,192 @@ public class PlgProcess {
 //		}
 //		return heuristicsNet;
 //	}
+	
+	/**
+	 * 
+	 */
+	public BPMNDiagram getBPMNDiagram() {
+		BPMNDiagram diagram = BPMNDiagramFactory.newBPMNDiagram("test");
+		HashMap<String, BPMNNode> nodes = new HashMap<String, BPMNNode>();
+		HashMap<String, SubProcess> subProcesses = new HashMap<String, SubProcess>();
+		
+		BPMNNode start = diagram.addEvent("Start", EventType.START, EventTrigger.NONE, null, null, null);
+		BPMNNode end = diagram.addEvent("End", EventType.END, EventTrigger.NONE, null, null, null);
+
+		// insert all the activities
+		for (int i = 0; i < activityList.size(); i++) {
+			PlgActivity a = activityList.get(i);
+			
+//			a.getFrame().insertAllSubprocesses(diagram, subProcesses);
+			
+			SubProcess sp = null; //subProcesses.get(a.getFrame().getID());
+			BPMNNode node = diagram.addActivity(a.getName(), false, false, false, false, false, sp);
+			nodes.put(a.getName(), node);
+			
+			// first activity
+			if (activityList.get(i).isFirstActivity()) {
+				diagram.addFlow(start, nodes.get(activityList.get(i).getName()), null);
+			}
+			// last activity
+			if (activityList.get(i).isLastActivity()) {
+				diagram.addFlow(nodes.get(activityList.get(i).getName()), end, null);
+			}
+		}
+		
+		// insert all the edges
+		for (int i = 0; i < activityList.size(); i++) {
+			PlgActivity current = activityList.get(i);
+			BPMNNode source = nodes.get(current.getName());
+			BPMNNode target = null;
+			// xor split
+			if (current.getRelationType().equals(RELATIONS.XOR_SPLIT)) {
+				SubProcess sp = null; //subProcesses.get(current.getFrame().getID());
+				BPMNNode xor = diagram.addGateway("XOR split", GatewayType.DATABASED, sp);
+				diagram.addFlow(source, xor, null);
+				source = xor;
+			}
+			// and split
+			if (current.getRelationType().equals(RELATIONS.AND_SPLIT)) {
+				SubProcess sp = null; //subProcesses.get(current.getFrame().getID());
+				BPMNNode and = diagram.addGateway("AND split", GatewayType.PARALLEL, sp);
+				diagram.addFlow(source, and, null);
+				source = and;
+			}
+			
+			if (current.getRelationsTo().size() == 1 && current.getRelationsTo().iterator().next().isXorJoin()) {
+				
+				// xor join ----------------------------------------------------
+				String second = current.getRelationsTo().iterator().next().getName();
+				String name = "XORJoin" + second;
+				BPMNNode xor = nodes.get(name);
+				target = nodes.get(current.getRelationsTo().iterator().next().getName());
+				if (xor == null) {
+					SubProcess sp = null; //subProcesses.get(current.getRelationsTo().iterator().next().getFrame().getID());
+					xor = diagram.addGateway(name, GatewayType.DATABASED, sp);
+					nodes.put(name, xor);
+					diagram.addFlow(xor, target, null);
+				}
+				diagram.addFlow(source, xor, null);
+				
+			} else if (current.getRelationsTo().size() == 1 && current.getRelationsTo().iterator().next().isAndJoin()) {
+				
+				// and join ----------------------------------------------------
+				String second = current.getRelationsTo().iterator().next().getName();
+				String name = "ANDJoin" + second;
+				BPMNNode and = nodes.get(name);
+				target = nodes.get(current.getRelationsTo().iterator().next().getName());
+				if (and == null) {
+					SubProcess sp = null; //subProcesses.get(current.getRelationsTo().iterator().next().getFrame().getID());
+					and = diagram.addGateway(name, GatewayType.PARALLEL, sp);
+					nodes.put(name, and);
+					diagram.addFlow(and, target, null);
+				}
+				diagram.addFlow(source, and, null);
+				
+			} else {
+				
+				// normal activities -------------------------------------------
+				for (Iterator<PlgActivity> j = current.getRelationsTo().iterator(); j.hasNext();) {
+					target = nodes.get(j.next().getName());
+					diagram.addFlow(source, target, null);
+				}
+				
+			}
+		}
+		
+		return diagram;
+	}
+	
+	
 	public HeuristicsNet getHeuristicsNet() {
+	
+		
+		HashMap<String, Integer> myMap = new HashMap<String, Integer>();
+		
 		XEventNameClassifier xenc = new XEventNameClassifier();
 		XEventClasses xec = new XEventClasses(xenc);
 		
 		// add the set of activities
 		for (int i = 0; i < activityList.size(); i++) {
-			xec.register(activityList.get(i).getBasicXEvent());
+//			xec.register(new XEventClass(activityList.get(i).getName(), i));
+//			xec.register(activityList.get(i).getBasicXEvent());
+			myMap.put(activityList.get(i).getName(), i);
 		}
 		
 		ActivitiesMappingStructures ams = new ActivitiesMappingStructures(xec);
 		HeuristicsNetImpl hn = new HeuristicsNetImpl(ams);
 		
-		HNSubSet start = new HNSubSet();
-		HNSubSet end = new HNSubSet();
-		start.add(0);
-		start.add(0);
-		hn.setStartActivities(start);
-		hn.setEndActivities(end);
+//		HNSet i = new HNSet();
+//		HNSubSet j = new HNSubSet();
+//		j.add(1);
+//		i.add(j);
+//		hn.setInputSet(2, i);
+//		
+//		HNSet k = new HNSet();
+//		HNSubSet l = new HNSubSet();
+//		l.add(2);
+//		k.add(l);
+//		hn.setOutputSet(1, k);
+//		
+//		HNSubSet start = new HNSubSet();
+//		HNSubSet end = new HNSubSet();
+//		start.add(1);
+//		end.add(2);
+////		start.add(map.get(getFirstActivity().getName()));
+////		end.add(map.get(getLastActivity().getName()));
+//		hn.setStartActivities(start);
+//		hn.setEndActivities(end);
+//		
+//		
+//		// add all the connections
+////		for (int i = 0; i < activityList.size(); i++) {
+////			PlgActivity current = activityList.get(i);
+////			
+////			// activity destainations
+////			HNSet out = new HNSet();
+////			HNSubSet outSub = new HNSubSet();
+////			for (Iterator<PlgActivity> j = current.getRelationsTo().iterator(); j.hasNext();) {
+////				outSub.add(map.get(j.next().getName()));
+////			}
+////			out.add(outSub);
+////			hn.setOutputSet(map.get(current.getName()), out);
+////			
+////			// activity origins
+////			HNSet in = new HNSet();
+////			HNSubSet inSub = new HNSubSet();
+////			for (Iterator<PlgActivity> j = current.getRelationsFrom().iterator(); j.hasNext();) {
+////				inSub.add(map.get(j.next().getName()));
+////			}
+////			in.add(inSub);
+////			hn.setInputSet(map.get(current.getName()), in);
+////		}
 		
 		return hn;
 	}
 	
 	
-//	/**
-//	 * This method returns the dependency graph associated to the process
-//	 * 
-//	 * @return the dot that represent the dependency graph
-//	 */
-//	public PlgDependencyGraph getDependencyGraph() {
-//		PlgDependencyGraph dg = new PlgDependencyGraph("net", this);
-//		return dg;
-//	}
+	public Petrinet getPetrinet() {
+		PetrinetImpl p = new PetrinetImpl("");
+
+//		Place pStart = p.addPlace("pStart");
+//		Transition tStart = p.addTransition(firstActivity.getName());
+//		p.addArc(pStart, tStart);
+		
+//		firstActivity.createPetriNet(p);
+		
+		return p;
+	}
+	
+	
+	/**
+	 * This method returns the dependency graph associated to the process
+	 * 
+	 * @return the dot that represent the dependency graph
+	 */
+	public PlgDependencyGraph getDependencyGraph() {
+		PlgDependencyGraph dg = new PlgDependencyGraph("net", this);
+		return dg;
+	}
 	
 	
 //	/**
@@ -1006,7 +1190,7 @@ public class PlgProcess {
 		PlgActivity start = askNewActivity();
 		PlgActivity end = askNewActivity();
 		
-		PlgPatternFrame body = new PlgPatternFrame(end, start);
+		PlgPatternFrame body = new PlgPatternFrame(end, start, null);
 		askInternalPattern(body, maxNested);
 		
 		// set the random weight of the branches
@@ -1056,7 +1240,7 @@ public class PlgProcess {
 		container.getTail().addNext(a);
 		a.addNext(container.getHead());
 		incrementPatternCounter(COUNTER_TYPES.ALONE);
-		return new PlgPatternFrame(a, a);
+		return new PlgPatternFrame(a, a, container);
 	}
 	
 	
@@ -1065,11 +1249,11 @@ public class PlgProcess {
 		PlgPatternFrame fst = askInternalPattern(container, maxNested - 1);
 		fst.getHead().removeConnection(container.getHead());
 		// get the second subgraph
-		PlgPatternFrame sndBody = new PlgPatternFrame(container.getHead(), fst.getHead());
+		PlgPatternFrame sndBody = new PlgPatternFrame(container.getHead(), fst.getHead(), container);
 		PlgPatternFrame snd = askInternalPattern(sndBody, maxNested - 1);
 		
 		incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
-		return new PlgPatternFrame(snd.getHead(), fst.getTail());
+		return new PlgPatternFrame(snd.getHead(), fst.getTail(), sndBody);
 	}
 	
 	
@@ -1078,7 +1262,7 @@ public class PlgProcess {
 		PlgPatternFrame split = getPatternActivity(container, maxNested - 1);
 		split.getHead().removeConnection(container.getHead());
 		// the subgraph for the join
-		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead());
+		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead(), container);
 		PlgPatternFrame join = getPatternActivity(joinBody, maxNested - 1);
 		
 		container.getTail().addNext(split.getTail());
@@ -1104,12 +1288,12 @@ public class PlgProcess {
 		}
 		
 		// all the branches generation
-		PlgPatternFrame body = new PlgPatternFrame(join.getTail(), split.getHead());
+		PlgPatternFrame body = new PlgPatternFrame(join.getTail(), split.getHead(), container);
 		for(int i = 0; i < branches; i++) {
 			askInternalPattern(body, maxNested - 1);
 		}
 		
-		return new PlgPatternFrame(join.getHead(), split.getTail());
+		return body;
 	}
 	
 	
@@ -1132,9 +1316,9 @@ public class PlgProcess {
 //			System.out.println("loop ok ["+ from +" - "+ to +"]");
 //			System.out.println("         "+ from.getRelationType() + " - "+ from.isAndJoin() + " - " + from.getRelationsFrom());
 //			System.out.println("         "+ to.getRelationType() + " - "+ to.isAndJoin() + " - " + to.getRelationsFrom());
-			from.inXorUntil(to);
+			from.inLoopUntil(to);
 
-			PlgPatternFrame loop = new PlgPatternFrame(to, from);
+			PlgPatternFrame loop = new PlgPatternFrame(to, from, bound);
 			askInternalPattern(loop, maxNested - 1);
 			
 			incrementPatternCounter(COUNTER_TYPES.LOOP);
