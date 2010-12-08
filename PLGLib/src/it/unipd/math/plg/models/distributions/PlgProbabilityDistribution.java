@@ -3,8 +3,10 @@ package it.unipd.math.plg.models.distributions;
 import it.unipd.math.plg.models.PlgActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -133,9 +135,9 @@ public abstract class PlgProbabilityDistribution {
 	 * @return a sorted array (with respect to the weight of each activity)
 	 */
 	@SuppressWarnings("unchecked")
-	public static ArrayList<PlgActivity> getSortedActivities(HashMap<PlgActivity, Double> probabilityOfChoosing) {
-		
-		HashMap<PlgActivity, Double> worker = (HashMap<PlgActivity, Double>)probabilityOfChoosing.clone();
+	public static ArrayList<PlgActivity> getSortedActivities(Map<PlgActivity, Double> probabilityOfChoosing) {		
+		Map<PlgActivity, Double> worker = Collections.synchronizedMap(probabilityOfChoosing);
+
 		ArrayList<PlgActivity> sorted = new ArrayList<PlgActivity>(); 
 		Double pTot = 1.;
 		
