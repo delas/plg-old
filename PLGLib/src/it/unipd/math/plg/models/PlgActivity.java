@@ -55,6 +55,10 @@ public class PlgActivity {
 	private RELATIONS joinType = RELATIONS.UNDEF;
 	private PlgActivity splitJoinOpposite;
 	private PlgProcess process;
+	public PlgActivity loopOpposite = null;
+	public String loopString = null;
+	
+	public PlgPatternFrame frame = null;
 	
 
 	/**
@@ -167,6 +171,16 @@ public class PlgActivity {
 //	public void setProbabilityOfEdges(HashMap<PlgActivity, Double> prob) {
 //		probabilityOfChoosing = prob;
 //	}
+	
+	
+	public boolean isLoopBound() {
+		return (loopOpposite != null);
+	}
+	
+	
+	public boolean isInsideLoop() {
+		return false;
+	}
 
 	
 	/**
@@ -286,6 +300,24 @@ public class PlgActivity {
 			relationsTo.remove(destination);
 			destination.relationsFrom.remove(this);
 		}
+	}
+	
+	
+	/**
+	 * Inserts in the process a new loop between the current activity and the
+	 * destination activity.
+	 * 
+	 * @param destination the loop bound
+	 * @return the destination activity
+	 */
+	public PlgActivity inLoopUntil(PlgActivity destination) {
+		PlgActivity toRet = inXorUntil(destination);
+		loopOpposite = destination;
+		destination.loopOpposite = this;
+		
+		loopString = getName()+destination.getName();
+		destination.loopString = loopString;
+		return toRet;
 	}
 	
 	
@@ -701,5 +733,23 @@ public class PlgActivity {
 	 */
 	public RELATIONS getRelationType() {
 		return relationType;
+	}
+
+
+	/**
+	 * 
+	 * @return
+	 */
+	public PlgPatternFrame getFrame() {
+		return frame;
+	}
+
+
+	/**
+	 * 
+	 * @param frame
+	 */
+	public void setFrame(PlgPatternFrame frame) {
+		this.frame = frame;
 	}
 }
