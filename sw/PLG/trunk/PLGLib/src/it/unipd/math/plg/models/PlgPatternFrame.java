@@ -22,8 +22,6 @@ public class PlgPatternFrame {
 	private int id;
 	private PlgActivity head;
 	private PlgActivity tail;
-	private PlgPatternFrame parent = null;
-	private HashSet<PlgPatternFrame> children = null;
 	
 	/**
 	 * The default constructor of the pattern frame
@@ -31,18 +29,11 @@ public class PlgPatternFrame {
 	 * @param head the head of the pattern
 	 * @param tail the tail of the pattern
 	 */
-	public PlgPatternFrame(PlgActivity head, PlgActivity tail, PlgPatternFrame parent) {
+	public PlgPatternFrame(PlgActivity head, PlgActivity tail) {
 		
 		this.head = head;
 		this.tail = tail;
-		this.parent = parent;
-//		this.children = new HashSet<PlgPatternFrame>();
 		this.id = globalCounter++;
-		
-//		if (parent != null) {
-//			System.out.println("added to parent");
-//			parent.children.add(this);
-//		}
 		
 		head.setFrame(this);
 		tail.setFrame(this);
@@ -91,53 +82,6 @@ public class PlgPatternFrame {
 	
 	public String getID() {
 		return new Integer(id).toString();
-	}
-	
-	
-	public String getParentID() {
-		if (parent == null) {
-			return null;
-		} else {
-			return parent.getID();
-		}
-//		PlgPatternFrame p = getFirstGoodFrame();
-//		if (p == null) {
-//			return null;
-//		} else {
-//			return p.getID();
-//		}
-	}
-	
-	
-	public boolean isSingleton() {
-		return head.equals(tail);
-	}
-	
-	
-	public PlgPatternFrame getFirstGoodFrame() {
-		if (!isSingleton()) {
-			return this;
-		} else if (parent != null) {
-			return parent.getFirstGoodFrame();
-		} else {
-			return null;
-		}
-	}
-	
-	
-	public void insertAllSubprocesses(BPMNDiagram diagram, HashMap<String, SubProcess> subProcesses) {
-		SubProcess sp = subProcesses.get(getID());
-		SubProcess spParent = subProcesses.get(getParentID());
-		if (parent != null) {
-			System.out.println("inserting parent: " + getParentID());
-			parent.insertAllSubprocesses(diagram, subProcesses);
-			spParent = subProcesses.get(getParentID());
-		}
-		
-		if (sp == null) {
-			sp = diagram.addSubProcess(getID(), false, false, false, false, true, spParent);
-			subProcesses.put(getID(), sp);
-		}
 	}
 }
 

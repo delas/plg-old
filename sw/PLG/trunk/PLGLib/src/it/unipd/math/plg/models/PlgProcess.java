@@ -82,7 +82,7 @@ import org.xml.sax.SAXException;
  * and XOR split/join).
  * 
  * @author Andrea Burattin
- * @version 0.6
+ * @version 0.7
  */
 public class PlgProcess {
 
@@ -1190,7 +1190,7 @@ public class PlgProcess {
 		PlgActivity start = askNewActivity();
 		PlgActivity end = askNewActivity();
 		
-		PlgPatternFrame body = new PlgPatternFrame(end, start, null);
+		PlgPatternFrame body = new PlgPatternFrame(end, start);
 		askInternalPattern(body, maxNested);
 		
 		// set the random weight of the branches
@@ -1240,7 +1240,7 @@ public class PlgProcess {
 		container.getTail().addNext(a);
 		a.addNext(container.getHead());
 		incrementPatternCounter(COUNTER_TYPES.ALONE);
-		return new PlgPatternFrame(a, a, container);
+		return new PlgPatternFrame(a, a);
 	}
 	
 	
@@ -1249,11 +1249,11 @@ public class PlgProcess {
 		PlgPatternFrame fst = askInternalPattern(container, maxNested - 1);
 		fst.getHead().removeConnection(container.getHead());
 		// get the second subgraph
-		PlgPatternFrame sndBody = new PlgPatternFrame(container.getHead(), fst.getHead(), container);
+		PlgPatternFrame sndBody = new PlgPatternFrame(container.getHead(), fst.getHead());
 		PlgPatternFrame snd = askInternalPattern(sndBody, maxNested - 1);
 		
 		incrementPatternCounter(COUNTER_TYPES.SEQUENCE);
-		return new PlgPatternFrame(snd.getHead(), fst.getTail(), sndBody);
+		return new PlgPatternFrame(snd.getHead(), fst.getTail());
 	}
 	
 	
@@ -1262,7 +1262,7 @@ public class PlgProcess {
 		PlgPatternFrame split = getPatternActivity(container, maxNested - 1);
 		split.getHead().removeConnection(container.getHead());
 		// the subgraph for the join
-		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead(), container);
+		PlgPatternFrame joinBody = new PlgPatternFrame(container.getHead(), split.getHead());
 		PlgPatternFrame join = getPatternActivity(joinBody, maxNested - 1);
 		
 		container.getTail().addNext(split.getTail());
@@ -1288,12 +1288,12 @@ public class PlgProcess {
 		}
 		
 		// all the branches generation
-		PlgPatternFrame body = new PlgPatternFrame(join.getTail(), split.getHead(), container);
+		PlgPatternFrame body = new PlgPatternFrame(join.getTail(), split.getHead());
 		for(int i = 0; i < branches; i++) {
 			askInternalPattern(body, maxNested - 1);
 		}
 		
-		return body;
+		return new PlgPatternFrame(join.getHead(), split.getTail());
 	}
 	
 	
@@ -1316,9 +1316,10 @@ public class PlgProcess {
 //			System.out.println("loop ok ["+ from +" - "+ to +"]");
 //			System.out.println("         "+ from.getRelationType() + " - "+ from.isAndJoin() + " - " + from.getRelationsFrom());
 //			System.out.println("         "+ to.getRelationType() + " - "+ to.isAndJoin() + " - " + to.getRelationsFrom());
-			from.inLoopUntil(to);
+//			from.inLoopUntil(to);
+			from.inXorUntil(to);
 
-			PlgPatternFrame loop = new PlgPatternFrame(to, from, bound);
+			PlgPatternFrame loop = new PlgPatternFrame(to, from);
 			askInternalPattern(loop, maxNested - 1);
 			
 			incrementPatternCounter(COUNTER_TYPES.LOOP);

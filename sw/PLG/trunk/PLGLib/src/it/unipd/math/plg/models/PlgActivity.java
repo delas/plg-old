@@ -49,9 +49,9 @@ public class PlgActivity {
 	private String activityName;
 	private Integer activityDuration;
 	private RELATIONS relationType = RELATIONS.UNDEF;
-	private Set<PlgActivity> relationsTo = Collections.synchronizedSet(new HashSet<PlgActivity>(5));
-	private Map<PlgActivity, Double> probabilityOfChoosing = Collections.synchronizedMap(new HashMap<PlgActivity, Double>());
-	private Set<PlgActivity> relationsFrom = Collections.synchronizedSet(new HashSet<PlgActivity>(5));
+	private HashSet<PlgActivity> relationsTo = new HashSet<PlgActivity>(5);
+	private HashMap<PlgActivity, Double> probabilityOfChoosing = new HashMap<PlgActivity, Double>();
+	private HashSet<PlgActivity> relationsFrom = new HashSet<PlgActivity>(5);
 	private RELATIONS joinType = RELATIONS.UNDEF;
 	private PlgActivity splitJoinOpposite;
 	private PlgProcess process;
@@ -163,7 +163,7 @@ public class PlgActivity {
 	 * @return an HashMap with the relations "activity name" -> "probability of
 	 * choosing the given activity"
 	 */
-	public Map<PlgActivity, Double> getProbabilityOfEdges() {
+	public HashMap<PlgActivity, Double> getProbabilityOfEdges() {
 		return probabilityOfChoosing;
 	}
 	
@@ -523,7 +523,7 @@ public class PlgActivity {
 				
 		if (relationType == RELATIONS.SEQUENCE) {
 			
-			// next activity yust in sequence relation
+			// next activity just in sequence relation
 			nextNotBefore += timeBetweenActivities();
 			v.addAll(relationsTo.iterator().next().generateInstance(null, nextNotBefore, untilActivities));
 			
