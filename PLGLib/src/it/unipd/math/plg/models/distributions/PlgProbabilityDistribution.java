@@ -18,8 +18,8 @@ import cern.jet.random.engine.RandomEngine;
  */
 public abstract class PlgProbabilityDistribution {
 	
-	protected static RandomEngine cernGenerator;
-	protected static java.util.Random generator;
+	protected static RandomEngine cernGenerator = new MersenneTwister(new Date());
+	protected static java.util.Random generator = new java.util.Random();
 	
 	
 	/**
@@ -117,11 +117,9 @@ public abstract class PlgProbabilityDistribution {
 	
 	
 	/**
-	 * Private class constructor, used only to initialize the Colt generator
+	 * Private class constructor
 	 */
 	protected PlgProbabilityDistribution() {
-		cernGenerator = new MersenneTwister(new Date());
-		generator = new java.util.Random();
 	}
 
 	
