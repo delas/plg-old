@@ -5,6 +5,7 @@ import it.unipd.math.plg.models.PlgActivity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -14,12 +15,12 @@ import cern.jet.random.engine.RandomEngine;
  * allows the generation of random number.
  * 
  * @author Andrea Burattin
- * @version 0.1
+ * @version 0.2
  */
 public abstract class PlgProbabilityDistribution {
 	
 	protected static RandomEngine cernGenerator;
-	protected static java.util.Random generator;
+	protected static Random generator;
 	
 	
 	/**
@@ -121,7 +122,6 @@ public abstract class PlgProbabilityDistribution {
 	 */
 	protected PlgProbabilityDistribution() {
 		cernGenerator = new MersenneTwister(new Date());
-		generator = new java.util.Random();
 	}
 
 	
@@ -140,7 +140,7 @@ public abstract class PlgProbabilityDistribution {
 		Double pTot = 1.;
 		
 		while (worker.size() > 0) {
-			Double extracted = generator.nextDouble() * pTot;
+			Double extracted = getGenerator().nextDouble() * pTot;
 			Double threshold = 0.0;
 			for (PlgActivity a : worker.keySet()) {
 				Double d = worker.get(a);
@@ -180,6 +180,18 @@ public abstract class PlgProbabilityDistribution {
 	 */
 	public static PlgProbabilityDistribution betaDistributionFactory(double alpha, double beta) {
 		return new BetaDistribution(alpha, beta);
+	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static Random getGenerator() {
+		if (generator == null) {
+			generator = new Random();
+		}
+		return generator;
 	}
 	
 }
