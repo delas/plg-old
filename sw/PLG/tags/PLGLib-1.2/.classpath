@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="libs/jopt-simple-3.2.jar"/>
+	<classpathentry kind="lib" path="/home/delas/doc/workspace/PLGLib/libs/MXMLib.jar"/>
+	<classpathentry kind="lib" path="/home/delas/doc/workspace/PLGLib/libs/ProM.jar" sourcepath="/home/delas/doc/workspace/ProM-5.2/src"/>
+	<classpathentry kind="lib" path="/home/delas/doc/workspace/PLGLib/libs/ProMmodels.jar" sourcepath="/home/delas/doc/uni/sw/ProM-5.2-source/src/models"/>
+	<classpathentry kind="lib" path="/home/delas/doc/workspace/PLGLib/libs/att.jar"/>
+	<classpathentry kind="lib" path="/home/delas/doc/workspace/PLGLib/libs/colt.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProMplugins-5.2"/>
+	<classpathentry kind="src" path="/ProM-5.2"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
