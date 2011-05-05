@@ -76,6 +76,8 @@ public class PLGMainUI extends FrameView {
         jMenuItem4 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -119,7 +121,6 @@ public class PLGMainUI extends FrameView {
         fileMenu.add(jMenuItem1);
 
         jMenuItem4.setAction(actionMap.get("actionOpenExistingProcess")); // NOI18N
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem4.setIcon(resourceMap.getIcon("jMenuItem4.icon")); // NOI18N
         jMenuItem4.setText(resourceMap.getString("jMenuItem4.text")); // NOI18N
         jMenuItem4.setName("jMenuItem4"); // NOI18N
@@ -134,6 +135,20 @@ public class PLGMainUI extends FrameView {
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
+
+        jMenu1.setText(resourceMap.getString("jMenu1.text")); // NOI18N
+        jMenu1.setName("jMenu1"); // NOI18N
+
+        jMenuItem5.setText(resourceMap.getString("jMenuItem5.text")); // NOI18N
+        jMenuItem5.setName("jMenuItem5"); // NOI18N
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem5);
+
+        menuBar.add(jMenu1);
 
         jMenu2.setText(resourceMap.getString("jMenu2.text")); // NOI18N
         jMenu2.setName("jMenu2"); // NOI18N
@@ -166,6 +181,15 @@ public class PLGMainUI extends FrameView {
         setMenuBar(menuBar);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        if (comparisonBox == null) {
+            comparisonBox = new PLGComparison(this);
+        }
+		jDesktopPane1.add(comparisonBox);
+        comparisonBox.setVisible(true);
+		
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
     @Action
     public void actionCreateNetProcess() {
 		JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
@@ -185,11 +209,13 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
@@ -198,8 +224,9 @@ public class PLGMainUI extends FrameView {
     // End of variables declaration//GEN-END:variables
 
     private JDialog aboutBox;
-	private PLGNewProcessSetup newProcessSetup = null;
-	private int progress = 1;
+    private PLGNewProcessSetup newProcessSetup = null;
+    private int progress = 1;
+    private PLGComparison comparisonBox = null;
 
 	private void newProcess(PLGNewProcessSetup setup) {
 		JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
@@ -249,6 +276,13 @@ public class PLGMainUI extends FrameView {
 
 		wait.setVisible(false);
 	}
+	
+	
+	public JInternalFrame[] getAllWindow() {
+		return jDesktopPane1.getAllFrames();
+	}
+	
+	
 
 	@Action
 	public void windowTileAction() {
@@ -291,34 +325,34 @@ public class PLGMainUI extends FrameView {
 
 	@Action
 	public void actionOpenExistingProcess() {
-		String filename = File.separator+"dot";
+            String filename = File.separator+"dot";
 	    JFileChooser fc = new JFileChooser(new File(filename));
-		FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
-		fc.setFileFilter(ff);
+            FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
+            fc.setFileFilter(ff);
 	    fc.showOpenDialog(mainPanel);
 	    File selFile = fc.getSelectedFile();
 	    if (selFile != null) {
-			try {
-				PLGProcessWindow pUi = new PLGProcessWindow();
-				PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
-				if (p == null) {
-					JOptionPane.showMessageDialog(mainPanel, "There was an error " +
-							"opening your file (maybe you are trying to open a " +
-							"file generated with a previous version of PLG).",
-							"Wrong input file", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				pUi.setProcess(p);
-				pUi.setTitle("Process \"" + selFile.getName() +"\"");
-				jDesktopPane1.add(pUi);
-				pUi.setVisible(true);
-				pUi.setSelected(true);
-			} catch (IOException ex) {
-				Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
-			}
-		}
+                try {
+                        PLGProcessWindow pUi = new PLGProcessWindow();
+                        PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
+                        if (p == null) {
+                            JOptionPane.showMessageDialog(mainPanel, "There was an error " +
+                                "opening your file (maybe you are trying to open a " +
+                                "file generated with a previous version of PLG).",
+                                "Wrong input file", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        pUi.setProcess(p);
+                        pUi.setTitle("Process \"" + selFile.getName() +"\"");
+                        jDesktopPane1.add(pUi);
+                        pUi.setVisible(true);
+                        pUi.setSelected(true);
+                } catch (IOException ex) {
+                        Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (PropertyVetoException e) {
+                        e.printStackTrace();
+                }
+            }
 	}
 
 }
