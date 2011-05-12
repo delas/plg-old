@@ -53,6 +53,20 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
           <SubComponents>
+            <Container class="javax.swing.JPanel" name="jPanelDendrogram">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jPanelDendrogram" noResource="true"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Distance matrix and dendrogram">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jPanelDendrogram.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+            </Container>
             <Container class="javax.swing.JPanel" name="jPanel3">
               <Properties>
                 <Property name="name" type="java.lang.String" value="jPanel3" noResource="true"/>
@@ -83,7 +97,6 @@
                   <SubComponents>
                     <Container class="javax.swing.JTabbedPane" name="jTabbedPane4">
                       <Properties>
-                        <Property name="tabPlacement" type="int" value="3"/>
                         <Property name="name" type="java.lang.String" value="jTabbedPane4" noResource="true"/>
                       </Properties>
                       <Constraints>
@@ -113,6 +126,7 @@
                           <SubComponents>
                             <Container class="javax.swing.JTabbedPane" name="jTabbedPane2">
                               <Properties>
+                                <Property name="tabPlacement" type="int" value="3"/>
                                 <Property name="name" type="java.lang.String" value="jTabbedPane2" noResource="true"/>
                               </Properties>
 
@@ -150,6 +164,7 @@
                             </Container>
                             <Container class="javax.swing.JTabbedPane" name="jTabbedPane3">
                               <Properties>
+                                <Property name="tabPlacement" type="int" value="3"/>
                                 <Property name="name" type="java.lang.String" value="jTabbedPane3" noResource="true"/>
                               </Properties>
 
@@ -189,6 +204,11 @@
                         </Container>
                         <Container class="javax.swing.JPanel" name="jPanel10">
                           <Properties>
+                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                                <EmptyBorder bottom="1" left="1" right="1" top="10"/>
+                              </Border>
+                            </Property>
                             <Property name="name" type="java.lang.String" value="jPanel10" noResource="true"/>
                           </Properties>
                           <Constraints>
@@ -241,6 +261,7 @@
                                 <Component class="javax.swing.JTextArea" name="jTextArea3">
                                   <Properties>
                                     <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
                                     <Property name="rows" type="int" value="5"/>
                                     <Property name="name" type="java.lang.String" value="jTextArea3" noResource="true"/>
                                   </Properties>
@@ -265,6 +286,7 @@
                                 <Component class="javax.swing.JTextArea" name="jTextArea4">
                                   <Properties>
                                     <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
                                     <Property name="rows" type="int" value="5"/>
                                     <Property name="name" type="java.lang.String" value="jTextArea4" noResource="true"/>
                                   </Properties>
@@ -275,6 +297,11 @@
                         </Container>
                         <Container class="javax.swing.JPanel" name="jPanel11">
                           <Properties>
+                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                                <EmptyBorder bottom="1" left="1" right="1" top="10"/>
+                              </Border>
+                            </Property>
                             <Property name="name" type="java.lang.String" value="jPanel11" noResource="true"/>
                           </Properties>
                           <Constraints>
@@ -285,10 +312,89 @@
                             </Constraint>
                           </Constraints>
 
-                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
+                          <SubComponents>
+                            <Component class="javax.swing.JLabel" name="jLabel5">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" resourceKey="jLabel5.text"/>
+                                <Property name="name" type="java.lang.String" value="jLabel5" noResource="true"/>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                                  <GridBagConstraints gridX="-1" gridY="-1" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Component class="javax.swing.JLabel" name="jLabel6">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" resourceKey="jLabel6.text"/>
+                                <Property name="name" type="java.lang.String" value="jLabel6" noResource="true"/>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                                  <GridBagConstraints gridX="-1" gridY="-1" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Container class="javax.swing.JScrollPane" name="jScrollPane7">
+                              <Properties>
+                                <Property name="name" type="java.lang.String" value="jScrollPane7" noResource="true"/>
+                              </Properties>
+                              <AuxValues>
+                                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                              </AuxValues>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                                  <GridBagConstraints gridX="0" gridY="1" gridWidth="1" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="1.0" weightY="1.0"/>
+                                </Constraint>
+                              </Constraints>
+
+                              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                              <SubComponents>
+                                <Component class="javax.swing.JTextArea" name="jTextArea5">
+                                  <Properties>
+                                    <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
+                                    <Property name="rows" type="int" value="5"/>
+                                    <Property name="name" type="java.lang.String" value="jTextArea5" noResource="true"/>
+                                  </Properties>
+                                </Component>
+                              </SubComponents>
+                            </Container>
+                            <Container class="javax.swing.JScrollPane" name="jScrollPane8">
+                              <Properties>
+                                <Property name="name" type="java.lang.String" value="jScrollPane8" noResource="true"/>
+                              </Properties>
+                              <AuxValues>
+                                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                              </AuxValues>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                                  <GridBagConstraints gridX="1" gridY="1" gridWidth="1" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="1.0" weightY="1.0"/>
+                                </Constraint>
+                              </Constraints>
+
+                              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                              <SubComponents>
+                                <Component class="javax.swing.JTextArea" name="jTextArea6">
+                                  <Properties>
+                                    <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
+                                    <Property name="rows" type="int" value="5"/>
+                                    <Property name="name" type="java.lang.String" value="jTextArea6" noResource="true"/>
+                                  </Properties>
+                                </Component>
+                              </SubComponents>
+                            </Container>
+                          </SubComponents>
                         </Container>
                         <Container class="javax.swing.JPanel" name="jPanel12">
                           <Properties>
+                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                                <EmptyBorder bottom="1" left="1" right="1" top="10"/>
+                              </Border>
+                            </Property>
                             <Property name="name" type="java.lang.String" value="jPanel12" noResource="true"/>
                           </Properties>
                           <Constraints>
@@ -341,6 +447,7 @@
                                 <Component class="javax.swing.JTextArea" name="jTextArea1">
                                   <Properties>
                                     <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
                                     <Property name="rows" type="int" value="5"/>
                                     <Property name="name" type="java.lang.String" value="jTextArea1" noResource="true"/>
                                   </Properties>
@@ -365,6 +472,7 @@
                                 <Component class="javax.swing.JTextArea" name="jTextArea2">
                                   <Properties>
                                     <Property name="columns" type="int" value="20"/>
+                                    <Property name="editable" type="boolean" value="false"/>
                                     <Property name="rows" type="int" value="5"/>
                                     <Property name="name" type="java.lang.String" value="jTextArea2" noResource="true"/>
                                   </Properties>
@@ -444,20 +552,6 @@
                   </SubComponents>
                 </Container>
               </SubComponents>
-            </Container>
-            <Container class="javax.swing.JPanel" name="jPanelDendrogram">
-              <Properties>
-                <Property name="name" type="java.lang.String" value="jPanelDendrogram" noResource="true"/>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="Distance matrix and dendrogram">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jPanelDendrogram.TabConstraints.tabTitle"/>
-                  </JTabbedPaneConstraints>
-                </Constraint>
-              </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
             </Container>
           </SubComponents>
         </Container>

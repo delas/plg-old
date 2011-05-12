@@ -183,12 +183,17 @@ public class PLGMainUI extends FrameView {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        if (comparisonBox == null) {
-            comparisonBox = new PLGComparison(this);
-        }
-		jDesktopPane1.add(comparisonBox);
-        comparisonBox.setVisible(true);
-		comparisonBox.toFront();
+        try {
+			if (comparisonBox == null) {
+				comparisonBox = new PLGComparison(this);
+			}
+			jDesktopPane1.add(comparisonBox);
+			comparisonBox.setMaximum(true);
+			comparisonBox.setVisible(true);
+			comparisonBox.toFront();
+		} catch (PropertyVetoException ex) {
+			Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
+		}
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     @Action

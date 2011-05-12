@@ -14,6 +14,7 @@ import it.processmining.clustering.exceptions.ClusteringException;
 import it.processmining.clustering.hierarchical.Cluster;
 import it.processmining.clustering.hierarchical.DistanceMatrix;
 import it.processmining.clustering.hierarchical.HierarchicalClustering;
+import it.processmining.clustering.model.BinaryConstraint;
 import it.processmining.clustering.model.process.HeuristicsNetSetRepresentation;
 import it.processmining.clustering.ui.DendrogramWidget;
 import it.unipd.math.plg.models.PlgProcess;
@@ -81,9 +82,77 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	}
 	
 	
+	private void updatePositiveRelations(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		jLabel3.setText("<html>Positive relations in <b>" + p1n + "</b> but not in <b>" + p2n + "</b></html>");
+		jLabel4.setText("<html>Positive relations in <b>" + p2n + "</b> but not in <b>" + p1n + "</b></html>");
+		
+		HeuristicsNetSetRepresentation hnsr1 = new HeuristicsNetSetRepresentation(p1n, p1.getHeuristicsNet());
+		HeuristicsNetSetRepresentation hnsr2 = new HeuristicsNetSetRepresentation(p2n, p2.getHeuristicsNet());
+		
+		// relations in p1 not in p2
+		jTextArea3.setText("");
+		for (BinaryConstraint bc : hnsr1.getFollowedConstraints()) {
+			if (!hnsr2.getFollowedConstraints().contains(bc)) {
+				jTextArea3.append(bc.toString() + "\n");
+			}
+		}
+		
+		// relations in p2 not in p1
+		jTextArea4.setText("");
+		for (BinaryConstraint bc : hnsr2.getFollowedConstraints()) {
+			if (!hnsr1.getFollowedConstraints().contains(bc)) {
+				jTextArea4.append(bc.toString() + "\n");
+			}
+		}
+	}
+	
+	
 	private void updateInconsistencies(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
-		jLabel1.setText("Inconsistencies within " + p1n);
-		jLabel2.setText("Inconsistencies within " + p2n);
+		jLabel1.setText("<html>Inconsistencies within " + p1n + "</html>");
+		jLabel2.setText("<html>Inconsistencies within " + p2n + "</html>");
+		
+		// inconsistencies of p1
+		jTextArea1.setText("");
+		HeuristicsNetSetRepresentation hnsr1 = new HeuristicsNetSetRepresentation(p1n, p1.getHeuristicsNet());
+		for (BinaryConstraint bc : hnsr1.getFollowedConstraints()) {
+			if (hnsr1.getNotFollowedConstraints().contains(bc)) {
+				jTextArea1.setText(bc.toString());
+			}
+		}
+		
+		// inconsistencies of p2
+		jTextArea2.setText("");
+		HeuristicsNetSetRepresentation hnsr2 = new HeuristicsNetSetRepresentation(p2n, p2.getHeuristicsNet());
+		for (BinaryConstraint bc : hnsr2.getFollowedConstraints()) {
+			if (hnsr2.getNotFollowedConstraints().contains(bc)) {
+				jTextArea2.setText(bc.toString());
+			}
+		}
+	}
+	
+	
+	private void updateNegativeRelations(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		jLabel5.setText("<html>Negative relations in <b>" + p1n + "</b> but not in <b>" + p2n + "</b></html>");
+		jLabel6.setText("<html>Negative relations in <b>" + p2n + "</b> but not in <b>" + p1n + "</b></html>");
+		
+		HeuristicsNetSetRepresentation hnsr1 = new HeuristicsNetSetRepresentation(p1n, p1.getHeuristicsNet());
+		HeuristicsNetSetRepresentation hnsr2 = new HeuristicsNetSetRepresentation(p2n, p2.getHeuristicsNet());
+		
+		// relations in p1 not in p2
+		jTextArea5.setText("");
+		for (BinaryConstraint bc : hnsr1.getNotFollowedConstraints()) {
+			if (!hnsr2.getNotFollowedConstraints().contains(bc)) {
+				jTextArea5.append(bc.toString() + "\n");
+			}
+		}
+		
+		// relations in p2 not in p1
+		jTextArea6.setText("");
+		for (BinaryConstraint bc : hnsr2.getNotFollowedConstraints()) {
+			if (!hnsr1.getNotFollowedConstraints().contains(bc)) {
+				jTextArea6.append(bc.toString() + "\n");
+			}
+		}
 	}
 	
 	
@@ -113,6 +182,8 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 		
 		// inconsistencies
 		updateInconsistencies(p1, process1, p2, process2);
+		updatePositiveRelations(p1, process1, p2, process2);
+		updateNegativeRelations(p1, process1, p2, process2);
 		
 	}
 	
@@ -129,6 +200,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanelDendrogram = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jTabbedPane4 = new javax.swing.JTabbedPane();
@@ -147,6 +219,12 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jScrollPane6 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
         jPanel11 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTextArea5 = new javax.swing.JTextArea();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTextArea6 = new javax.swing.JTextArea();
         jPanel12 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -160,7 +238,6 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jButton2 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList();
-        jPanelDendrogram = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
 
@@ -177,6 +254,10 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jTabbedPane1.setName("jTabbedPane1"); // NOI18N
 
+        jPanelDendrogram.setName("jPanelDendrogram"); // NOI18N
+        jPanelDendrogram.setLayout(new java.awt.BorderLayout());
+        jTabbedPane1.addTab(resourceMap.getString("jPanelDendrogram.TabConstraints.tabTitle"), jPanelDendrogram); // NOI18N
+
         jPanel3.setName("jPanel3"); // NOI18N
         jPanel3.setLayout(new java.awt.BorderLayout());
 
@@ -184,12 +265,12 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setName("jSplitPane1"); // NOI18N
 
-        jTabbedPane4.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jTabbedPane4.setName("jTabbedPane4"); // NOI18N
 
         jPanel5.setName("jPanel5"); // NOI18N
         jPanel5.setLayout(new java.awt.GridLayout());
 
+        jTabbedPane2.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jTabbedPane2.setName("jTabbedPane2"); // NOI18N
 
         jPanel6.setName("jPanel6"); // NOI18N
@@ -202,6 +283,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jPanel5.add(jTabbedPane2);
 
+        jTabbedPane3.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jTabbedPane3.setName("jTabbedPane3"); // NOI18N
 
         jPanel7.setName("jPanel7"); // NOI18N
@@ -216,6 +298,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jTabbedPane4.addTab(resourceMap.getString("jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
 
+        jPanel10.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 1, 1, 1));
         jPanel10.setName("jPanel10"); // NOI18N
         jPanel10.setLayout(new java.awt.GridBagLayout());
 
@@ -234,6 +317,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jScrollPane5.setName("jScrollPane5"); // NOI18N
 
         jTextArea3.setColumns(20);
+        jTextArea3.setEditable(false);
         jTextArea3.setRows(5);
         jTextArea3.setName("jTextArea3"); // NOI18N
         jScrollPane5.setViewportView(jTextArea3);
@@ -249,6 +333,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jScrollPane6.setName("jScrollPane6"); // NOI18N
 
         jTextArea4.setColumns(20);
+        jTextArea4.setEditable(false);
         jTextArea4.setRows(5);
         jTextArea4.setName("jTextArea4"); // NOI18N
         jScrollPane6.setViewportView(jTextArea4);
@@ -263,9 +348,57 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jTabbedPane4.addTab(resourceMap.getString("jPanel10.TabConstraints.tabTitle"), jPanel10); // NOI18N
 
+        jPanel11.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 1, 1, 1));
         jPanel11.setName("jPanel11"); // NOI18N
+        jPanel11.setLayout(new java.awt.GridBagLayout());
+
+        jLabel5.setText(resourceMap.getString("jLabel5.text")); // NOI18N
+        jLabel5.setName("jLabel5"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel11.add(jLabel5, gridBagConstraints);
+
+        jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
+        jLabel6.setName("jLabel6"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel11.add(jLabel6, gridBagConstraints);
+
+        jScrollPane7.setName("jScrollPane7"); // NOI18N
+
+        jTextArea5.setColumns(20);
+        jTextArea5.setEditable(false);
+        jTextArea5.setRows(5);
+        jTextArea5.setName("jTextArea5"); // NOI18N
+        jScrollPane7.setViewportView(jTextArea5);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel11.add(jScrollPane7, gridBagConstraints);
+
+        jScrollPane8.setName("jScrollPane8"); // NOI18N
+
+        jTextArea6.setColumns(20);
+        jTextArea6.setEditable(false);
+        jTextArea6.setRows(5);
+        jTextArea6.setName("jTextArea6"); // NOI18N
+        jScrollPane8.setViewportView(jTextArea6);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel11.add(jScrollPane8, gridBagConstraints);
+
         jTabbedPane4.addTab(resourceMap.getString("jPanel11.TabConstraints.tabTitle"), jPanel11); // NOI18N
 
+        jPanel12.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 1, 1, 1));
         jPanel12.setName("jPanel12"); // NOI18N
         jPanel12.setLayout(new java.awt.GridBagLayout());
 
@@ -284,6 +417,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jScrollPane3.setName("jScrollPane3"); // NOI18N
 
         jTextArea1.setColumns(20);
+        jTextArea1.setEditable(false);
         jTextArea1.setRows(5);
         jTextArea1.setName("jTextArea1"); // NOI18N
         jScrollPane3.setViewportView(jTextArea1);
@@ -298,6 +432,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jScrollPane4.setName("jScrollPane4"); // NOI18N
 
         jTextArea2.setColumns(20);
+        jTextArea2.setEditable(false);
         jTextArea2.setRows(5);
         jTextArea2.setName("jTextArea2"); // NOI18N
         jScrollPane4.setViewportView(jTextArea2);
@@ -348,10 +483,6 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jPanel3.add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
-
-        jPanelDendrogram.setName("jPanelDendrogram"); // NOI18N
-        jPanelDendrogram.setLayout(new java.awt.BorderLayout());
-        jTabbedPane1.addTab(resourceMap.getString("jPanelDendrogram.TabConstraints.tabTitle"), jPanelDendrogram); // NOI18N
 
         jPanel1.add(jTabbedPane1);
 
@@ -408,6 +539,8 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JPanel jPanel1;
@@ -429,6 +562,8 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
@@ -438,5 +573,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextArea jTextArea4;
+    private javax.swing.JTextArea jTextArea5;
+    private javax.swing.JTextArea jTextArea6;
     // End of variables declaration//GEN-END:variables
 }
