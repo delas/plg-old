@@ -124,6 +124,7 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" resourceKey="jMenuItem5.icon"/>
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem5.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem5" noResource="true"/>
               </Properties>
