@@ -10,12 +10,21 @@
  */
 package it.unipd.math.plg.ui;
 
-import it.processmining.metric.metric.JaccardDistance;
+import it.processmining.clustering.exceptions.ClusteringException;
+import it.processmining.clustering.hierarchical.Cluster;
+import it.processmining.clustering.hierarchical.DistanceMatrix;
+import it.processmining.clustering.hierarchical.HierarchicalClustering;
+import it.processmining.clustering.model.process.HeuristicsNetSetRepresentation;
+import it.processmining.clustering.ui.DendrogramWidget;
 import it.unipd.math.plg.models.PlgProcess;
-import java.text.DecimalFormat;
-import java.util.Vector;
+import java.awt.BorderLayout;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JInternalFrame;
-import org.processmining.framework.models.heuristics.HeuristicsNet;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -30,6 +39,83 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 		this.mainUI = mainUI;
         initComponents();
     }
+	
+	
+	private void updateDendrogram(HashSet<HeuristicsNetSetRepresentation> elementsSet) {
+		try {
+			
+			DistanceMatrix dm = new DistanceMatrix(elementsSet);
+			Cluster root = HierarchicalClustering.cluster(elementsSet);
+			DendrogramWidget dw = new DendrogramWidget(dm, root);
+			jPanelDendrogram.removeAll();
+			jPanelDendrogram.add(dw, BorderLayout.CENTER);
+			
+		} catch (ClusteringException e) {
+			JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
+		}
+	}
+	
+	
+	private void updateLists(HashSet<HeuristicsNetSetRepresentation> elementsSet) {
+		
+		DefaultListModel listModel = new DefaultListModel();
+		for(HeuristicsNetSetRepresentation hnr : elementsSet) {
+			listModel.addElement(hnr.getName());
+		}
+
+		jList1.setModel(listModel);
+		jList2.setModel(listModel);
+	}
+	
+	
+	private PlgProcess getProcess(String processName) {
+		for (JInternalFrame jif : mainUI.getAllWindow()) {
+			if (jif instanceof PLGProcessWindow) {
+				PLGProcessWindow p = (PLGProcessWindow)jif;
+				if (jif.getTitle().equals(processName)) {
+					return p.getProcess();
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	private void updateInconsistencies(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		jLabel1.setText("Inconsistencies within " + p1n);
+		jLabel2.setText("Inconsistencies within " + p2n);
+	}
+	
+	
+	private void updateComparison(String process1, String process2) {
+		PlgProcess p1 = getProcess(process1);
+		PlgProcess p2 = getProcess(process2);
+		
+		if (p1 == null || p2 == null) {
+			JOptionPane.showMessageDialog(this, "One process is no more available", "Error", JOptionPane.ERROR_MESSAGE); 
+			return;
+		}
+		
+		
+		// graphs
+		jPanel6.removeAll();
+		jPanel6.add(p1.getDependencyGraph().getGrappaVisualization(), BorderLayout.CENTER);
+		jPanel7.removeAll();
+		jPanel7.add(p2.getDependencyGraph().getGrappaVisualization(), BorderLayout.CENTER);
+		try {
+			jPanel8.removeAll();
+			jPanel8.add(p1.getPetriNet().getGrappaVisualization(), BorderLayout.CENTER);
+			jPanel9.removeAll();
+			jPanel9.add(p2.getPetriNet().getGrappaVisualization(), BorderLayout.CENTER);
+		} catch (IOException ex) {
+			System.err.println(ex);
+		}
+		
+		// inconsistencies
+		updateInconsistencies(p1, process1, p2, process2);
+		
+	}
+	
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -39,10 +125,42 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel3 = new javax.swing.JPanel();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jTabbedPane4 = new javax.swing.JTabbedPane();
+        jPanel5 = new javax.swing.JPanel();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jTabbedPane3 = new javax.swing.JTabbedPane();
+        jPanel7 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTextArea4 = new javax.swing.JTextArea();
+        jPanel11 = new javax.swing.JPanel();
+        jPanel12 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
+        jButton2 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList2 = new javax.swing.JList();
+        jPanelDendrogram = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
 
@@ -55,18 +173,187 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         jPanel1.setName("jPanel1"); // NOI18N
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
+
+        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+
+        jPanel3.setName("jPanel3"); // NOI18N
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jSplitPane1.setDividerLocation(100);
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setName("jSplitPane1"); // NOI18N
+
+        jTabbedPane4.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
+        jTabbedPane4.setName("jTabbedPane4"); // NOI18N
+
+        jPanel5.setName("jPanel5"); // NOI18N
+        jPanel5.setLayout(new java.awt.GridLayout());
+
+        jTabbedPane2.setName("jTabbedPane2"); // NOI18N
+
+        jPanel6.setName("jPanel6"); // NOI18N
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jTabbedPane2.addTab(resourceMap.getString("jPanel6.TabConstraints.tabTitle"), jPanel6); // NOI18N
+
+        jPanel8.setName("jPanel8"); // NOI18N
+        jPanel8.setLayout(new java.awt.BorderLayout());
+        jTabbedPane2.addTab(resourceMap.getString("jPanel8.TabConstraints.tabTitle"), jPanel8); // NOI18N
+
+        jPanel5.add(jTabbedPane2);
+
+        jTabbedPane3.setName("jTabbedPane3"); // NOI18N
+
+        jPanel7.setName("jPanel7"); // NOI18N
+        jPanel7.setLayout(new java.awt.BorderLayout());
+        jTabbedPane3.addTab(resourceMap.getString("jPanel7.TabConstraints.tabTitle"), jPanel7); // NOI18N
+
+        jPanel9.setName("jPanel9"); // NOI18N
+        jPanel9.setLayout(new java.awt.BorderLayout());
+        jTabbedPane3.addTab(resourceMap.getString("jPanel9.TabConstraints.tabTitle"), jPanel9); // NOI18N
+
+        jPanel5.add(jTabbedPane3);
+
+        jTabbedPane4.addTab(resourceMap.getString("jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
+
+        jPanel10.setName("jPanel10"); // NOI18N
+        jPanel10.setLayout(new java.awt.GridBagLayout());
+
+        jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
+        jLabel3.setName("jLabel3"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel10.add(jLabel3, gridBagConstraints);
+
+        jLabel4.setText(resourceMap.getString("jLabel4.text")); // NOI18N
+        jLabel4.setName("jLabel4"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel10.add(jLabel4, gridBagConstraints);
+
+        jScrollPane5.setName("jScrollPane5"); // NOI18N
+
+        jTextArea3.setColumns(20);
+        jTextArea3.setRows(5);
+        jTextArea3.setName("jTextArea3"); // NOI18N
+        jScrollPane5.setViewportView(jTextArea3);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel10.add(jScrollPane5, gridBagConstraints);
+
+        jScrollPane6.setName("jScrollPane6"); // NOI18N
+
+        jTextArea4.setColumns(20);
+        jTextArea4.setRows(5);
+        jTextArea4.setName("jTextArea4"); // NOI18N
+        jScrollPane6.setViewportView(jTextArea4);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel10.add(jScrollPane6, gridBagConstraints);
+
+        jTabbedPane4.addTab(resourceMap.getString("jPanel10.TabConstraints.tabTitle"), jPanel10); // NOI18N
+
+        jPanel11.setName("jPanel11"); // NOI18N
+        jTabbedPane4.addTab(resourceMap.getString("jPanel11.TabConstraints.tabTitle"), jPanel11); // NOI18N
+
+        jPanel12.setName("jPanel12"); // NOI18N
+        jPanel12.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
+        jLabel1.setName("jLabel1"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel12.add(jLabel1, gridBagConstraints);
+
+        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
+        jLabel2.setName("jLabel2"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel12.add(jLabel2, gridBagConstraints);
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jTextArea1.setName("jTextArea1"); // NOI18N
+        jScrollPane3.setViewportView(jTextArea1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        jPanel12.add(jScrollPane3, gridBagConstraints);
+
+        jScrollPane4.setName("jScrollPane4"); // NOI18N
+
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jTextArea2.setName("jTextArea2"); // NOI18N
+        jScrollPane4.setViewportView(jTextArea2);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel12.add(jScrollPane4, gridBagConstraints);
+
+        jTabbedPane4.addTab(resourceMap.getString("jPanel12.TabConstraints.tabTitle"), jPanel12); // NOI18N
+
+        jSplitPane1.setRightComponent(jTabbedPane4);
+
+        jPanel4.setName("jPanel4"); // NOI18N
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setEditable(false);
-        jTextArea1.setFont(resourceMap.getFont("jTextArea1.font")); // NOI18N
-        jTextArea1.setRows(5);
-        jTextArea1.setName("jTextArea1"); // NOI18N
-        jScrollPane1.setViewportView(jTextArea1);
+        jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jList1.setName("jList1"); // NOI18N
+        jScrollPane1.setViewportView(jList1);
 
-        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        jPanel4.add(jScrollPane1);
+
+        jButton2.setIcon(resourceMap.getIcon("jButton2.icon")); // NOI18N
+        jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
+        jButton2.setName("jButton2"); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButton2);
+
+        jScrollPane2.setName("jScrollPane2"); // NOI18N
+
+        jList2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jList2.setName("jList2"); // NOI18N
+        jScrollPane2.setViewportView(jList2);
+
+        jPanel4.add(jScrollPane2);
+
+        jSplitPane1.setTopComponent(jPanel4);
+
+        jPanel3.add(jSplitPane1, java.awt.BorderLayout.CENTER);
+
+        jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
+
+        jPanelDendrogram.setName("jPanelDendrogram"); // NOI18N
+        jPanelDendrogram.setLayout(new java.awt.BorderLayout());
+        jTabbedPane1.addTab(resourceMap.getString("jPanelDendrogram.TabConstraints.tabTitle"), jPanelDendrogram); // NOI18N
+
+        jPanel1.add(jTabbedPane1);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -91,58 +378,65 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 		
-		Vector<HeuristicsNet> processes = new Vector<HeuristicsNet>();
+		HashSet<HeuristicsNetSetRepresentation> elementsSet = new HashSet<HeuristicsNetSetRepresentation>();
 		
-		jTextArea1.setText("");
-		jTextArea1.append("Process list\n");
-		jTextArea1.append("============\n");
-		
-		int i = 0;
 		for(JInternalFrame jif : mainUI.getAllWindow()) {
 			if (jif instanceof PLGProcessWindow) {
 				PLGProcessWindow p = (PLGProcessWindow)jif;
-				processes.add(p.getProcess().getHeuristicsNet());
-				jTextArea1.append(i++ + ". " + p.getTitle() + "\n");
+				elementsSet.add(new HeuristicsNetSetRepresentation(p.getTitle(), p.getProcess().getHeuristicsNet()));
 			}
 		}
 		
-		jTextArea1.append("\n");
-		jTextArea1.append("Processes similarities\n");
-		jTextArea1.append("======================\n");
-		
-		// title
-		jTextArea1.append("\t");
-		i = 0;
-		for(HeuristicsNet hn : processes) {
-			jTextArea1.append(i++ + "\t");
-		}
-		jTextArea1.append("\n");
-		
-		// table content
-		for(i = 0; i < processes.size(); i++) {
-			for(int j = 0; j < processes.size(); j++) {
-				if (j==0) {
-					jTextArea1.append(i + "\t");
-				}
-				Double m = 1-JaccardDistance.getDistance(processes.elementAt(i), processes.elementAt(j));
-				DecimalFormat twoDForm = new DecimalFormat("#.#####");
-				jTextArea1.append(Double.valueOf(twoDForm.format(m)) +"\t");
-				
-				if (j==i) {
-					break;
-				}
-			}
-			jTextArea1.append("\n");
-		}
-		jTextArea1.append("\n");
+		// now the dendrogram
+		updateDendrogram(elementsSet);
+		updateLists(elementsSet);
 		
 	}//GEN-LAST:event_jButton1ActionPerformed
 
+	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+		if (jList1.getSelectedIndex() >= 0 && jList2.getSelectedIndex() >= 0) {
+			updateComparison((String)jList1.getSelectedValue(), (String)jList2.getSelectedValue());
+		} else {
+			JOptionPane.showMessageDialog(this, "Please select two processes", "Error", JOptionPane.ERROR_MESSAGE); 
+		}
+	}//GEN-LAST:event_jButton2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JList jList1;
+    private javax.swing.JList jList2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JPanel jPanelDendrogram;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
+    private javax.swing.JTabbedPane jTabbedPane3;
+    private javax.swing.JTabbedPane jTabbedPane4;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JTextArea jTextArea4;
     // End of variables declaration//GEN-END:variables
 }

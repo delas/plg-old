@@ -139,6 +139,7 @@ public class PLGMainUI extends FrameView {
         jMenu1.setText(resourceMap.getString("jMenu1.text")); // NOI18N
         jMenu1.setName("jMenu1"); // NOI18N
 
+        jMenuItem5.setIcon(resourceMap.getIcon("jMenuItem5.icon")); // NOI18N
         jMenuItem5.setText(resourceMap.getString("jMenuItem5.text")); // NOI18N
         jMenuItem5.setName("jMenuItem5"); // NOI18N
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
@@ -187,7 +188,7 @@ public class PLGMainUI extends FrameView {
         }
 		jDesktopPane1.add(comparisonBox);
         comparisonBox.setVisible(true);
-		
+		comparisonBox.toFront();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     @Action
