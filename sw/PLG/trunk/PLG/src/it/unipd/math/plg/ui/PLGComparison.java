@@ -19,13 +19,15 @@ import it.processmining.clustering.model.process.HeuristicsNetSetRepresentation;
 import it.processmining.clustering.ui.DendrogramWidget;
 import it.unipd.math.plg.models.PlgProcess;
 import java.awt.BorderLayout;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -34,6 +36,7 @@ import javax.swing.JOptionPane;
 public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	PLGMainUI mainUI = null;
+	DendrogramWidget dw = null;
 
     /** Creates new form PLGComparison */
     public PLGComparison(PLGMainUI mainUI) {
@@ -43,11 +46,12 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	
 	private void updateDendrogram(HashSet<HeuristicsNetSetRepresentation> elementsSet) {
+		double alpha = (double)jSlider1.getValue() / 100.0;
+		
 		try {
-			
-			DistanceMatrix dm = new DistanceMatrix(elementsSet);
-			Cluster root = HierarchicalClustering.cluster(elementsSet);
-			DendrogramWidget dw = new DendrogramWidget(dm, root);
+			DistanceMatrix dm = new DistanceMatrix(elementsSet, alpha);
+			Cluster root = HierarchicalClustering.cluster(elementsSet, alpha);
+			dw = new DendrogramWidget(dm, root, alpha);
 			jPanelDendrogram.removeAll();
 			jPanelDendrogram.add(dw, BorderLayout.CENTER);
 			
@@ -240,6 +244,10 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jList2 = new javax.swing.JList();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        jSlider1 = new javax.swing.JSlider();
+        jLabel8 = new javax.swing.JLabel();
 
         setClosable(true);
         setMaximizable(true);
@@ -268,7 +276,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
         jTabbedPane4.setName("jTabbedPane4"); // NOI18N
 
         jPanel5.setName("jPanel5"); // NOI18N
-        jPanel5.setLayout(new java.awt.GridLayout());
+        jPanel5.setLayout(new java.awt.GridLayout(1, 0));
 
         jTabbedPane2.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jTabbedPane2.setName("jTabbedPane2"); // NOI18N
@@ -490,7 +498,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         jPanel2.setName("jPanel2"); // NOI18N
-        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
 
         jButton1.setIcon(resourceMap.getIcon("jButton1.icon")); // NOI18N
         jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
@@ -500,7 +508,34 @@ public class PLGComparison extends javax.swing.JInternalFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1, java.awt.BorderLayout.WEST);
+        jPanel2.add(jButton1);
+
+        jButton3.setIcon(resourceMap.getIcon("jButton3.icon")); // NOI18N
+        jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
+        jButton3.setName("jButton3"); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton3);
+
+        jLabel7.setText(resourceMap.getString("jLabel7.text")); // NOI18N
+        jLabel7.setName("jLabel7"); // NOI18N
+        jPanel2.add(jLabel7);
+
+        jSlider1.setMinorTickSpacing(10);
+        jSlider1.setName("jSlider1"); // NOI18N
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider1StateChanged(evt);
+            }
+        });
+        jPanel2.add(jSlider1);
+
+        jLabel8.setText(resourceMap.getString("jLabel8.text")); // NOI18N
+        jLabel8.setName("jLabel8"); // NOI18N
+        jPanel2.add(jLabel8);
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.NORTH);
 
@@ -532,15 +567,44 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 		}
 	}//GEN-LAST:event_jButton2ActionPerformed
 
+	private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+		double v = (double)jSlider1.getValue() / 100.0;
+		jLabel8.setText(" " + v);
+	}//GEN-LAST:event_jSlider1StateChanged
+
+	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+		
+		if (dw != null) {
+			String filename = File.separator+"svg";
+			JFileChooser fc = new JFileChooser(new File(filename));
+			FileFilter ff = new FileNameExtensionFilter("SVG file", "svg");
+			fc.setFileFilter(ff);
+			fc.showSaveDialog(this);
+			File selFile = fc.getSelectedFile();
+			if (selFile != null) {
+				String saveFilename = selFile.toString();
+				String ext = saveFilename.substring(saveFilename.lastIndexOf(".") + 1, saveFilename.length());
+				if (!ext.equals("svg")) {
+					saveFilename = saveFilename + ".svg";
+				}
+				dw.getSVG(saveFilename);
+				javax.swing.JOptionPane.showMessageDialog(this, "File saved in "+ saveFilename);
+			}
+		}
+	}//GEN-LAST:event_jButton3ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JPanel jPanel1;
@@ -564,6 +628,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JSlider jSlider1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
