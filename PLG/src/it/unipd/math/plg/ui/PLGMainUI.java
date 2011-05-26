@@ -43,6 +43,8 @@ public class PLGMainUI extends FrameView {
 		CheckForUpdate check = new CheckForUpdate();
 		Thread up = new Thread(check);
 		up.start();
+		
+		jLabel3.setText("PLG version: " + Configurations.SW_VERSION);
     }
 
     @Action
@@ -66,6 +68,9 @@ public class PLGMainUI extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
@@ -88,19 +93,31 @@ public class PLGMainUI extends FrameView {
         mainPanel.setLayout(new java.awt.BorderLayout());
 
         jPanel1.setName("jPanel1"); // NOI18N
-        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setName("jPanel3"); // NOI18N
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(it.unipd.math.plg.ui.ProcessLogGeneratorApp.class).getContext().getResourceMap(PLGMainUI.class);
+        jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
+        jLabel3.setName("jLabel3"); // NOI18N
+        jPanel3.add(jLabel3);
+
+        jPanel1.add(jPanel3, java.awt.BorderLayout.WEST);
+
+        jPanel2.setName("jPanel2"); // NOI18N
+
         jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
-        jPanel1.add(jLabel1);
+        jPanel2.add(jLabel1);
 
         jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
-        jPanel1.add(jLabel2);
+        jPanel2.add(jLabel2);
 
         jProgressBar1.setName("jProgressBar1"); // NOI18N
-        jPanel1.add(jProgressBar1);
+        jPanel2.add(jProgressBar1);
+
+        jPanel1.add(jPanel2, java.awt.BorderLayout.EAST);
 
         mainPanel.add(jPanel1, java.awt.BorderLayout.SOUTH);
 
@@ -215,6 +232,7 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
@@ -223,6 +241,8 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPanel mainPanel;
