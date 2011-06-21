@@ -48,11 +48,12 @@ public class CheckForUpdate implements Runnable {
 			
 			Document doc = getUpdateInformation();
 			String version = doc.getDocumentElement().getElementsByTagName("version").item(0).getTextContent();
+			Double release = Double.parseDouble(doc.getDocumentElement().getElementsByTagName("release").item(0).getTextContent());
 			String releaseDate = doc.getDocumentElement().getElementsByTagName("releaseDate").item(0).getTextContent();
 			String message = doc.getDocumentElement().getElementsByTagName("message").item(0).getTextContent();
 			String dowloadUrl = doc.getDocumentElement().getElementsByTagName("dowloadUrl").item(0).getTextContent();
-
-			if (!version.equals(Configurations.SW_VERSION)) {
+			
+			if (release > Configurations.SW_RELEASE) {
 				if (updateLabel == null) {
 					System.out.println("Updates found!");
 				} else {
