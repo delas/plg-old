@@ -12,7 +12,7 @@ public class Configurations {
 	/** The software name code */
 	public static String SW_CODE = "PLG";
 	/** The current software version (string representation) */
-	public static String SW_VERSION = "1.3-beta";
+	public static String SW_VERSION = "1.3beta";
 	/** The current software release (digit representation) */
 	public static Double SW_RELEASE = 1.2;
 	/** URL for the web server with updates information */
