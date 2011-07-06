@@ -10,6 +10,7 @@ import att.grappa.Grappa;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.models.PlgProcess.COUNTER_TYPES;
+import it.unipd.math.plg.ui.utils.PLGLogger;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -411,6 +412,7 @@ public class PLGProcessWindow extends javax.swing.JInternalFrame {
 			jLabel13.setText(new Integer(process.getActivityList().size()).toString());
 
 		} catch (IOException ex) {
+			PLGLogger.log("ERROR: " + ex.getMessage());
 			Logger.getLogger(PLGProcessWindow.class.getName()).log(Level.SEVERE, null, ex);
 			ex.printStackTrace();
 		}
