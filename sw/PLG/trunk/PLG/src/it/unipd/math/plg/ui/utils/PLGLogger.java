@@ -10,8 +10,9 @@ import javax.swing.JTextArea;
  */
 public class PLGLogger {
 	
-	JTextArea logOutput;
-	JScrollPane logOutputContainer;
+	private boolean firstLog = true;
+	private JTextArea logOutput;
+	private JScrollPane logOutputContainer;
 	
 	private static PLGLogger instance = new PLGLogger();
 	
@@ -29,10 +30,14 @@ public class PLGLogger {
 	
 	public static void log(String message) {
 		StackTraceElement callerElement = new Throwable().getStackTrace()[1];
-		String caller = callerElement.getClassName() + "::" + callerElement.getMethodName();
+		String caller = callerElement.getClassName() + "::" + callerElement.getMethodName() + " (" + callerElement.getFileName() + ":" + callerElement.getLineNumber() + ")";
 		
-		instance().logOutput.append("\n");
-		instance().logOutput.append("[" + DateUtils.now() + " - " + caller + "] " + message);
+		if (instance().firstLog) {
+			instance().firstLog = false;
+		} else {
+			instance().logOutput.append("\n");
+		}
+		instance().logOutput.append(DateUtils.now() + " - " + caller + " - " + message);
 		instance().logOutput.setCaretPosition(instance.logOutput.getText().length());
 	}
 }
