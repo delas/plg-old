@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.ui.utils.CheckForUpdate;
 import it.unipd.math.plg.ui.utils.Configurations;
+import it.unipd.math.plg.ui.utils.PLGLogger;
 import it.unipd.math.plg.ui.widget.MemoryGauge;
 import java.awt.Dimension;
 import java.io.File;
@@ -35,7 +36,11 @@ public class PLGMainUI extends FrameView {
         super(app);
 
         initComponents();
+		setLogVisible(Configurations.INITIALLY_SHOW_LOG_WINDOW);
+		PLGLogger.instance().setLogOutput(jTextArea1, jScrollPane1);
 
+		PLGLogger.log("Starting mainteinance threads");
+		
 		MemoryGauge memGaugeThread = new MemoryGauge(jProgressBar1, jLabel2);
 		Thread mt = new Thread(memGaugeThread);
 		mt.start();
@@ -45,7 +50,17 @@ public class PLGMainUI extends FrameView {
 		up.start();
 		
 		jLabel3.setText("PLG version: " + Configurations.SW_VERSION);
+		
+		PLGLogger.log("PLG up and running");
     }
+	
+	
+	
+	public void setLogVisible(boolean visible) {
+		jScrollPane1.setVisible(visible);
+		jCheckBoxMenuItem1.setState(visible);
+	}
+	
 
     @Action
     public void showAboutBox() {
@@ -74,6 +89,8 @@ public class PLGMainUI extends FrameView {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jDesktopPane1 = new javax.swing.JDesktopPane();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
@@ -83,11 +100,14 @@ public class PLGMainUI extends FrameView {
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
 
         mainPanel.setName("mainPanel"); // NOI18N
         mainPanel.setLayout(new java.awt.BorderLayout());
@@ -120,6 +140,23 @@ public class PLGMainUI extends FrameView {
         jPanel1.add(jPanel2, java.awt.BorderLayout.EAST);
 
         mainPanel.add(jPanel1, java.awt.BorderLayout.SOUTH);
+
+        jScrollPane1.setBackground(resourceMap.getColor("jScrollPane1.background")); // NOI18N
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
+        jScrollPane1.setForeground(resourceMap.getColor("jScrollPane1.foreground")); // NOI18N
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        jTextArea1.setBackground(resourceMap.getColor("jTextArea1.background")); // NOI18N
+        jTextArea1.setColumns(20);
+        jTextArea1.setEditable(false);
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 10)); // NOI18N
+        jTextArea1.setForeground(resourceMap.getColor("jTextArea1.foreground")); // NOI18N
+        jTextArea1.setRows(10);
+        jTextArea1.setBorder(null);
+        jTextArea1.setName("jTextArea1"); // NOI18N
+        jScrollPane1.setViewportView(jTextArea1);
+
+        mainPanel.add(jScrollPane1, java.awt.BorderLayout.NORTH);
 
         jDesktopPane1.setAutoscrolls(true);
         jDesktopPane1.setName("jDesktopPane1"); // NOI18N
@@ -166,6 +203,15 @@ public class PLGMainUI extends FrameView {
         });
         jMenu1.add(jMenuItem5);
 
+        jMenuItem6.setText(resourceMap.getString("jMenuItem6.text")); // NOI18N
+        jMenuItem6.setName("jMenuItem6"); // NOI18N
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem6);
+
         menuBar.add(jMenu1);
 
         jMenu2.setText(resourceMap.getString("jMenu2.text")); // NOI18N
@@ -195,6 +241,23 @@ public class PLGMainUI extends FrameView {
 
         menuBar.add(helpMenu);
 
+        jMenu3.setText(resourceMap.getString("jMenu3.text")); // NOI18N
+        jMenu3.setName("jMenu3"); // NOI18N
+
+        jCheckBoxMenuItem1.setSelected(true);
+        jCheckBoxMenuItem1.setText(resourceMap.getString("jCheckBoxMenuItem1.text")); // NOI18N
+        jCheckBoxMenuItem1.setName("jCheckBoxMenuItem1"); // NOI18N
+        jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jCheckBoxMenuItem1);
+
+        menuBar.add(javax.swing.Box.createHorizontalGlue());
+
+        menuBar.add(jMenu3);
+
         setComponent(mainPanel);
         setMenuBar(menuBar);
     }// </editor-fold>//GEN-END:initComponents
@@ -213,6 +276,17 @@ public class PLGMainUI extends FrameView {
 		}
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
+	private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+		PLGExploreHierarchy explorer = new PLGExploreHierarchy(this);
+		jDesktopPane1.add(explorer);
+		explorer.setVisible(true);
+		explorer.toFront();
+	}//GEN-LAST:event_jMenuItem6ActionPerformed
+
+	private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
+		jScrollPane1.setVisible(jCheckBoxMenuItem1.getState());
+	}//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
+
     @Action
     public void actionCreateNetProcess() {
 		JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
@@ -229,22 +303,27 @@ public class PLGMainUI extends FrameView {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     // End of variables declaration//GEN-END:variables
@@ -271,9 +350,13 @@ public class PLGMainUI extends FrameView {
 			setup.getXorProbability()
 		};
 		int deep = setup.getNetworkDeep();*/
+		
+		// increment the number of processes
+		progress++;
 
+		PLGLogger.log("Starting generation of new random process");
 		PLGProcessWindow pUi = new PLGProcessWindow();
-		PlgProcess p = new PlgProcess("TestProcess");
+		PlgProcess p = new PlgProcess("Process " + progress);
 		PlgParameters para = new PlgParameters(
 				setup.getAndBranches(),
 				setup.getAndDistrBranches(),
@@ -291,7 +374,7 @@ public class PLGMainUI extends FrameView {
 		p.randomize(para);
 
 		pUi.setProcess(p);
-		pUi.setTitle("Process " + progress++ + " [max depth: "+ setup.getNetworkDeep() +"]");
+		pUi.setTitle("Process " + progress + " [max depth: "+ setup.getNetworkDeep() +"]");
 		jDesktopPane1.add(pUi);
 		pUi.setVisible(true);
 		try {
@@ -300,6 +383,8 @@ public class PLGMainUI extends FrameView {
 			e.printStackTrace();
 		}
 
+		PLGLogger.log("Generation of new random process done");
+		
 		wait.setVisible(false);
 	}
 	

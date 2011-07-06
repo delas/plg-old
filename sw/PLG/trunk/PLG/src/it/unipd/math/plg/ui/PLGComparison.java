@@ -18,6 +18,7 @@ import it.processmining.clustering.model.BinaryConstraint;
 import it.processmining.clustering.model.process.HeuristicsNetSetRepresentation;
 import it.processmining.clustering.ui.DendrogramWidget;
 import it.unipd.math.plg.models.PlgProcess;
+import it.unipd.math.plg.ui.utils.PLGLogger;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
@@ -42,16 +43,20 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     public PLGComparison(PLGMainUI mainUI) {
 		this.mainUI = mainUI;
         initComponents();
+		updateAll();
     }
 	
 	
 	private void updateDendrogram(HashSet<HeuristicsNetSetRepresentation> elementsSet) {
+		
+		PLGLogger.log("Updating dendrogram");
+		
 		double alpha = (double)jSlider1.getValue() / 100.0;
 		
 		try {
 			DistanceMatrix dm = new DistanceMatrix(elementsSet, alpha);
 			Cluster root = HierarchicalClustering.cluster(elementsSet, alpha);
-			dw = new DendrogramWidget(dm, root, alpha);
+			dw = new DendrogramWidget(dm, root);
 			jPanelDendrogram.removeAll();
 			jPanelDendrogram.add(dw, BorderLayout.CENTER);
 			
@@ -62,6 +67,8 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	
 	private void updateLists(HashSet<HeuristicsNetSetRepresentation> elementsSet) {
+		
+		PLGLogger.log("Updating lists");
 		
 		DefaultListModel listModel = new DefaultListModel();
 		for(HeuristicsNetSetRepresentation hnr : elementsSet) {
@@ -87,6 +94,9 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	
 	private void updatePositiveRelations(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		
+		PLGLogger.log("Updating positive raltions");
+		
 		jLabel3.setText("<html>Positive relations in <b>" + p1n + "</b> but not in <b>" + p2n + "</b></html>");
 		jLabel4.setText("<html>Positive relations in <b>" + p2n + "</b> but not in <b>" + p1n + "</b></html>");
 		
@@ -112,6 +122,9 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	
 	private void updateInconsistencies(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		
+		PLGLogger.log("Updating inconsistencies");
+		
 		jLabel1.setText("<html>Inconsistencies within " + p1n + "</html>");
 		jLabel2.setText("<html>Inconsistencies within " + p2n + "</html>");
 		
@@ -136,6 +149,9 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 	
 	
 	private void updateNegativeRelations(PlgProcess p1, String p1n, PlgProcess p2, String p2n) {
+		
+		PLGLogger.log("Updating negative raltions");
+		
 		jLabel5.setText("<html>Negative relations in <b>" + p1n + "</b> but not in <b>" + p2n + "</b></html>");
 		jLabel6.setText("<html>Negative relations in <b>" + p2n + "</b> but not in <b>" + p1n + "</b></html>");
 		
@@ -189,6 +205,22 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 		updatePositiveRelations(p1, process1, p2, process2);
 		updateNegativeRelations(p1, process1, p2, process2);
 		
+	}
+	
+	
+	private void updateAll() {
+		HashSet<HeuristicsNetSetRepresentation> elementsSet = new HashSet<HeuristicsNetSetRepresentation>();
+		
+		for(JInternalFrame jif : mainUI.getAllWindow()) {
+			if (jif instanceof PLGProcessWindow) {
+				PLGProcessWindow p = (PLGProcessWindow)jif;
+				elementsSet.add(new HeuristicsNetSetRepresentation(p.getProcess().getName(), p.getProcess().getHeuristicsNet()));
+			}
+		}
+		
+		// now the dendrogram
+		updateDendrogram(elementsSet);
+		updateLists(elementsSet);
 	}
 	
 
@@ -543,20 +575,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-		
-		HashSet<HeuristicsNetSetRepresentation> elementsSet = new HashSet<HeuristicsNetSetRepresentation>();
-		
-		for(JInternalFrame jif : mainUI.getAllWindow()) {
-			if (jif instanceof PLGProcessWindow) {
-				PLGProcessWindow p = (PLGProcessWindow)jif;
-				elementsSet.add(new HeuristicsNetSetRepresentation(p.getTitle(), p.getProcess().getHeuristicsNet()));
-			}
-		}
-		
-		// now the dendrogram
-		updateDendrogram(elementsSet);
-		updateLists(elementsSet);
-		
+		updateAll();
 	}//GEN-LAST:event_jButton1ActionPerformed
 
 	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

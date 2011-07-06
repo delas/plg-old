@@ -49,6 +49,8 @@ public class ProcessLogGeneratorApp extends SingleFrameApplication {
 
 		// may we have to skip the check for updates? (as debug mode)
 		Configurations.CHECK_FOR_UPDATES = !(Arrays.asList(args).contains("--no-check-updates"));
+		// do you want to show the log window from the beginning?
+		Configurations.INITIALLY_SHOW_LOG_WINDOW = (Arrays.asList(args).contains("--show-log-window"));
 
 		// try setting the correct look and feel :)
 		try {

@@ -1,6 +1,7 @@
 package it.unipd.math.plg.ui.utils;
 
 import it.unipd.math.plg.ui.PLGAboutUI;
+import it.unipd.math.plg.ui.PLGMainUI;
 import it.unipd.math.plg.ui.PLGNewRelease;
 import it.unipd.math.plg.ui.ProcessLogGeneratorApp;
 import java.io.InputStream;
@@ -35,6 +36,7 @@ public class CheckForUpdate implements Runnable {
 		boolean toCheck = Configurations.CHECK_FOR_UPDATES || forced;
 		try {
 			Thread.sleep(1000);
+			PLGLogger.log("Checking for update...");
 			if (updateLabel == null) {
 				System.out.print("Checking for update... ");
 			} else {
@@ -42,6 +44,7 @@ public class CheckForUpdate implements Runnable {
 			}
 			
 			if (!toCheck) {
+				PLGLogger.log("Checking for update skipped");
 				System.out.println("skipped!");
 				return;
 			}
@@ -54,6 +57,7 @@ public class CheckForUpdate implements Runnable {
 			String dowloadUrl = doc.getDocumentElement().getElementsByTagName("dowloadUrl").item(0).getTextContent();
 			
 			if (release > Configurations.SW_RELEASE) {
+				PLGLogger.log("Updates found!");
 				if (updateLabel == null) {
 					System.out.println("Updates found!");
 				} else {
@@ -67,6 +71,7 @@ public class CheckForUpdate implements Runnable {
 				dialog.setVisible(true);
 				Configurations.UPDATES_FOUND = true;
 			} else {
+				PLGLogger.log("No updates available");
 				if (updateLabel == null) {
 					System.out.println("No updates available");
 				} else {
