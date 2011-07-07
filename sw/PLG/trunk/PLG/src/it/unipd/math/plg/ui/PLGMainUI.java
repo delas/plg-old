@@ -57,7 +57,11 @@ public class PLGMainUI extends FrameView {
 	
 	
 	public void setLogVisible(boolean visible) {
-		jScrollPane1.setVisible(visible);
+		if (visible) {
+			jSplitPane1.setDividerLocation(0.2d);
+		} else {
+			jSplitPane1.setDividerLocation(0.0d);
+		}
 		jCheckBoxMenuItem1.setState(visible);
 	}
 	
@@ -89,6 +93,7 @@ public class PLGMainUI extends FrameView {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
+        jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jDesktopPane1 = new javax.swing.JDesktopPane();
@@ -141,6 +146,9 @@ public class PLGMainUI extends FrameView {
 
         mainPanel.add(jPanel1, java.awt.BorderLayout.SOUTH);
 
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setName("jSplitPane1"); // NOI18N
+
         jScrollPane1.setBackground(resourceMap.getColor("jScrollPane1.background")); // NOI18N
         jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
         jScrollPane1.setForeground(resourceMap.getColor("jScrollPane1.foreground")); // NOI18N
@@ -156,11 +164,13 @@ public class PLGMainUI extends FrameView {
         jTextArea1.setName("jTextArea1"); // NOI18N
         jScrollPane1.setViewportView(jTextArea1);
 
-        mainPanel.add(jScrollPane1, java.awt.BorderLayout.NORTH);
+        jSplitPane1.setLeftComponent(jScrollPane1);
 
         jDesktopPane1.setAutoscrolls(true);
         jDesktopPane1.setName("jDesktopPane1"); // NOI18N
-        mainPanel.add(jDesktopPane1, java.awt.BorderLayout.CENTER);
+        jSplitPane1.setRightComponent(jDesktopPane1);
+
+        mainPanel.add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
         menuBar.setName("menuBar"); // NOI18N
 
@@ -277,14 +287,19 @@ public class PLGMainUI extends FrameView {
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
 	private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-		PLGExploreHierarchy explorer = new PLGExploreHierarchy(this);
-		jDesktopPane1.add(explorer);
-		explorer.setVisible(true);
-		explorer.toFront();
+		try {
+			PLGExploreHierarchy explorer = new PLGExploreHierarchy(this);
+			jDesktopPane1.add(explorer);
+			explorer.setMaximum(true);
+			explorer.setVisible(true);
+			explorer.toFront();
+		} catch (PropertyVetoException ex) {
+			Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}//GEN-LAST:event_jMenuItem6ActionPerformed
 
 	private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
-		jScrollPane1.setVisible(jCheckBoxMenuItem1.getState());
+		setLogVisible(jCheckBoxMenuItem1.getState());
 	}//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
 
     @Action
@@ -323,6 +338,7 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
@@ -330,7 +346,7 @@ public class PLGMainUI extends FrameView {
 
     private JDialog aboutBox;
     private PLGNewProcessSetup newProcessSetup = null;
-    private int progress = 1;
+    private int progress = 0;
     private PLGComparison comparisonBox = null;
 
 	private void newProcess(PLGNewProcessSetup setup) {
