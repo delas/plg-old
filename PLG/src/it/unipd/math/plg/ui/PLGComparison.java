@@ -84,7 +84,7 @@ public class PLGComparison extends javax.swing.JInternalFrame {
 		for (JInternalFrame jif : mainUI.getAllWindow()) {
 			if (jif instanceof PLGProcessWindow) {
 				PLGProcessWindow p = (PLGProcessWindow)jif;
-				if (jif.getTitle().equals(processName)) {
+				if (p.getProcess().getName().equals(processName)) {
 					return p.getProcess();
 				}
 			}
