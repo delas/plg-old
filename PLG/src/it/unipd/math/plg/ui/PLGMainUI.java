@@ -101,6 +101,7 @@ public class PLGMainUI extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
@@ -157,7 +158,7 @@ public class PLGMainUI extends FrameView {
         jTextArea1.setBackground(resourceMap.getColor("jTextArea1.background")); // NOI18N
         jTextArea1.setColumns(20);
         jTextArea1.setEditable(false);
-        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 10)); // NOI18N
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 10));
         jTextArea1.setForeground(resourceMap.getColor("jTextArea1.foreground")); // NOI18N
         jTextArea1.setRows(10);
         jTextArea1.setBorder(null);
@@ -189,6 +190,16 @@ public class PLGMainUI extends FrameView {
         jMenuItem4.setText(resourceMap.getString("jMenuItem4.text")); // NOI18N
         jMenuItem4.setName("jMenuItem4"); // NOI18N
         fileMenu.add(jMenuItem4);
+
+        jMenuItem7.setIcon(resourceMap.getIcon("jMenuItem7.icon")); // NOI18N
+        jMenuItem7.setText(resourceMap.getString("jMenuItem7.text")); // NOI18N
+        jMenuItem7.setName("jMenuItem7"); // NOI18N
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        fileMenu.add(jMenuItem7);
 
         jSeparator1.setName("jSeparator1"); // NOI18N
         fileMenu.add(jSeparator1);
@@ -302,6 +313,34 @@ public class PLGMainUI extends FrameView {
 		setLogVisible(jCheckBoxMenuItem1.getState());
 	}//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
 
+	private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+		
+		JFileChooser fc = new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
+		 if(fc.showSaveDialog(getComponent()) == JFileChooser.APPROVE_OPTION){
+			 String saveDir = fc.getSelectedFile().getAbsolutePath();
+			 boolean saved = true;
+			 for (JInternalFrame jif : getAllWindow()) {
+				 PLGProcessWindow p = (PLGProcessWindow)jif;
+				 PlgProcess proc = p.getProcess();
+				 try {
+					 saved = saved && proc.saveProcessAs(saveDir + File.separator + proc.getName() + ".plg");
+					 PLGLogger.log("Saved process " + proc.getName());
+				 } catch (IOException e) {
+					 e.printStackTrace();
+					 JOptionPane.showMessageDialog(getComponent(), e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+				 }
+			 }
+			 
+			 if (saved) {
+				 JOptionPane.showMessageDialog(getComponent(), "Files saved under "+ saveDir);
+			 }
+			 
+		 }
+		
+	}//GEN-LAST:event_jMenuItem7ActionPerformed
+
     @Action
     public void actionCreateNetProcess() {
 		JFrame mainFrame = ProcessLogGeneratorApp.getApplication().getMainFrame();
@@ -332,6 +371,7 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
