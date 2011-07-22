@@ -101,6 +101,7 @@ public class PLGMainUI extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+        jMenuItem8 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -186,11 +187,23 @@ public class PLGMainUI extends FrameView {
         fileMenu.add(jMenuItem1);
 
         jMenuItem4.setAction(actionMap.get("actionOpenExistingProcess")); // NOI18N
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem4.setIcon(resourceMap.getIcon("jMenuItem4.icon")); // NOI18N
         jMenuItem4.setText(resourceMap.getString("jMenuItem4.text")); // NOI18N
         jMenuItem4.setName("jMenuItem4"); // NOI18N
         fileMenu.add(jMenuItem4);
 
+        jMenuItem8.setIcon(resourceMap.getIcon("jMenuItem8.icon")); // NOI18N
+        jMenuItem8.setText(resourceMap.getString("jMenuItem8.text")); // NOI18N
+        jMenuItem8.setName("jMenuItem8"); // NOI18N
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        fileMenu.add(jMenuItem8);
+
+        jMenuItem7.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem7.setIcon(resourceMap.getIcon("jMenuItem7.icon")); // NOI18N
         jMenuItem7.setText(resourceMap.getString("jMenuItem7.text")); // NOI18N
         jMenuItem7.setName("jMenuItem7"); // NOI18N
@@ -317,29 +330,77 @@ public class PLGMainUI extends FrameView {
 		
 		JFileChooser fc = new JFileChooser();
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		
-		 if(fc.showSaveDialog(getComponent()) == JFileChooser.APPROVE_OPTION){
-			 String saveDir = fc.getSelectedFile().getAbsolutePath();
-			 boolean saved = true;
-			 for (JInternalFrame jif : getAllWindow()) {
-				 PLGProcessWindow p = (PLGProcessWindow)jif;
-				 PlgProcess proc = p.getProcess();
-				 try {
-					 saved = saved && proc.saveProcessAs(saveDir + File.separator + proc.getName() + ".plg");
-					 PLGLogger.log("Saved process " + proc.getName());
-				 } catch (IOException e) {
-					 e.printStackTrace();
-					 JOptionPane.showMessageDialog(getComponent(), e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-				 }
-			 }
-			 
-			 if (saved) {
-				 JOptionPane.showMessageDialog(getComponent(), "Files saved under "+ saveDir);
-			 }
-			 
-		 }
+
+		if(fc.showSaveDialog(getComponent()) == JFileChooser.APPROVE_OPTION){
+			
+			PLGWaiting wait = new PLGWaiting(getFrame(), true);
+			wait.setLocationRelativeTo(mainPanel);
+			wait.setLabel("Saving processes...");
+			wait.setVisible(true);
+			
+			String saveDir = fc.getSelectedFile().getAbsolutePath();
+			boolean saved = true;
+			for (JInternalFrame jif : getAllWindow()) {
+				PLGProcessWindow p = (PLGProcessWindow)jif;
+				PlgProcess proc = p.getProcess();
+				try {
+					saved = saved && proc.saveProcessAs(saveDir + File.separator + proc.getName() + ".plg");
+					PLGLogger.log("Saved process " + saveDir + File.separator + proc.getName() + ".plg");
+				} catch (IOException e) {
+					e.printStackTrace();
+					wait.setVisible(false);
+					JOptionPane.showMessageDialog(getComponent(), e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+			wait.setVisible(false);
+
+			if (saved) {
+				JOptionPane.showMessageDialog(getComponent(), "Files saved under "+ saveDir);
+			}
+
+		}
 		
 	}//GEN-LAST:event_jMenuItem7ActionPerformed
+
+	private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+		
+		JFileChooser fc = new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if(fc.showOpenDialog(getComponent()) == JFileChooser.APPROVE_OPTION){
+			
+			PLGWaiting wait = new PLGWaiting(getFrame(), true);
+			wait.setLocationRelativeTo(mainPanel);
+			wait.setLabel("Opening process...");
+			wait.setVisible(true);
+		
+			String openDir = fc.getSelectedFile().getAbsolutePath();
+			File dir = new File(openDir);
+			File[] children = dir.listFiles();
+			for(File c : children) {
+				if (c.getName().endsWith(".plg")) {
+					PLGProcessWindow pUi = new PLGProcessWindow();
+					try {
+						PlgProcess p = PlgProcess.loadProcessFrom(c.getAbsolutePath());
+						if (p != null) {
+							pUi.setProcess(p);
+							pUi.setTitle(p.getName());
+							jDesktopPane1.add(pUi);
+							pUi.setVisible(true);
+							PLGLogger.log("Opened process " + c.getAbsolutePath());
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			wait.setVisible(false);
+			
+		}
+		
+	}//GEN-LAST:event_jMenuItem8ActionPerformed
 
     @Action
     public void actionCreateNetProcess() {
@@ -372,6 +433,7 @@ public class PLGMainUI extends FrameView {
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -492,34 +554,34 @@ public class PLGMainUI extends FrameView {
 
 	@Action
 	public void actionOpenExistingProcess() {
-            String filename = File.separator+"dot";
-	    JFileChooser fc = new JFileChooser(new File(filename));
-            FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
-            fc.setFileFilter(ff);
-	    fc.showOpenDialog(mainPanel);
-	    File selFile = fc.getSelectedFile();
-	    if (selFile != null) {
-                try {
-                        PLGProcessWindow pUi = new PLGProcessWindow();
-                        PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
-                        if (p == null) {
-                            JOptionPane.showMessageDialog(mainPanel, "There was an error " +
-                                "opening your file (maybe you are trying to open a " +
-                                "file generated with a previous version of PLG).",
-                                "Wrong input file", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        pUi.setProcess(p);
-                        pUi.setTitle("Process \"" + selFile.getName() +"\"");
-                        jDesktopPane1.add(pUi);
-                        pUi.setVisible(true);
-                        pUi.setSelected(true);
-                } catch (IOException ex) {
-                        Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (PropertyVetoException e) {
-                        e.printStackTrace();
-                }
-            }
+		String filename = File.separator+"dot";
+		JFileChooser fc = new JFileChooser(new File(filename));
+		FileFilter ff = new FileNameExtensionFilter("ProcessLogGenerator file", "plg");
+		fc.setFileFilter(ff);
+		fc.showOpenDialog(mainPanel);
+		File selFile = fc.getSelectedFile();
+		if (selFile != null) {
+			try {
+				PLGProcessWindow pUi = new PLGProcessWindow();
+				PlgProcess p = PlgProcess.loadProcessFrom(selFile.getAbsolutePath());
+				if (p == null) {
+					JOptionPane.showMessageDialog(mainPanel, "There was an error " +
+						"opening your file (maybe you are trying to open a " +
+						"file generated with a previous version of PLG).",
+						"Wrong input file", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				pUi.setProcess(p);
+				pUi.setTitle("Process \"" + selFile.getName() +"\"");
+				jDesktopPane1.add(pUi);
+				pUi.setVisible(true);
+				pUi.setSelected(true);
+			} catch (IOException ex) {
+				Logger.getLogger(PLGMainUI.class.getName()).log(Level.SEVERE, null, ex);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
