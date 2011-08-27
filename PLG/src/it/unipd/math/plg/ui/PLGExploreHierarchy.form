@@ -21,7 +21,7 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,-2,0,0,2,102"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,2,114,0,0,3,-125"/>
   </AuxValues>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
@@ -97,9 +97,10 @@
                         </Constraint>
                       </Constraints>
                     </Component>
-                    <Container class="javax.swing.JPanel" name="jPanel1">
+                    <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
                       <Properties>
-                        <Property name="name" type="java.lang.String" value="jPanel1" noResource="true"/>
+                        <Property name="tabPlacement" type="int" value="3"/>
+                        <Property name="name" type="java.lang.String" value="jTabbedPane1" noResource="true"/>
                       </Properties>
                       <Constraints>
                         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -107,7 +108,37 @@
                         </Constraint>
                       </Constraints>
 
-                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+                      <SubComponents>
+                        <Container class="javax.swing.JPanel" name="jPanel1">
+                          <Properties>
+                            <Property name="name" type="java.lang.String" value="jPanel1" noResource="true"/>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                              <JTabbedPaneConstraints tabName="Dependency graph">
+                                <Property name="tabTitle" type="java.lang.String" resourceKey="jPanel1.TabConstraints.tabTitle"/>
+                              </JTabbedPaneConstraints>
+                            </Constraint>
+                          </Constraints>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                        </Container>
+                        <Container class="javax.swing.JPanel" name="jPanel14">
+                          <Properties>
+                            <Property name="name" type="java.lang.String" value="jPanel14" noResource="true"/>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                              <JTabbedPaneConstraints tabName="Petri net">
+                                <Property name="tabTitle" type="java.lang.String" resourceKey="jPanel14.TabConstraints.tabTitle"/>
+                              </JTabbedPaneConstraints>
+                            </Constraint>
+                          </Constraints>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                        </Container>
+                      </SubComponents>
                     </Container>
                     <Component class="javax.swing.JLabel" name="jLabel3">
                       <Properties>
@@ -197,9 +228,10 @@
                         </Constraint>
                       </Constraints>
                     </Component>
-                    <Container class="javax.swing.JPanel" name="jPanel9">
+                    <Container class="javax.swing.JTabbedPane" name="jTabbedPane2">
                       <Properties>
-                        <Property name="name" type="java.lang.String" value="jPanel9" noResource="true"/>
+                        <Property name="tabPlacement" type="int" value="3"/>
+                        <Property name="name" type="java.lang.String" value="jTabbedPane2" noResource="true"/>
                       </Properties>
                       <Constraints>
                         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -207,7 +239,37 @@
                         </Constraint>
                       </Constraints>
 
-                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+                      <SubComponents>
+                        <Container class="javax.swing.JPanel" name="jPanel9">
+                          <Properties>
+                            <Property name="name" type="java.lang.String" value="jPanel9" noResource="true"/>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                              <JTabbedPaneConstraints tabName="Dependency graph">
+                                <Property name="tabTitle" type="java.lang.String" resourceKey="jPanel9.TabConstraints.tabTitle"/>
+                              </JTabbedPaneConstraints>
+                            </Constraint>
+                          </Constraints>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                        </Container>
+                        <Container class="javax.swing.JPanel" name="jPanel15">
+                          <Properties>
+                            <Property name="name" type="java.lang.String" value="jPanel15" noResource="true"/>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                              <JTabbedPaneConstraints tabName="Petri net">
+                                <Property name="tabTitle" type="java.lang.String" resourceKey="jPanel15.TabConstraints.tabTitle"/>
+                              </JTabbedPaneConstraints>
+                            </Constraint>
+                          </Constraints>
+
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                        </Container>
+                      </SubComponents>
                     </Container>
                     <Component class="javax.swing.JLabel" name="jLabel4">
                       <Properties>

@@ -17,6 +17,7 @@ import it.processmining.clustering.model.process.HeuristicsNetSetRepresentation;
 import it.unipd.math.plg.models.PlgProcess;
 import it.unipd.math.plg.ui.utils.PLGLogger;
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,7 +70,9 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
         jPanel4 = new javax.swing.JPanel();
         jPanel13 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
+        jPanel14 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jPanel11 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
@@ -77,7 +80,9 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
         jPanel2 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
+        jPanel15 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jPanel12 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
@@ -119,15 +124,24 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 10, 0);
         jPanel13.add(jButton1, gridBagConstraints);
 
+        jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
+        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+
         jPanel1.setName("jPanel1"); // NOI18N
         jPanel1.setLayout(new java.awt.BorderLayout());
+        jTabbedPane1.addTab(resourceMap.getString("jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
+
+        jPanel14.setName("jPanel14"); // NOI18N
+        jPanel14.setLayout(new java.awt.BorderLayout());
+        jTabbedPane1.addTab(resourceMap.getString("jPanel14.TabConstraints.tabTitle"), jPanel14); // NOI18N
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        jPanel13.add(jPanel1, gridBagConstraints);
+        jPanel13.add(jTabbedPane1, gridBagConstraints);
 
         jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
@@ -177,15 +191,24 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 10, 0);
         jPanel10.add(jButton2, gridBagConstraints);
 
+        jTabbedPane2.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
+        jTabbedPane2.setName("jTabbedPane2"); // NOI18N
+
         jPanel9.setName("jPanel9"); // NOI18N
         jPanel9.setLayout(new java.awt.BorderLayout());
+        jTabbedPane2.addTab(resourceMap.getString("jPanel9.TabConstraints.tabTitle"), jPanel9); // NOI18N
+
+        jPanel15.setName("jPanel15"); // NOI18N
+        jPanel15.setLayout(new java.awt.BorderLayout());
+        jTabbedPane2.addTab(resourceMap.getString("jPanel15.TabConstraints.tabTitle"), jPanel15); // NOI18N
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        jPanel10.add(jPanel9, gridBagConstraints);
+        jPanel10.add(jTabbedPane2, gridBagConstraints);
 
         jLabel4.setText(resourceMap.getString("jLabel4.text")); // NOI18N
         jLabel4.setName("jLabel4"); // NOI18N
@@ -289,6 +312,8 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -299,6 +324,8 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
 
@@ -344,6 +371,12 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
 				
 				// left child
 				JSplitPane cLeft = (JSplitPane) pLeft.getDependencyGraph().getGrappaVisualization().getComponent(0);
+				JSplitPane cLeftPetri = null;
+				try {
+					cLeftPetri = (JSplitPane) pLeft.getPetriNet().getGrappaVisualization().getComponent(0);
+				} catch (IOException ex) {
+					Logger.getLogger(PLGExploreHierarchy.class.getName()).log(Level.SEVERE, null, ex);
+				}
 				
 				TitledBorder currentBorder = (TitledBorder) jPanel4.getBorder();
 				currentBorder.setTitle(pLeft.getName());
@@ -351,6 +384,10 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
 				
 				jPanel1.removeAll();
 				jPanel1.add(cLeft.getLeftComponent(), BorderLayout.CENTER);
+				
+				jPanel14.removeAll();
+				jPanel14.add(cLeftPetri.getLeftComponent(), BorderLayout.CENTER);
+				
 				jLabel3.setText("Cluster size: " + children[0].getAllElements().size());
 				
 				Cluster[] leftChildren = children[0].getChildren();
@@ -383,6 +420,12 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
 				
 				// right child
 				JSplitPane cRight = (JSplitPane) pRight.getDependencyGraph().getGrappaVisualization().getComponent(0);
+				JSplitPane cRightPetri = null;
+				try {
+					cRightPetri = (JSplitPane) pRight.getPetriNet().getGrappaVisualization().getComponent(0);
+				} catch (IOException ex) {
+					Logger.getLogger(PLGExploreHierarchy.class.getName()).log(Level.SEVERE, null, ex);
+				}
 
 				currentBorder = (TitledBorder) jPanel2.getBorder();
 				currentBorder.setTitle(pRight.getName());
@@ -390,6 +433,10 @@ public class PLGExploreHierarchy extends javax.swing.JInternalFrame {
 				
 				jPanel9.removeAll();
 				jPanel9.add(cRight.getLeftComponent(), BorderLayout.CENTER);
+				
+				jPanel15.removeAll();
+				jPanel15.add(cRightPetri.getLeftComponent(), BorderLayout.CENTER);
+				
 				jLabel4.setText("Cluster size: " + children[1].getAllElements().size());
 				
 				Cluster[] rightChildren = children[1].getChildren();
