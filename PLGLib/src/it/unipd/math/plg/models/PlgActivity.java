@@ -15,8 +15,6 @@ import java.util.Vector;
 import org.deckfour.spex.SXTag;
 import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 

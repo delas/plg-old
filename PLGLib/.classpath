@@ -2,12 +2,13 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="libs/jopt-simple-3.2.jar"/>
-	<classpathentry kind="lib" path="libs/OpenXES.jar"/>
-	<classpathentry kind="lib" path="libs/ProM-Models.jar"/>
-	<classpathentry kind="lib" path="libs/ProM-Plugins.jar"/>
-	<classpathentry kind="lib" path="libs/Spex.jar"/>
-	<classpathentry kind="lib" path="libs/att.jar"/>
-	<classpathentry kind="lib" path="libs/colt.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/stdlib/Spex.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/stdlib/OpenXES.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/packagelib/BPMN.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/stdlib/ProM-Framework.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/packagelib/HeuristicsMiner.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/packagelib/PetriNets.jar"/>
+	<classpathentry kind="lib" path="/home/delas/workspace/plg-prom6/ProcessLogGenerator/stdlib/ProM-Models.jar"/>
+	<classpathentry kind="lib" path="/ProcessLogGenerator/stdlib/colt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -53,7 +53,7 @@ public class PlgDependencyGraph extends BPMNDiagramImpl {
 		// activities
 		for (int i = 0; i < activities.length; i++) {
 			//adding the activities
-			graphActivities[i] = addActivity(activities[i].toString(), false, false, false, false, false, null);
+			graphActivities[i] = addActivity(activities[i].toString(), false, false, false, false, false);
 		}
 		
 		// connections
@@ -70,8 +70,7 @@ public class PlgDependencyGraph extends BPMNDiagramImpl {
 							graphActivities[1]);
 					if (!existingFlows.contains(pair)) {
 						addFlow(graphActivities[i],
-								graphActivities[1],
-								null);
+								graphActivities[1], null);
 						existingFlows.add(pair);
 					}
 //				}
