@@ -1,6 +1,5 @@
 package it.unipd.math.plg.models;
 
-import it.unipd.math.plg.metrics.PlgMetricCalculator;
 import it.unipd.math.plg.metrics.PlgProcessMeasures;
 import it.unipd.math.plg.models.PlgActivity.RELATIONS;
 import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
@@ -8,7 +7,6 @@ import it.unipd.math.plg.models.distributions.PlgProbabilityDistribution;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,16 +16,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javax.management.Attribute;
-import javax.security.auth.login.LoginException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.deckfour.spex.SXDocument;
 import org.deckfour.spex.SXTag;
-import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClasses;
-import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.extension.XExtensionManager;
 import org.deckfour.xes.factory.XFactory;
@@ -36,36 +30,17 @@ import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
-import org.deckfour.xes.model.impl.XAttributeLiteralImpl;
-import org.deckfour.xes.model.impl.XAttributeMapImpl;
-import org.deckfour.xes.model.impl.XEventImpl;
-import org.deckfour.xes.model.impl.XTraceImpl;
-import org.deckfour.xes.util.XAttributeUtils;
-import org.processmining.framework.util.Pair;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
-import org.processmining.models.graphbased.directed.bpmn.elements.Activity;
-import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
-import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
-import org.processmining.models.graphbased.directed.bpmn.elements.SubProcess;
 import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventTrigger;
 import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventType;
-import org.processmining.models.graphbased.directed.bpmn.elements.Event.EventUse;
 import org.processmining.models.graphbased.directed.bpmn.elements.Gateway.GatewayType;
-import org.processmining.models.graphbased.directed.flexiblemodel.FlexImpl;
-import org.processmining.models.graphbased.directed.flexiblemodel.FlexNode;
-import org.processmining.models.graphbased.directed.fuzzymodel.FuzzyGraph;
-import org.processmining.models.graphbased.directed.fuzzymodel.MutableFuzzyGraph;
+import org.processmining.models.graphbased.directed.bpmn.elements.SubProcess;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
-import org.processmining.models.graphbased.directed.petrinet.elements.Place;
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 import org.processmining.models.heuristics.HeuristicsNet;
 import org.processmining.models.heuristics.impl.ActivitiesMappingStructures;
-import org.processmining.models.heuristics.impl.HNSet;
 import org.processmining.models.heuristics.impl.HNSubSet;
 import org.processmining.models.heuristics.impl.HeuristicsNetImpl;
 import org.w3c.dom.Node;
@@ -585,8 +560,8 @@ public class PlgProcess {
 		HashMap<String, BPMNNode> nodes = new HashMap<String, BPMNNode>();
 		HashMap<String, SubProcess> subProcesses = new HashMap<String, SubProcess>();
 		
-		BPMNNode start = diagram.addEvent("Start", EventType.START, EventTrigger.NONE, null, null, null);
-		BPMNNode end = diagram.addEvent("End", EventType.END, EventTrigger.NONE, null, null, null);
+		BPMNNode start = diagram.addEvent("Start", EventType.START, EventTrigger.NONE, null, null);
+		BPMNNode end = diagram.addEvent("End", EventType.END, EventTrigger.NONE, null, null);
 
 		// insert all the activities
 		for (int i = 0; i < activityList.size(); i++) {
@@ -595,7 +570,8 @@ public class PlgProcess {
 //			a.getFrame().insertAllSubprocesses(diagram, subProcesses);
 			
 			SubProcess sp = null; //subProcesses.get(a.getFrame().getID());
-			BPMNNode node = diagram.addActivity(a.getName(), false, false, false, false, false, sp);
+//			BPMNNode node = diagram.addActivity(a.getName(), false, false, false, false, false, sp);
+			BPMNNode node = diagram.addActivity(a.getName(), false, false, false, false, false);
 			nodes.put(a.getName(), node);
 			
 			// first activity
@@ -616,14 +592,16 @@ public class PlgProcess {
 			// xor split
 			if (current.getRelationType().equals(RELATIONS.XOR_SPLIT)) {
 				SubProcess sp = null; //subProcesses.get(current.getFrame().getID());
-				BPMNNode xor = diagram.addGateway("XOR split", GatewayType.DATABASED, sp);
+//				BPMNNode xor = diagram.addGateway("XOR split", GatewayType.DATABASED, sp);
+				BPMNNode xor = diagram.addGateway("XOR split", GatewayType.DATABASED);
 				diagram.addFlow(source, xor, null);
 				source = xor;
 			}
 			// and split
 			if (current.getRelationType().equals(RELATIONS.AND_SPLIT)) {
 				SubProcess sp = null; //subProcesses.get(current.getFrame().getID());
-				BPMNNode and = diagram.addGateway("AND split", GatewayType.PARALLEL, sp);
+//				BPMNNode and = diagram.addGateway("AND split", GatewayType.PARALLEL, sp);
+				BPMNNode and = diagram.addGateway("AND split", GatewayType.PARALLEL);
 				diagram.addFlow(source, and, null);
 				source = and;
 			}
@@ -637,7 +615,8 @@ public class PlgProcess {
 				target = nodes.get(current.getRelationsTo().iterator().next().getName());
 				if (xor == null) {
 					SubProcess sp = null; //subProcesses.get(current.getRelationsTo().iterator().next().getFrame().getID());
-					xor = diagram.addGateway(name, GatewayType.DATABASED, sp);
+//					xor = diagram.addGateway(name, GatewayType.DATABASED, sp);
+					xor = diagram.addGateway(name, GatewayType.DATABASED);
 					nodes.put(name, xor);
 					diagram.addFlow(xor, target, null);
 				}
@@ -652,7 +631,8 @@ public class PlgProcess {
 				target = nodes.get(current.getRelationsTo().iterator().next().getName());
 				if (and == null) {
 					SubProcess sp = null; //subProcesses.get(current.getRelationsTo().iterator().next().getFrame().getID());
-					and = diagram.addGateway(name, GatewayType.PARALLEL, sp);
+//					and = diagram.addGateway(name, GatewayType.PARALLEL, sp);
+					and = diagram.addGateway(name, GatewayType.PARALLEL);
 					nodes.put(name, and);
 					diagram.addFlow(and, target, null);
 				}
